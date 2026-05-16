@@ -1,6 +1,6 @@
 "use client"
 
-import { use, useRef } from 'react';
+import { use, useRef, useState } from 'react';
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toPng } from 'html-to-image';
@@ -11,7 +11,12 @@ import {
     ExternalLink, 
     FileText, 
     Zap,
-    Lock
+    Lock,
+    Sun,
+    Moon,
+    Monitor,
+    Layout,
+    Palette
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import ChartRenderer from '@/components/ChartRenderer';
@@ -26,6 +31,7 @@ export default function SharedDashboard({ params }) {
     const resolvedParams = use(params);
     const dashboardId = resolvedParams.dashboardId;
     const dashboardRef = useRef(null);
+    const [theme, setTheme] = useState('catalyst'); // catalyst, executive, midnight
 
     const dashboard = useQuery(api.dashboards.getById, { id: dashboardId });
     const convexUser = useQuery(api.users.getUserByStackId, user ? { stackId: user.id } : "skip");
@@ -33,10 +39,22 @@ export default function SharedDashboard({ params }) {
     const handleDownloadImage = async () => {
         if (dashboardRef.current === null) return;
         
+        const bgColor = {
+            catalyst: '#f8fafc',
+            executive: '#ffffff',
+            midnight: '#020617'
+        }[theme];
+
         try {
-            const dataUrl = await toPng(dashboardRef.current, { cacheBust: true, backgroundColor: '#f8fafc' });
+            const dataUrl = await toPng(dashboardRef.current, { 
+                cacheBust: true, 
+                backgroundColor: bgColor,
+                style: {
+                    borderRadius: '0px'
+                }
+            });
             const link = document.createElement('a');
-            link.download = `${dashboard?.name || 'catalyst-dashboard'}.png`;
+            link.download = `${dashboard?.name || 'catalyst-dashboard'}-${theme}.png`;
             link.href = dataUrl;
             link.click();
         } catch (err) {
@@ -84,13 +102,49 @@ export default function SharedDashboard({ params }) {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mr-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setTheme('catalyst')}
+                            className={cn(
+                                "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
+                                theme === 'catalyst' ? "bg-black text-white" : "text-slate-500 hover:bg-black/5"
+                            )}
+                        >
+                            Catalyst
+                        </Button>
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setTheme('executive')}
+                            className={cn(
+                                "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
+                                theme === 'executive' ? "bg-white text-black border-2 border-black" : "text-slate-500 hover:bg-black/5"
+                            )}
+                        >
+                            Executive
+                        </Button>
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setTheme('midnight')}
+                            className={cn(
+                                "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
+                                theme === 'midnight' ? "bg-indigo-600 text-white" : "text-slate-500 hover:bg-black/5"
+                            )}
+                        >
+                            Midnight
+                        </Button>
+                    </div>
+
                     <Button 
                         onClick={handleDownloadImage}
                         variant="outline" 
                         className="rounded-none border-2 border-black font-black uppercase tracking-widest text-[10px] h-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all"
                     >
                         <Download className="w-4 h-4 mr-2" />
-                        Export PNG
+                        Export {theme.toUpperCase()} PNG
                     </Button>
                     <Button 
                         disabled={!dashboard.isPublic}
@@ -113,13 +167,27 @@ export default function SharedDashboard({ params }) {
             </div>
 
             {/* Dashboard Canvas */}
-            <div ref={dashboardRef} className="max-w-7xl mx-auto space-y-6 pb-8">
-                {/* Strategic Intel Hero - Front Page of the Report */}
-                <div className="bg-black text-white p-10 border-4 border-black shadow-[12px_12px_0px_0px_rgba(16,185,129,1)] flex flex-col gap-8">
+            <div ref={dashboardRef} className={cn(
+                "max-w-7xl mx-auto space-y-6 pb-12 transition-colors duration-500",
+                theme === 'midnight' ? "bg-slate-950 p-6 rounded-[2rem] border-4 border-indigo-500/20 shadow-2xl" : ""
+            )}>
+                {/* Strategic Intel Hero */}
+                <div className={cn(
+                    "p-10 transition-all duration-500 flex flex-col gap-8",
+                    theme === 'catalyst' && "bg-black text-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(16,185,129,1)]",
+                    theme === 'executive' && "bg-white text-slate-900 border-4 border-slate-100 shadow-xl rounded-[2.5rem]",
+                    theme === 'midnight' && "bg-slate-900 text-white border-4 border-indigo-500 shadow-[0_0_50px_-12px_rgba(99,102,241,0.5)] rounded-[2.5rem]"
+                )}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400 italic">Agentic Intel Report</span>
+                            <div className={cn(
+                                "w-2 h-2 rounded-full animate-pulse",
+                                theme === 'executive' ? "bg-blue-600" : "bg-emerald-500"
+                            )} />
+                            <span className={cn(
+                                "text-[10px] font-black uppercase tracking-[0.4em] italic",
+                                theme === 'executive' ? "text-blue-600" : "text-emerald-400"
+                            )}>Agentic Intel Report</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">
@@ -131,27 +199,45 @@ export default function SharedDashboard({ params }) {
                             </span>
                         </div>
                     </div>
-
+ 
                     <div className="space-y-4">
-                        <h1 className="text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.85] max-w-4xl">
+                        <h1 className={cn(
+                            "text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.85] max-w-4xl transition-all",
+                            theme === 'executive' ? "text-slate-900" : "text-white"
+                        )}>
                             {dashboard.name}
                         </h1>
-                        <p className="text-lg font-bold text-slate-400 max-w-2xl leading-snug uppercase tracking-tight italic opacity-80">
+                        <p className={cn(
+                            "text-lg font-bold max-w-2xl leading-snug uppercase tracking-tight italic opacity-80",
+                            theme === 'executive' ? "text-slate-500" : "text-slate-400"
+                        )}>
                             Real-time data insights and visual reporting. 
                             Powered by Catalyst AI to help you find hidden trends, spot risks, and make smarter decisions with your spreadsheets.
                         </p>
                     </div>
-
-                    <div className="pt-6 border-t border-slate-800 flex items-center justify-between">
+ 
+                    <div className={cn(
+                        "pt-6 border-t flex items-center justify-between",
+                        theme === 'executive' ? "border-slate-100" : "border-slate-800"
+                    )}>
                         <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
-                                <Zap className="w-4 h-4 text-emerald-400" />
+                            <div className={cn(
+                                "w-8 h-8 rounded-lg flex items-center justify-center border",
+                                theme === 'executive' ? "bg-slate-50 border-slate-200" : "bg-white/5 border-white/10"
+                            )}>
+                                <Zap className={cn("w-4 h-4", theme === 'executive' ? "text-blue-600" : "text-emerald-400")} />
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-white/50">Catalyst AI Engine</span>
+                            <span className={cn(
+                                "text-[10px] font-black uppercase tracking-widest",
+                                theme === 'executive' ? "text-slate-400" : "text-white/50"
+                            )}>Catalyst AI Engine</span>
                         </div>
                         <div className="flex gap-1">
                             {[1, 2, 3].map(i => (
-                                <div key={i} className="w-1.5 h-1.5 rounded-full bg-emerald-500/20" />
+                                <div key={i} className={cn(
+                                    "w-1.5 h-1.5 rounded-full",
+                                    theme === 'executive' ? "bg-blue-200" : "bg-emerald-500/20"
+                                )} />
                             ))}
                         </div>
                     </div>
@@ -170,16 +256,27 @@ export default function SharedDashboard({ params }) {
                             <div 
                                 key={i} 
                                 className={cn(
-                                    "bg-white dark:bg-slate-900 border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col",
-                                    gridClass
+                                    "p-6 flex flex-col transition-all duration-500",
+                                    gridClass,
+                                    theme === 'catalyst' && "bg-white dark:bg-slate-900 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]",
+                                    theme === 'executive' && "bg-white border-2 border-slate-100 shadow-lg rounded-[2rem]",
+                                    theme === 'midnight' && "bg-slate-900 border-2 border-indigo-500/30 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.3)] rounded-[2rem]"
                                 )}
                             >
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 border-2 border-black flex items-center justify-center">
+                                    <div className={cn(
+                                        "w-8 h-8 border-2 flex items-center justify-center transition-all",
+                                        theme === 'catalyst' ? "bg-slate-100 dark:bg-slate-800 border-black" : 
+                                        theme === 'executive' ? "bg-blue-50 border-blue-200 rounded-lg text-blue-600" :
+                                        "bg-indigo-500/10 border-indigo-500/50 rounded-lg text-indigo-400"
+                                    )}>
                                         {widget.type === 'chart' ? <BarChart3 className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
                                     </div>
-                                    <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{widget.title}</h3>
+                                    <h3 className={cn(
+                                        "text-sm font-black uppercase tracking-tight transition-colors",
+                                        theme === 'executive' ? "text-slate-900" : "text-white"
+                                    )}>{widget.title}</h3>
                                 </div>
                             </div>
                             
@@ -195,14 +292,27 @@ export default function SharedDashboard({ params }) {
                 })}
                 </div>
 
-                {/* Dynamic Footer Insight - Powered by Catalyst AI Summary Widget */}
                 {dashboard.config.find(w => w.type === 'summary') && (
-                    <div className="p-8 bg-black text-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(16,185,129,1)]">
+                    <div className={cn(
+                        "p-8 transition-all duration-500",
+                        theme === 'catalyst' && "bg-black text-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(16,185,129,1)]",
+                        theme === 'executive' && "bg-white text-slate-900 border-4 border-slate-100 shadow-xl rounded-[2.5rem]",
+                        theme === 'midnight' && "bg-indigo-900 text-white border-4 border-indigo-500 shadow-2xl rounded-[2.5rem]"
+                    )}>
                         <div className="flex items-center gap-2 mb-4">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-emerald-400">AI Intelligence Summary</h4>
+                            <div className={cn(
+                                "w-2 h-2 rounded-full animate-pulse",
+                                theme === 'executive' ? "bg-blue-600" : "bg-emerald-500"
+                            )} />
+                            <h4 className={cn(
+                                "text-[10px] font-black uppercase tracking-[0.4em]",
+                                theme === 'executive' ? "text-slate-400" : "text-emerald-400"
+                            )}>AI Intelligence Summary</h4>
                         </div>
-                        <p className="text-lg font-bold leading-tight uppercase tracking-tight max-w-4xl italic">
+                        <p className={cn(
+                            "text-lg font-bold leading-tight uppercase tracking-tight max-w-4xl italic",
+                            theme === 'executive' ? "text-slate-700" : "text-white"
+                        )}>
                             {dashboard.config.find(w => w.type === 'summary').notes}
                         </p>
                     </div>
