@@ -87,6 +87,17 @@ export const getByFile = query({
   },
 });
 
+export const getByWorkbook = query({
+  args: { workbookId: v.id("workbooks") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("sheets")
+      .withIndex("by_workbook", (q) => q.eq("workbookId", args.workbookId))
+      .order("asc")
+      .collect();
+  },
+});
+
 export const getById = query({
   args: { id: v.id("sheets") },
   handler: async (ctx, args) => {

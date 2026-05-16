@@ -13,6 +13,13 @@ import { Button } from "@/components/ui/button"
 import FileUploader from '@/components/FileUploader'
 import SpreadsheetViewer from '@/components/SpreadsheetViewer'
 import { toast } from 'sonner'
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog"
 
 import ChatPanel from '../_components/ChatPanel'
 import ReportManagementModal from '../_components/ReportManagementModal'
@@ -25,16 +32,15 @@ export default function Workspace({ params }) {
     const [isChatOpen, setIsChatOpen] = useState(true);
     const [previewData, setPreviewData] = useState(null);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [isUploaderModalOpen, setIsUploaderModalOpen] = useState(false);
 
     // Convex Data
     const workbook = useQuery(api.workbooks.getById, { id: workbookId });
     const files = useQuery(api.files.getByWorkbook, { workbookId });
-    const activeFile = files?.[0]; 
     const updateSheetData = useMutation(api.sheets.updateData);
-    const sheets = useQuery(api.sheets.getByFile, activeFile ? { fileId: activeFile._id } : "skip");
-    
+    const sheets = useQuery(api.sheets.getByWorkbook, { workbookId });
     const activeSheet = sheets?.find(s => s._id === activeSheetId) || sheets?.[0];
-
+    
     const dashboards = useQuery(api.dashboards.getByWorkbook, { workbookId }) || [];
     const updateDashboard = useMutation(api.dashboards.update);
 
@@ -157,7 +163,7 @@ export default function Workspace({ params }) {
                             </div>
                         </div>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            {activeFile ? activeFile.name : "No file uploaded"}
+                            {files?.length > 0 ? `${files.length} Files Unified in Workspace` : "No files uploaded"}
                         </p>
                     </div>
                 </div>
@@ -210,28 +216,57 @@ export default function Workspace({ params }) {
             <div className="flex-1 flex overflow-hidden">
                 {/* Main Content Area */}
                 <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 relative">
-                    {activeFile ? (
+                    {files?.length > 0 ? (
                         <>
                             {/* Sheet Tabs */}
-                            <div className="h-10 border-b border-slate-200 dark:border-slate-800 flex items-center px-2 bg-white dark:bg-slate-900 gap-1 overflow-x-auto no-scrollbar">
-                                {sheets?.map(sheet => (
-                                    <button
-                                        key={sheet._id}
-                                        onClick={() => {
-                                            setActiveSheetId(sheet._id);
-                                            setPreviewData(null);
-                                        }}
-                                        className={cn(
-                                            "px-4 h-8 flex items-center text-[11px] font-black uppercase tracking-widest transition-all rounded-lg",
-                                            activeSheetId === sheet._id 
-                                                ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" 
-                                                : "text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800"
-                                        )}
-                                    >
-                                        <Table className="w-3 h-3 mr-2" />
-                                        {sheet.name}
-                                    </button>
-                                ))}
+                            <div className="h-12 border-b border-slate-200 dark:border-slate-800 flex items-center px-4 bg-white dark:bg-slate-900 gap-2 overflow-x-auto no-scrollbar shadow-inner">
+                                {sheets?.map(sheet => {
+                                    const file = files?.find(f => f._id === sheet.fileId);
+                                    const isExcel = file?.name?.endsWith('.xlsx') || file?.name?.endsWith('.xls');
+                                    const isJson = file?.name?.endsWith('.json');
+                                    const isCsv = file?.name?.endsWith('.csv');
+
+                                    return (
+                                        <button
+                                            key={sheet._id}
+                                            onClick={() => {
+                                                setActiveSheetId(sheet._id);
+                                                setPreviewData(null);
+                                            }}
+                                            className={cn(
+                                                "px-4 h-9 flex items-center text-[10px] font-black uppercase tracking-[0.1em] transition-all rounded-xl border-2 shrink-0 group relative",
+                                                activeSheetId === sheet._id 
+                                                    ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20" 
+                                                    : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700 hover:border-emerald-200 hover:text-emerald-500"
+                                            )}
+                                        >
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex items-center gap-2">
+                                                    {isExcel && <div className="w-1.5 h-1.5 rounded-full bg-green-500" />}
+                                                    {isCsv && <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                                                    {isJson && <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />}
+                                                    {sheet.name}
+                                                </div>
+                                                {files?.length > 1 && (
+                                                    <span className={cn(
+                                                        "text-[7px] font-bold truncate max-w-[80px]",
+                                                        activeSheetId === sheet._id ? "text-emerald-200" : "text-slate-500"
+                                                    )}>
+                                                        {file?.name}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    onClick={() => setIsUploaderModalOpen(true)}
+                                    className="rounded-xl shrink-0 opacity-50 hover:opacity-100 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-600"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                </Button>
                             </div>
 
                             {/* Grid Viewer */}
@@ -312,6 +347,26 @@ export default function Workspace({ params }) {
                 onClose={() => setIsReportModalOpen(false)} 
                 workbookId={workbookId} 
             />
+
+            <Dialog open={isUploaderModalOpen} onOpenChange={setIsUploaderModalOpen}>
+                <DialogContent className="sm:max-w-[600px] rounded-[3rem] p-0 border-none bg-transparent shadow-none overflow-hidden">
+                    <div className="bg-white dark:bg-slate-950 p-8 rounded-[3rem] border-4 border-emerald-500/20 shadow-2xl">
+                        <DialogHeader className="mb-6">
+                            <DialogTitle className="text-2xl font-black text-slate-900 dark:text-white">Add Data to Workbook</DialogTitle>
+                            <DialogDescription className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                Upload more CSV, Excel, or JSON files to this project.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <FileUploader 
+                            workbookId={workbookId} 
+                            onUploadComplete={() => {
+                                setIsUploaderModalOpen(false);
+                                toast.success("Additional data merged into workspace!");
+                            }} 
+                        />
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

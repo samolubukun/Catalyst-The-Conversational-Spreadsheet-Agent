@@ -25,14 +25,21 @@ export const orchestrate = action({
       type: "text",
     });
 
-    // 1. Fetch Context
-    let context = "No sheet selected.";
+    // 1. Fetch Global Workbook Context (All Sheets)
+    const allSheets = await ctx.runQuery(api.sheets.getByWorkbook, { workbookId: args.workbookId });
+    const sheetsSummary = allSheets.map(s => {
+        const columns = s.data.length > 0 ? Object.keys(s.data[0]) : [];
+        return `- ${s.name} (Columns: [${columns.join(', ')}])`;
+    }).join('\n');
+
+    let context = `Available Sheets in Workbook:\n${sheetsSummary}\n\n`;
+    
     if (args.activeSheetId) {
-      const sheet = await ctx.runQuery(api.sheets.getById, { id: args.activeSheetId });
-      if (sheet && sheet.data.length > 0) {
-        const sampleData = sheet.data.slice(0, 3);
-        const schema = Object.keys(sheet.data[0]);
-        context = `Active Sheet: ${sheet.name}. Columns: [${schema.join(', ')}]. Sample Data (first 3 rows): ${JSON.stringify(sampleData)}`;
+      const activeSheet = allSheets.find(s => s._id === args.activeSheetId);
+      if (activeSheet && activeSheet.data.length > 0) {
+        const sampleData = activeSheet.data.slice(0, 3);
+        const schema = Object.keys(activeSheet.data[0]);
+        context += `FOCUS: You are currently looking at "${activeSheet.name}". Columns: [${schema.join(', ')}]. Sample Data (first 3 rows): ${JSON.stringify(sampleData)}`;
       }
     }
 
