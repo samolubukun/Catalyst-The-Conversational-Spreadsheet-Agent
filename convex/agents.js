@@ -104,14 +104,17 @@ export const orchestrate = action({
               - Set "type" to "dashboard".
               - In "content", explain the dashboard plan.
               - In "name", provide a short, catchy, professional name for the dashboard (e.g., "Monthly Sales Audit").
-              - In "code", provide ONLY the logic inside a function that takes 'data' (array of objects) and MUST end with a 'return [...]' statement returning an array of widgets.
+              - In "code", provide ONLY the raw JavaScript logic inside a function.
+               - MANDATORY: The code MUST end with a 'return [...]' statement returning a flat array of widgets.
+               - DO NOT include Markdown code blocks (\`\`\`) inside the code string.
               - The first widget MUST be a "summary" type.
               - In "summary" notes, ALWAYS start with: "This automated result was generated using Catalyst AI." followed by deep data-driven insights.
               - IMPORTANT: The summary MUST be a holistic narrative that references the specific charts being generated.
               - CRITICAL: Avoid vague generalities like "certain categories" or "shifting patterns". Use ACTUAL category names, EXACT dollar amounts, and SPECIFIC percentage changes found in the data (e.g., "Classic Cars dominates the product mix with $1.2M in sales, representing 45% of total revenue...").
-              - Example structure:
+              - Example structure for "code":
+                const total = data.reduce((acc, r) => acc + r.Sales, 0);
                 return [
-                  { "type": "summary", "title": "Executive Summary", "notes": "This automated result was generated using Catalyst AI. Analysis of the 1,240 orders reveals a $4.5M revenue peak in 2024. As shown in the Revenue by Product Line chart, 'Classic Cars' is the clear leader ($1.8M), significantly outpacing 'Trains' ($120k) by over 15x. Meanwhile, the 'Territorial Distribution' chart highlights a 47% concentration in EMEA..." },
+                  { "type": "summary", "title": "Executive Summary", "notes": "..." },
                   { "type": "chart", "title": "Sales Performance", "chartConfig": { ... } }
                 ];
               

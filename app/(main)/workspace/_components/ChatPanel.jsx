@@ -421,9 +421,35 @@ function DashboardGenerator({ code, activeSheet, onCreate, name }) {
     useEffect(() => {
         if (!activeSheet || !activeSheet.data) return;
         try {
-            const generateFn = new Function("data", code);
-            const res = generateFn(activeSheet.data);
-            if (!Array.isArray(res)) throw new Error("Dashboard logic must return an array of widgets");
+            let generateFn = new Function("data", code);
+            let res = generateFn(activeSheet.data);
+            
+            // Aggressive Healing: If res is undefined, the AI likely forgot the 'return' keyword
+            // and just wrote a bare array or object. Let's try to prepend 'return ' and re-run.
+            if (res === undefined && !code.trim().startsWith('return')) {
+                try {
+                    const healedFn = new Function("data", `return ${code.trim()}`);
+                    res = healedFn(activeSheet.data);
+                } catch (e) {
+                    // If healing fails, we stick with the original error
+                }
+            }
+
+            // If the code returned a function instead of the result (common AI mistake)
+            if (typeof res === 'function') {
+                res = res(activeSheet.data);
+            }
+            
+            // Self-healing: if AI returns { widgets: [...] } instead of [...]
+            if (res && !Array.isArray(res) && Array.isArray(res.widgets)) {
+                res = res.widgets;
+            }
+
+            if (!Array.isArray(res)) {
+                console.error("Invalid Dashboard Result:", res);
+                console.log("Failed Code:", code);
+                throw new Error(`Dashboard logic must return an array of widgets (received ${typeof res})`);
+            }
             setLayout(res);
         } catch (e) {
             console.error("Dashboard Build Error:", e);
