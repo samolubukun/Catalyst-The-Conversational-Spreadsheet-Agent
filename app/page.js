@@ -130,21 +130,30 @@ export default function LandingPage() {
         },
         {
             id: "reporting",
-            title: "Public Report Publishing",
+            title: "Strategic Dashboarding",
             icon: BarChart3,
-            desc: "Turn private analysis into a Public Shared Link that looks like a premium SaaS product. Perfect for sending to clients or teammates.",
-            mechanic: "SaaS-Grade Dashboarding",
-            query: "Generate a strategic executive summary dashboard for this dataset and make it public-ready.",
-            outcome: "Initialize your dashboard, toggle the 'Public' switch in the Report Hub, and get a secure shareable URL."
+            desc: "Turn private analysis into a SaaS-grade dashboard with Tableau-inspired layouts. Catalyst automatically creates visual hierarchies: putting master trends in large 'Hero' slots and details in secondary cards.",
+            mechanic: "Strategic Grid Architecture",
+            query: "Generate an executive report with a massive revenue trend at the top and small category breakdowns below.",
+            outcome: "The agent assigns dynamic 'size' properties to widgets (Large/Medium/Small), creating a professional report layout instantly."
         },
         {
             id: "cross-sheet",
             title: "Cross-Sheet Intelligence",
             icon: Database,
-            desc: "If you upload multiple files, Catalyst performs Relational Joins and logic across them—something standard AI chats usually fail at.",
+            desc: "If you upload multiple files, Catalyst performs Relational Joins and logic across them - something standard AI chats usually fail at.",
             mechanic: "Multi-Tab Relational Logic",
             query: "Look at the 'Inventory' sheet and compare it with the 'Orders' sheet. Which products have the highest demand?",
             outcome: "The AI maps all available sheets and performs cross-reference lookups to find complex intersections."
+        },
+        {
+            id: "memory",
+            title: "Persistent Analytical Memory",
+            icon: Zap,
+            desc: "Catalyst doesn't treat every question as a new one. It remembers the last 10 interactions, allowing for complex, multi-step data explorations.",
+            mechanic: "Contextual Threading",
+            query: "Filter these rows for Q4. [Follow-up]: Now take those results and show me the top 5 customers.",
+            outcome: "The agent maintains a 'Rearview Mirror' of your session, understanding words like 'those', 'them', or 'that' based on previous context."
         }
     ];
 
