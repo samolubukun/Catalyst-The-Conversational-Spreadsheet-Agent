@@ -286,7 +286,7 @@ export default function Workspace({ params }) {
                 {/* Right Chat Panel */}
                 <aside className={cn(
                     "transition-all duration-300 flex flex-col shrink-0",
-                    isChatOpen ? "w-[400px]" : "w-0 overflow-hidden"
+                    isChatOpen ? "w-[480px]" : "w-0 overflow-hidden"
                 )}>
                     <ChatPanel 
                         workbookId={workbookId} 
