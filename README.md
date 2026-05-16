@@ -1,12 +1,15 @@
 <div align="center">
-  <img src="/logo.png" width="200" alt="Catalyst Logo" />
+  <img src="public/logo.png" width="200" alt="Catalyst Logo" />
   <h1>Catalyst — The Conversational Data Agent</h1>
+  
+  <p align="center">
+    <img src="https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
+    <img src="https://img.shields.io/badge/Convex-Backend-22C55E?style=for-the-badge&logo=convex&logoColor=white" alt="Convex" />
+    <img src="https://img.shields.io/badge/Gemini-AI-8E75FF?style=for-the-badge&logo=google-gemini&logoColor=white" alt="Gemini" />
+    <img src="https://img.shields.io/badge/Tailwind-Styling-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
+    <img src="https://img.shields.io/badge/Stack_Auth-Identity-FF4B4B?style=for-the-badge&logo=auth0&logoColor=white" alt="Auth" />
+  </p>
 </div>
-
-![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
-![Convex](https://img.shields.io/badge/Convex-Backend-FF6B6B?style=for-the-badge&logo=convex)
-![Gemini](https://img.shields.io/badge/Gemini-3.1%20Flash-blue?style=for-the-badge&logo=google-gemini)
-![Tailwind](https://img.shields.io/badge/Tailwind-Styling-38B2AC?style=for-the-badge&logo=tailwind-css)
 
 ### Conversational Spreadsheet Intelligence
 
