@@ -68,9 +68,9 @@ export default defineSchema({
 
   dashboards: defineTable({
     workbookId: v.id("workbooks"),
-    userId: v.string(),
+    userId: v.id("users"),
     name: v.string(),
     config: v.any(), // Array of widgets: { type, title, notes, chartConfig }
     isPublic: v.boolean(),
-  }).index("by_workbook", ["workbookId"]),
+  }).index("by_workbook", ["workbookId"]).index("by_user", ["userId"]),
 });

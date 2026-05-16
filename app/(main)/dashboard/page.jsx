@@ -30,6 +30,7 @@ export default function Dashboard() {
     
     // Fetch workbooks
     const workbooks = useQuery(api.workbooks.list, userData?._id ? { userId: userData._id } : "skip");
+    const dashboards = useQuery(api.dashboards.listByUser, userData?._id ? { userId: userData._id } : "skip");
     
     const createWorkbook = useMutation(api.workbooks.create);
     const deleteWorkbook = useMutation(api.workbooks.remove);
@@ -101,7 +102,7 @@ export default function Dashboard() {
                             { label: 'Total Workbooks', value: workbooks?.length || 0, icon: Layers, color: 'bg-emerald-500' },
                             { label: 'Files Analyzed', value: totalSheets, icon: Table, color: 'bg-blue-500' },
                             { label: 'Total Records', value: totalRecords.toLocaleString(), icon: Zap, color: 'bg-amber-500' },
-                            { label: 'Reports Generated', value: 0, icon: BarChart3, color: 'bg-indigo-500' },
+                            { label: 'Reports Generated', value: dashboards?.length || 0, icon: BarChart3, color: 'bg-indigo-500' },
                         ].map((s, i) => (
                             <div key={i} className="p-4 sm:p-5 bg-white dark:bg-slate-900 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-2 sm:gap-4 min-w-0">
                             <div className={`w-10 h-10 sm:w-12 sm:h-12 ${s.color} rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-black/5 shrink-0`}>
