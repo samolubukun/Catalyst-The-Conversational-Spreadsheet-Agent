@@ -106,6 +106,8 @@ export default function ChatPanel({ workbookId, activeSheetId, onPreview, onClea
             await updateSheetData({
                 id: activeSheetId,
                 data: transformedData,
+                type: 'ai',
+                description: 'AI Transformation'
             });
             onClearPreview();
             toast.success(`Applied changes: ${transformedData.length} rows updated`, { id: loadingToast });

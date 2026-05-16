@@ -29,9 +29,50 @@ export const updateData = mutation({
   args: {
     id: v.id("sheets"),
     data: v.any(),
+    description: v.optional(v.string()),
+    type: v.optional(v.string()), // 'ai' or 'manual'
   },
   handler: async (ctx, args) => {
+    const sheet = await ctx.db.get(args.id);
+    if (!sheet) throw new Error("Sheet not found");
+
+    // 1. Create a version snapshot of the CURRENT data before updating
+    await ctx.db.insert("versions", {
+      sheetId: args.id,
+      workbookId: sheet.workbookId,
+      data: sheet.data,
+      timestamp: Date.now(),
+      type: args.type || 'manual',
+      description: args.description || "Manual edit",
+    });
+
+    // 2. Update to new data
     await ctx.db.patch(args.id, { data: args.data });
+  },
+});
+
+export const restoreVersion = mutation({
+  args: {
+    sheetId: v.id("sheets"),
+    versionId: v.id("versions"),
+  },
+  handler: async (ctx, args) => {
+    const version = await ctx.db.get(args.versionId);
+    if (!version) throw new Error("Version not found");
+
+    // Snapshot current state before rolling back
+    const currentSheet = await ctx.db.get(args.sheetId);
+    await ctx.db.insert("versions", {
+        sheetId: args.sheetId,
+        workbookId: currentSheet.workbookId,
+        data: currentSheet.data,
+        timestamp: Date.now(),
+        type: 'manual',
+        description: "Rollback snapshot",
+      });
+
+    await ctx.db.patch(args.sheetId, { data: version.data });
+    return true;
   },
 });
 
