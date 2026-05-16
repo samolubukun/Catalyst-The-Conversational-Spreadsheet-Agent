@@ -158,14 +158,22 @@ export default function SharedDashboard({ params }) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {dashboard.config.filter(w => w.type !== 'summary').map((widget, i) => (
-                        <div 
-                            key={i} 
-                            className={cn(
-                                "bg-white dark:bg-slate-900 border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col",
-                                widget.type === 'summary' ? "md:col-span-2 lg:col-span-3" : ""
-                            )}
-                        >
+                    {dashboard.config.filter(w => w.type !== 'summary').map((widget, i) => {
+                        const size = widget.size || 'small';
+                        const gridClass = {
+                            small: "md:col-span-1 lg:col-span-1",
+                            medium: "md:col-span-2 lg:col-span-2",
+                            large: "md:col-span-2 lg:col-span-3"
+                        }[size] || "md:col-span-1 lg:col-span-1";
+
+                        return (
+                            <div 
+                                key={i} 
+                                className={cn(
+                                    "bg-white dark:bg-slate-900 border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col",
+                                    gridClass
+                                )}
+                            >
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-3">
                                     <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 border-2 border-black flex items-center justify-center">
@@ -183,7 +191,8 @@ export default function SharedDashboard({ params }) {
                                 </div>
                             )}
                         </div>
-                    ))}
+                    );
+                })}
                 </div>
 
                 {/* Dynamic Footer Insight - Powered by Catalyst AI Summary Widget */}

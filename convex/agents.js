@@ -108,22 +108,30 @@ export const orchestrate = action({
                 }
               
               If the user wants a FULL PERMANENT DASHBOARD or SHAREABLE REPORT:
-              - Set "type" to "dashboard".
-              - In "content", explain the dashboard plan.
-              - In "name", provide a short, catchy, professional name for the dashboard (e.g., "Monthly Sales Audit").
-              - In "code", provide ONLY the raw JavaScript logic inside a function.
-               - MANDATORY: The code MUST end with a 'return [...]' statement returning a flat array of widgets.
-               - DO NOT include Markdown code blocks (\`\`\`) inside the code string.
-              - The first widget MUST be a "summary" type.
-              - In "summary" notes, ALWAYS start with: "This automated result was generated using Catalyst AI." followed by deep data-driven insights.
-              - IMPORTANT: The summary MUST be a holistic narrative that references the specific charts being generated.
-              - CRITICAL: Avoid vague generalities like "certain categories" or "shifting patterns". Use ACTUAL category names, EXACT dollar amounts, and SPECIFIC percentage changes found in the data (e.g., "Classic Cars dominates the product mix with $1.2M in sales, representing 45% of total revenue...").
-              - Example structure for "code":
-                const total = data.reduce((acc, r) => acc + r.Sales, 0);
-                return [
-                  { "type": "summary", "title": "Executive Summary", "notes": "..." },
-                  { "type": "chart", "title": "Sales Performance", "chartConfig": { ... } }
-                ];
+               - Set "type" to "dashboard".
+               - In "content", explain the dashboard plan, mentioning the layout strategy.
+               - In "name", provide a short, catchy, professional name for the dashboard (e.g., "Monthly Sales Audit").
+               - In "code", provide ONLY the raw JavaScript logic inside a function.
+                - MANDATORY: The code MUST end with a 'return [...]' statement returning a flat array of widgets.
+                - DO NOT include Markdown code blocks (\`\`\`) inside the code string.
+               - The first widget MUST be a "summary" type.
+               - In "summary" notes, ALWAYS start with: "This automated result was generated using Catalyst AI." followed by deep data-driven insights.
+               - IMPORTANT: The summary MUST be a holistic narrative that references the specific charts being generated.
+               - STRATEGIC LAYOUT (Power BI / Tableau Inspiration):
+                 - Every widget can have a "size": "large" (full width), "medium" (2/3 width), or "small" (1/3 width).
+                 - Put the most important, high-impact chart or trend at the top as "large" or "medium".
+                 - Group secondary metrics or categorical breakdowns below as "small" widgets.
+                 - Variety is key: Don't just make a list. Create a visual hierarchy.
+               - USER SPECIFICATIONS: Pay extreme attention to the user's specific requests for chart types or layout. If they ask for a "big revenue chart", make it size: "large".
+               - CRITICAL: Avoid vague generalities. Use ACTUAL category names and EXACT numbers.
+               - Example structure for "code":
+                 const total = data.reduce((acc, r) => acc + r.Sales, 0);
+                 return [
+                   { "type": "summary", "title": "Executive Summary", "notes": "..." },
+                   { "type": "chart", "title": "Master Trend", "size": "large", "chartConfig": { ... } },
+                   { "type": "chart", "title": "Segment Breakdown", "size": "small", "chartConfig": { ... } },
+                   { "type": "chart", "title": "Regional Split", "size": "small", "chartConfig": { ... } }
+                 ];
               
               Response format MUST be a single JSON object with "type", "content", and optional "code", "config", or "layout".`
             }]
