@@ -54,3 +54,34 @@ export const getUrl = query({
     return await ctx.storage.getUrl(args.storageId);
   },
 });
+
+export const remove = mutation({
+  args: { id: v.id("files") },
+  handler: async (ctx, args) => {
+    const file = await ctx.db.get(args.id);
+    if (!file) return;
+
+    // 1. Delete all sheets associated with this file
+    const sheets = await ctx.db
+      .query("sheets")
+      .withIndex("by_file", (q) => q.eq("fileId", args.id))
+      .collect();
+    
+    for (const sheet of sheets) {
+      // Delete sheet versions
+      const versions = await ctx.db
+        .query("versions")
+        .withIndex("by_sheet", (q) => q.eq("sheetId", sheet._id))
+        .collect();
+      for (const v of versions) await ctx.db.delete(v._id);
+      
+      await ctx.db.delete(sheet._id);
+    }
+
+    // 2. Delete storage
+    await ctx.storage.delete(file.storageId);
+
+    // 3. Delete file record
+    await ctx.db.delete(args.id);
+  },
+});

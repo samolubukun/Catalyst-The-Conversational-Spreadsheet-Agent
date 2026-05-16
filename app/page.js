@@ -17,7 +17,12 @@ import {
     Filter,
     BarChart3,
     ArrowRight,
-    CheckCircle2
+    CheckCircle2,
+    History,
+    Download,
+    Code2,
+    Globe,
+    Users
 } from 'lucide-react';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -86,6 +91,60 @@ export default function LandingPage() {
             icon: Filter, 
             title: "Precision Filtering", 
             desc: "Slice and dice your data with natural language. No more complex pivot tables or hidden Excel menus." 
+        },
+        { 
+            icon: Search, 
+            title: "Universal Data Hub", 
+            desc: "Upload multiple CSV, Excel, and JSON files simultaneously. Catalyst unifies them into a single intelligent workspace." 
+        },
+        { 
+            icon: History, 
+            title: "Master Version Control", 
+            desc: "Snapshot every transformation. Catalyst maintains a full audit log, allowing you to undo any AI or manual change instantly." 
+        },
+        { 
+            icon: Zap, 
+            title: "Data Sandbox Security", 
+            desc: "Your raw data never leaves your machine during analysis. Catalyst generates code that executes locally in a secure browser sandbox." 
+        }
+    ];
+    
+    const agentProtocols = [
+        {
+            id: "transform",
+            title: "The Transformation Engine",
+            icon: Code2,
+            desc: "Most users only ask Catalyst to look at data. But Catalyst can actually rewrite your master record. When you ask for a transformation, the grid enters a special Amber Preview Mode.",
+            mechanic: "Amber Preview Highlights",
+            query: "Clean this data: Capitalize all names in the 'Customer' column, and for any row where 'Price' is missing, set it to the average.",
+            outcome: "Catalyst generates a 'Transform Block'. Click 'Preview Highlights' to see changes in amber, then 'Apply' to save permanently."
+        },
+        {
+            id: "research",
+            title: "Multi-Agent Research",
+            icon: Globe,
+            desc: "Catalyst isn't restricted to your spreadsheet. It has a Research Agent powered by Firecrawl that can leave the app and bring back real-world intelligence.",
+            mechanic: "Web-to-Sheet Augmentation",
+            query: "Find the current stock prices and CEOs for the company names in Column A, then show me a comparison table.",
+            outcome: "The agent searches the web, scrapes official sites, and merges the findings into your workspace automatically."
+        },
+        {
+            id: "reporting",
+            title: "Public Report Publishing",
+            icon: BarChart3,
+            desc: "Turn private analysis into a Public Shared Link that looks like a premium SaaS product. Perfect for sending to clients or teammates.",
+            mechanic: "SaaS-Grade Dashboarding",
+            query: "Generate a strategic executive summary dashboard for this dataset and make it public-ready.",
+            outcome: "Initialize your dashboard, toggle the 'Public' switch in the Report Hub, and get a secure shareable URL."
+        },
+        {
+            id: "cross-sheet",
+            title: "Cross-Sheet Intelligence",
+            icon: Database,
+            desc: "If you upload multiple files, Catalyst performs Relational Joins and logic across them—something standard AI chats usually fail at.",
+            mechanic: "Multi-Tab Relational Logic",
+            query: "Look at the 'Inventory' sheet and compare it with the 'Orders' sheet. Which products have the highest demand?",
+            outcome: "The AI maps all available sheets and performs cross-reference lookups to find complex intersections."
         }
     ];
 
@@ -193,8 +252,12 @@ export default function LandingPage() {
                 </section>
 
                 {/* Features */}
-                <section className="py-24 md:py-40 px-6 bg-slate-50">
+                <section className="py-24 md:py-40 px-6 bg-slate-50 border-b-8 border-black">
                     <div className="max-w-7xl mx-auto">
+                        <div className="flex flex-col md:flex-row items-baseline gap-4 mb-16 border-b-4 border-black pb-8">
+                            <h2 className="text-4xl md:text-6xl font-black text-black uppercase tracking-tighter">The Catalyst <span className="text-emerald-600 italic">Infrastructure.</span></h2>
+                            <p className="text-xs font-black uppercase tracking-widest text-slate-400">03 / Core Features</p>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
                             {features.map((f, i) => (
                                 <div key={i} className="p-10 border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all group">
@@ -203,6 +266,90 @@ export default function LandingPage() {
                                     </div>
                                     <h3 className="text-2xl font-black mb-4 text-slate-900 uppercase tracking-tighter">{f.title}</h3>
                                     <p className="text-slate-700 font-bold leading-relaxed text-sm">{f.desc}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+                
+                {/* Agent Protocol Section */}
+                <section className="py-24 md:py-40 px-6 bg-slate-900 border-y-8 border-black overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/20 rounded-full blur-[120px] -mr-48 -mt-48" />
+                    <div className="max-w-7xl mx-auto relative z-10">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
+                            <div className="max-w-2xl">
+                                <h2 className="text-sm font-black uppercase tracking-[0.4em] text-emerald-500 mb-4">The Master Protocol</h2>
+                                <h3 className="text-5xl md:text-8xl font-black text-white leading-[0.9] uppercase tracking-tighter">
+                                    Agent <br /><span className="text-emerald-500 italic underline decoration-white">Capabilities.</span>
+                                </h3>
+                            </div>
+                            <p className="text-slate-400 font-bold max-w-sm uppercase text-xs leading-relaxed tracking-wider">
+                                This document outlines the full scope of your data assistant's capabilities. Use these queries as templates for your own data.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-12">
+                            {agentProtocols.map((protocol, i) => (
+                                <div key={i} className="group relative">
+                                    <div className="absolute inset-0 bg-emerald-500 translate-x-2 translate-y-2 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform duration-300" />
+                                    <div className="relative bg-white border-4 border-black p-8 md:p-16 flex flex-col lg:flex-row gap-12 lg:items-center">
+                                        <div className="lg:w-1/3 space-y-6">
+                                            <div className="w-20 h-20 bg-black flex items-center justify-center border-4 border-emerald-500 shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]">
+                                                <protocol.icon className="w-10 h-10 text-emerald-500" />
+                                            </div>
+                                            <h4 className="text-4xl font-black text-black uppercase tracking-tighter leading-tight">{protocol.title}</h4>
+                                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 border-2 border-emerald-600 text-emerald-700 text-[10px] font-black uppercase tracking-widest">
+                                                <Zap className="w-3 h-3" />
+                                                {protocol.mechanic}
+                                            </div>
+                                            <p className="text-slate-600 font-bold leading-relaxed">{protocol.desc}</p>
+                                        </div>
+
+                                        <div className="lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div className="bg-slate-50 border-4 border-black p-6 space-y-4">
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Example Command</span>
+                                                <div className="bg-white border-2 border-slate-200 p-4 rounded-lg shadow-inner italic font-bold text-slate-800 text-sm">
+                                                    "{protocol.query}"
+                                                </div>
+                                            </div>
+                                            <div className="bg-emerald-50 border-4 border-emerald-600 p-6 space-y-4">
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Expected Outcome</span>
+                                                <p className="text-sm font-bold text-emerald-900 leading-snug">
+                                                    {protocol.outcome}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Extra Features Grid */}
+                        <div className="mt-24 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {[
+                                { 
+                                    title: "Manual Grid Interaction", 
+                                    desc: "Double-click any cell to manually edit. Catalyst uses AG Grid Enterprise for real-time cloud sync.",
+                                    action: "Try double-clicking a cell to edit." 
+                                },
+                                { 
+                                    title: "Narrative-Driven Analysis", 
+                                    desc: "Get an executive story instead of a raw chart. AI explains the anomalies in plain English.",
+                                    action: "'Perform a deep-dive audit of our revenue.'" 
+                                },
+                                { 
+                                    title: "Master Version Control", 
+                                    desc: "Snapshots every change. Revert AI or manual edits instantly with the Undo system.",
+                                    action: "Use the History/Undo button in the toolbar." 
+                                }
+                            ].map((item, i) => (
+                                <div key={i} className="bg-slate-800 border-4 border-black p-8 hover:bg-slate-700 transition-colors">
+                                    <h5 className="text-emerald-500 font-black uppercase tracking-widest text-lg mb-4">{item.title}</h5>
+                                    <p className="text-slate-300 text-sm font-medium mb-6 leading-relaxed">{item.desc}</p>
+                                    <div className="flex items-center gap-2 text-white font-black text-[10px] uppercase tracking-widest bg-black/40 p-2 border border-white/10">
+                                        <ArrowRight className="w-3 h-3 text-emerald-500" />
+                                        {item.action}
+                                    </div>
                                 </div>
                             ))}
                         </div>

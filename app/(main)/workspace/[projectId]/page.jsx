@@ -7,7 +7,13 @@ import { cn } from '@/lib/utils'
 import { 
     Table, MessageSquare, Plus, ChevronLeft, 
     Download, Play, Save, History, Users,
-    Search, Filter, ChevronRight, BarChart3, Zap
+    Search, Filter, ChevronRight, BarChart3, Zap,
+    Database,
+    ChevronDown,
+    Undo2,
+    Trash2,
+    Settings2,
+    FileBox
 } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import FileUploader from '@/components/FileUploader'
@@ -33,6 +39,9 @@ export default function Workspace({ params }) {
     const [previewData, setPreviewData] = useState(null);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isUploaderModalOpen, setIsUploaderModalOpen] = useState(false);
+    const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
+    const [sourceDeletingId, setSourceDeletingId] = useState(null);
+    const [sheetDeletingId, setSheetDeletingId] = useState(null);
 
     // Convex Data
     const workbook = useQuery(api.workbooks.getById, { id: workbookId });
@@ -40,6 +49,8 @@ export default function Workspace({ params }) {
     const updateSheetData = useMutation(api.sheets.updateData);
     const sheets = useQuery(api.sheets.getByWorkbook, { workbookId });
     const activeSheet = sheets?.find(s => s._id === activeSheetId) || sheets?.[0];
+    const removeSheet = useMutation(api.sheets.remove);
+    const removeFile = useMutation(api.files.remove);
     
     const dashboards = useQuery(api.dashboards.getByWorkbook, { workbookId }) || [];
     const updateDashboard = useMutation(api.dashboards.update);
@@ -194,6 +205,14 @@ export default function Workspace({ params }) {
                         <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-700" />
                         <Button 
                             variant="ghost" 
+                            size="icon" 
+                            onClick={() => setIsSourceModalOpen(true)}
+                            className="rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
+                        >
+                            <Settings2 className="w-5 h-5 text-slate-500" />
+                        </Button>
+                        <Button 
+                            variant="ghost" 
                             size="sm" 
                             onClick={handleExport}
                             className="rounded-lg font-bold text-xs h-8 px-3 hover:bg-white dark:hover:bg-slate-700"
@@ -250,12 +269,53 @@ export default function Workspace({ params }) {
                                                 {files?.length > 1 && (
                                                     <span className={cn(
                                                         "text-[7px] font-bold truncate max-w-[80px]",
-                                                        activeSheetId === sheet._id ? "text-emerald-200" : "text-slate-500"
+                                                        activeSheetId === sheet._id ? "text-emerald-200" : "text-slate-400"
                                                     )}>
                                                         {file?.name}
                                                     </span>
                                                 )}
                                             </div>
+
+                                            {/* Delete Sheet Button */}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setSheetDeletingId(sheet._id);
+                                                }}
+                                                className={cn(
+                                                    "ml-2 p-1 rounded-md opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500 hover:text-white",
+                                                    activeSheetId === sheet._id ? "text-emerald-200" : "text-slate-400"
+                                                )}
+                                            >
+                                                <Trash2 className="w-3 h-3" />
+                                            </button>
+
+                                            {/* Inline Sheet Delete Confirm */}
+                                            {sheetDeletingId === sheet._id && (
+                                                <div className="absolute inset-0 bg-red-600 rounded-xl flex items-center justify-center gap-2 z-10 px-2">
+                                                    <p className="text-[8px] font-black text-white uppercase whitespace-nowrap">Delete?</p>
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            removeSheet({ id: sheet._id });
+                                                            setSheetDeletingId(null);
+                                                            if (activeSheetId === sheet._id) setActiveSheetId(null);
+                                                        }}
+                                                        className="bg-white text-red-600 px-2 py-0.5 rounded text-[8px] font-black uppercase"
+                                                    >
+                                                        Yes
+                                                    </button>
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSheetDeletingId(null);
+                                                        }}
+                                                        className="text-white text-[8px] font-black uppercase"
+                                                    >
+                                                        No
+                                                    </button>
+                                                </div>
+                                            )}
                                         </button>
                                     );
                                 })}
@@ -364,6 +424,91 @@ export default function Workspace({ params }) {
                                 toast.success("Additional data merged into workspace!");
                             }} 
                         />
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isSourceModalOpen} onOpenChange={setIsSourceModalOpen}>
+                <DialogContent className="sm:max-w-[600px] rounded-[3rem] p-0 border-none bg-transparent shadow-none overflow-hidden">
+                    <div className="bg-white dark:bg-slate-950 p-8 rounded-[3rem] border-4 border-emerald-500/20 shadow-2xl">
+                        <DialogHeader className="mb-6">
+                            <DialogTitle className="text-2xl font-black text-slate-900 dark:text-white">Manage Data Sources</DialogTitle>
+                            <DialogDescription className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                Review or remove uploaded files and their associated sheets.
+                            </DialogDescription>
+                        </DialogHeader>
+                        
+                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                            {files?.map(file => (
+                                <div key={file._id} className="relative group overflow-hidden">
+                                    <div className="p-6 border-4 border-black bg-slate-50 dark:bg-slate-900 flex items-center justify-between transition-all hover:bg-white group-hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-black flex items-center justify-center border-2 border-emerald-500 shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]">
+                                                <FileBox className="w-6 h-6 text-emerald-500" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-black dark:text-white uppercase tracking-tighter truncate max-w-[200px]">{file.name}</h4>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                    {file.type} • {sheets?.filter(s => s.fileId === file._id).length} Sheets
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Button 
+                                            variant="outline" 
+                                            size="sm" 
+                                            onClick={() => setSourceDeletingId(file._id)}
+                                            className="rounded-xl border-2 border-black bg-red-600 text-white hover:bg-red-700 hover:border-black transition-all font-black uppercase tracking-widest text-[10px] h-9 px-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                                        >
+                                            <Trash2 className="w-3.5 h-3.5 mr-2" />
+                                            Delete Source
+                                        </Button>
+                                    </div>
+
+                                    {/* Inline Source Delete Confirm */}
+                                    {sourceDeletingId === file._id && (
+                                        <div className="absolute inset-0 bg-red-600 z-20 flex items-center justify-center gap-6 animate-in slide-in-from-right duration-200">
+                                            <div className="text-center">
+                                                <p className="text-xs font-black text-white uppercase tracking-[0.2em] mb-3">Delete entire source permanently?</p>
+                                                <div className="flex justify-center gap-4">
+                                                    <Button 
+                                                        onClick={() => {
+                                                            removeFile({ id: file._id });
+                                                            setSourceDeletingId(null);
+                                                            toast.success("Source removed from workspace");
+                                                        }} 
+                                                        className="bg-white text-red-600 hover:bg-slate-100 font-black uppercase tracking-widest text-[10px] h-9 px-8 rounded-xl"
+                                                    >
+                                                        Yes, Delete
+                                                    </Button>
+                                                    <Button 
+                                                        onClick={() => setSourceDeletingId(null)} 
+                                                        variant="ghost" 
+                                                        className="text-white hover:bg-white/10 font-black uppercase tracking-widest text-[10px] h-9 px-8 rounded-xl"
+                                                    >
+                                                        Cancel
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                            {files?.length === 0 && (
+                                <p className="text-center py-12 text-slate-400 font-bold uppercase tracking-widest text-xs">No data sources found.</p>
+                            )}
+                        </div>
+                        
+                        <div className="mt-8 pt-8 border-t-2 border-slate-100 flex justify-center">
+                            <Button 
+                                onClick={() => {
+                                    setIsSourceModalOpen(false);
+                                    setIsUploaderModalOpen(true);
+                                }}
+                                className="bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl px-8 h-12 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                            >
+                                <Plus className="mr-2 w-4 h-4" /> Add New Source
+                            </Button>
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>

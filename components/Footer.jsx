@@ -16,6 +16,9 @@ export default function Footer() {
                 <p className="text-xs md:text-sm text-black font-black uppercase tracking-widest">
                     © 2026 CATALYST. ALL RIGHTS RESERVED.
                 </p>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest pt-4">
+                    Designed and developed by <a href="https://samuelolubukun.netlify.app/" target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-500 transition-colors underline decoration-black">Samuel Olubukun</a>
+                </p>
             </div>
         </footer>
     );

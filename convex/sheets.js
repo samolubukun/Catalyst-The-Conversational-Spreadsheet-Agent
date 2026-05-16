@@ -104,3 +104,17 @@ export const getById = query({
     return await ctx.db.get(args.id);
   },
 });
+
+export const remove = mutation({
+  args: { id: v.id("sheets") },
+  handler: async (ctx, args) => {
+    // Delete versions first
+    const versions = await ctx.db
+      .query("versions")
+      .withIndex("by_sheet", (q) => q.eq("sheetId", args.id))
+      .collect();
+    for (const v of versions) await ctx.db.delete(v._id);
+
+    await ctx.db.delete(args.id);
+  },
+});
