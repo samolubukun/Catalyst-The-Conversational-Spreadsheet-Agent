@@ -34,6 +34,15 @@ export const orchestrate = action({
 
     let context = `Available Sheets in Workbook:\n${sheetsSummary}\n\n`;
     
+    // 2. Fetch Conversation History (Memory)
+    const history = await ctx.runQuery(api.messages.list, { workbookId: args.workbookId });
+    const lastMessages = history.slice(-10).map(m => {
+        const content = typeof m.content === 'object' ? JSON.stringify(m.content) : m.content;
+        return `${m.role.toUpperCase()}: ${content}`;
+    }).join('\n');
+    
+    context += `Recent Conversation History:\n${lastMessages}\n\n`;
+    
     if (args.activeSheetId) {
       const activeSheet = allSheets.find(s => s._id === args.activeSheetId);
       if (activeSheet && activeSheet.data.length > 0) {
@@ -43,7 +52,7 @@ export const orchestrate = action({
       }
     }
 
-    // 2. Decision: Research, Scrape, or Analyze?
+    // 3. Decision: Research, Scrape, or Analyze?
     let extraContext = "";
     try {
         const decisionResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`, {
@@ -76,7 +85,7 @@ export const orchestrate = action({
         console.error("Agent Decision failed:", e);
     }
 
-    // 3. Final Orchestration
+    // 4. Final Orchestration
     try {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`, {
         method: 'POST',
@@ -149,7 +158,7 @@ export const orchestrate = action({
       const rawResult = data.candidates[0].content.parts[0].text;
       const result = JSON.parse(rawResult.replace(/```json/g, '').replace(/```/g, ''));
 
-      // 4. Log the AI response
+      // 5. Log the AI response
       await ctx.runMutation(api.messages.send, {
         workbookId: args.workbookId,
         role: "assistant",
