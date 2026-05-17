@@ -85,9 +85,9 @@ export default function LandingPage() {
             desc: "Instantly render Line, Area, Composed, Horizontal Bar, Radar, Scatter, Bar, and Pie charts with dynamic tick-interval spacing to prevent categorical overlap." 
         },
         { 
-            icon: Table, 
-            title: "Dynamic Textarea Input", 
-            desc: "Enter multi-line corporate prompts in a custom, vertically-expanding chat box that hides default scrollbars for an ultra-premium layout." 
+            icon: Globe, 
+            title: "One-Click Report Publishing", 
+            desc: "Compile your custom AI dashboards, metric cards, and strategic summaries into a secure, responsive public sharing portal with a single click." 
         },
         { 
             icon: Filter, 
