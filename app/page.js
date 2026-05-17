@@ -121,6 +121,15 @@ export default function LandingPage() {
             outcome: "The agent instantly compiles a narrative breakdown, calculates precise mathematical sums and maximums, and returns immediate high-fidelity answers."
         },
         {
+            id: "in-chat-visuals",
+            title: "In-Chat Visualizations",
+            icon: BarChart3,
+            desc: "You don't need to compile a full dashboard to visualize your data. Catalyst generates and embeds live, interactive Recharts (Line, Area, Composed, Horizontal Bar, Radar, Scatter, Bar, Pie) directly inside your ongoing conversational chat feed.",
+            mechanic: "Inline Thread Visuals",
+            query: "Show me a quick scatter plot comparing order volume against shipping costs directly in the thread.",
+            outcome: "The AI agent calculates the correct dimensions, configures the chart renderer, and displays the interactive graphic right inside the chat window."
+        },
+        {
             id: "transform",
             title: "The Transformation Engine",
             icon: Code2,
