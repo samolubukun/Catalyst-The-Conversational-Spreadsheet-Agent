@@ -134,17 +134,18 @@ export const orchestrate = action({
                    3. "metric": A gorgeous, bold single-metric KPI card. MUST include a calculated "value" string (e.g. "$1,234,567", "98.2%", or "2,450 units") and a descriptive "subtext" string (e.g., "YTD Revenue" or "Total Orders"). Optionally include a "trend" string and a "trendType" string ('positive' | 'negative' | 'neutral') to render dynamic green/red badges like Power BI or Tableau! IMPORTANT: The "trend" string MUST be a professional quantitative BI metric (e.g., "+12.4% vs Target", "+5.3% MoM", "-2.1% YoY", or "+8.5% vs Plan"). NEVER use vague qualitative phrases like "Performance Stable", "Consistent", or "Inventory Active" - always use real growth percentages or target deviations! Size: "small" works best for metric cards so they can sit side-by-side!
                  - Generate a row of 3 or 4 small 'metric' widgets to display key aggregates side-by-side at the very top of the dashboard (e.g. Sales, Margins, Volumes, Active Counts), followed by larger trend and breakdown charts below.
                  - Variety is key: Don't just make a list. Create a visual hierarchy.
-               - USER SPECIFICATIONS: Pay extreme attention to the user's specific requests for chart types or layout. If they ask for a "big revenue chart", make it size: "large".
-               - CRITICAL: Avoid vague generalities. Use ACTUAL category names and EXACT numbers.
-               - Example structure for "code":
-                 const totalSales = data.reduce((acc, r) => acc + (Number(r.Sales) || 0), 0);
-                 const formattedTotal = '$' + totalSales.toLocaleString();
-                 return [
-                   { "type": "summary", "title": "Executive Summary", "notes": "..." },
-                   { "type": "metric", "title": "Total Sales Revenue", "size": "small", "value": formattedTotal, "subtext": "YTD Cumulative Gross Revenue", "trend": "+12.4% vs Target", "trendType": "positive" },
-                   { "type": "chart", "title": "Sales Trend Over Time", "size": "medium", "chartConfig": { ... } },
-                   { "type": "chart", "title": "Category Breakdown", "size": "small", "chartConfig": { ... } }
-                 ];
+               - USER SPECIFICATIONS: Pay extreme attention to the user's specific requests for chart types, layout, and exact chart count. IMPORTANT: When the user requests a specific number of charts (e.g., "6 charts under"), this count refers STRICTLY to "chart" type widgets (visualizations like bar, line, pie). The 3 or 4 top-level "metric" (KPI) cards and the "summary" widget are default standard elements and DO NOT count towards this number. You MUST generate exactly the requested number of distinct "chart" type widgets (e.g., 6 separate "chart" widgets) showing different dimensions or aggregations of the spreadsheet data, in addition to the standard KPIs! Never count metric cards as charts.
+                - CRITICAL: Avoid vague generalities. Use ACTUAL category names and EXACT numbers.
+                - CRITICAL JSON ESCAPE SAFETY RULE: Inside the 'code' string, when returning the flat array of widgets, ALWAYS use single quotes (') or backticks (\`) for all keys, object properties, and strings. NEVER use double quotes (") inside the code return array. For example, write: { 'type': 'summary', 'title': 'Executive Summary', 'notes': \`Total: \${formattedTotal}\` }. This is MANDATORY to prevent JSON double-quote syntax parsing crashes!
+                - Example structure for "code":
+                  const totalSales = data.reduce((acc, r) => acc + (Number(r.Sales) || 0), 0);
+                  const formattedTotal = '$' + totalSales.toLocaleString();
+                  return [
+                    { 'type': 'summary', 'title': 'Executive Summary', 'notes': \`YTD Sales are \${formattedTotal} across \${data.length} transactions.\` },
+                    { 'type': 'metric', 'title': 'Total Sales Revenue', 'size': 'small', 'value': formattedTotal, 'subtext': 'YTD Cumulative Gross Revenue', 'trend': '+12.4% vs Target', 'trendType': 'positive' },
+                    { 'type': 'chart', 'title': 'Sales Trend Over Time', 'size': 'medium', 'chartConfig': { 'type': 'line', 'xAxis': 'date', 'yAxis': 'sales', 'data': [] } },
+                    { 'type': 'chart', 'title': 'Category Breakdown', 'size': 'small', 'chartConfig': { 'type': 'bar', 'xAxis': 'category', 'yAxis': 'sales', 'data': [] } }
+                  ];
               
               Response format MUST be a single JSON object with "type", "content", and optional "code", "config", or "layout".`
             }]

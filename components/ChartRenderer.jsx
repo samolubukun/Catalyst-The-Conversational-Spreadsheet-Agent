@@ -35,7 +35,8 @@ export default function ChartRenderer({ config }) {
             axisLine: false,
             tickLine: false,
             tick: { fontSize: 9, fill: '#64748b' },
-            interval: 0,
+            interval: config.data.length > 30 ? Math.ceil(config.data.length / 6) : 
+                      config.data.length > 15 ? 2 : 0,
             angle: config.data.length > 5 ? -45 : 0,
             textAnchor: config.data.length > 5 ? 'end' : 'middle',
             height: 60
