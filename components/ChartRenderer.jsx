@@ -191,7 +191,7 @@ export default function ChartRenderer({ config }) {
                     <ScatterChart margin={{ top: 15, right: 20, left: -10, bottom: 35 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis type="category" {...commonXAxisProps} />
-                        <YAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} tickFormatter={formatYAxis} />
+                        <YAxis type="number" dataKey={config.yAxis} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} tickFormatter={formatYAxis} />
                         <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px' }} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
                         <Scatter name={config.yAxis} data={config.data} fill="#10b981" />
