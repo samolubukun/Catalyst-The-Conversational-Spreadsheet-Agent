@@ -57,11 +57,11 @@ export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChan
                 isPublic: isPublic,
             });
 
-            toast.success("Dashboard live!", { id: loadingToast });
+            toast.success("Dashboard live!", { id: loadingToast, duration: 4000 });
             window.open(`/share/${dashboardId}`, '_blank');
         } catch (error) {
             console.error("Dashboard error:", error);
-            toast.error("Failed to publish dashboard", { id: loadingToast });
+            toast.error("Failed to publish dashboard", { id: loadingToast, duration: 4000 });
         }
     };
 
@@ -97,10 +97,10 @@ export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChan
             if (!Array.isArray(transformedData)) throw new Error("Code must return an array");
 
             onPreview(transformedData);
-            toast.success(`Generated preview of changes`, { id: loadingToast });
+            toast.success(`Generated preview of changes`, { id: loadingToast, duration: 4000 });
         } catch (error) {
             console.error("Transform error:", error);
-            toast.error(`Analysis failed: ${error.message}`, { id: loadingToast });
+            toast.error(`Analysis failed: ${error.message}`, { id: loadingToast, duration: 4000 });
         }
     };
 
@@ -121,10 +121,10 @@ export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChan
                 description: 'AI Transformation'
             });
             onClearPreview();
-            toast.success(`Applied changes: ${transformedData.length} rows updated`, { id: loadingToast });
+            toast.success(`Applied changes: ${transformedData.length} rows updated`, { id: loadingToast, duration: 4000 });
         } catch (error) {
             console.error("Transform error:", error);
-            toast.error(`Transformation failed: ${error.message}`, { id: loadingToast });
+            toast.error(`Transformation failed: ${error.message}`, { id: loadingToast, duration: 4000 });
         }
     };
 
@@ -150,14 +150,14 @@ export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChan
                 order: nextOrder,
             });
 
-            toast.success(`Sheet "${name}" created successfully!`, { id: loadingToast });
+            toast.success(`Sheet "${name}" created successfully!`, { id: loadingToast, duration: 4000 });
             
             if (onActiveSheetChange) {
                 onActiveSheetChange(sheetId);
             }
         } catch (error) {
             console.error("Create sheet error:", error);
-            toast.error(`Failed to create sheet: ${error.message}`, { id: loadingToast });
+            toast.error(`Failed to create sheet: ${error.message}`, { id: loadingToast, duration: 4000 });
         }
     };
 
