@@ -423,17 +423,37 @@ function DashboardGenerator({ code, activeSheet, onCreate, name }) {
     useEffect(() => {
         if (!activeSheet || !activeSheet.data) return;
         try {
-            let generateFn = new Function("data", code);
-            let res = generateFn(activeSheet.data);
-            
-            // Aggressive Healing: If res is undefined, the AI likely forgot the 'return' keyword
-            // and just wrote a bare array or object. Let's try to prepend 'return ' and re-run.
-            if (res === undefined && !code.trim().startsWith('return')) {
+            let res;
+            let currentCode = code;
+            let attempts = 0;
+            const maxAttempts = 8;
+
+            while (attempts < maxAttempts) {
                 try {
-                    const healedFn = new Function("data", `return ${code.trim()}`);
-                    res = healedFn(activeSheet.data);
-                } catch (e) {
-                    // If healing fails, we stick with the original error
+                    let generateFn = new Function("data", currentCode);
+                    res = generateFn(activeSheet.data);
+                    
+                    // Aggressive Healing: If res is undefined, the AI likely forgot the 'return' keyword
+                    // and just wrote a bare array or object. Let's try to prepend 'return ' and re-run.
+                    if (res === undefined && !currentCode.trim().startsWith('return')) {
+                        try {
+                            const healedFn = new Function("data", `return ${currentCode.trim()}`);
+                            res = healedFn(activeSheet.data);
+                        } catch (e) {
+                            // If healing fails, stick with current res
+                        }
+                    }
+                    break; // Success!
+                } catch (err) {
+                    const match = err.message.match(/(\w+) is not defined/);
+                    if (match && match[1]) {
+                        const missingVar = match[1];
+                        // Auto-inject missing variable declaration at the top
+                        currentCode = `let ${missingVar} = 0;\n` + currentCode;
+                        attempts++;
+                    } else {
+                        throw err; // Re-throw other syntax/runtime errors
+                    }
                 }
             }
 
