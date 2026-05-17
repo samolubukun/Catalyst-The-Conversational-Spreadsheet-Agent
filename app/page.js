@@ -22,7 +22,8 @@ import {
     Download,
     Code2,
     Globe,
-    Users
+    Users,
+    MessageSquare
 } from 'lucide-react';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -64,8 +65,8 @@ export default function LandingPage() {
     const features = [
         { 
             icon: Database, 
-            title: "Smart Ingestion", 
-            desc: "Upload Excel, CSV, or JSON. Catalyst automatically maps your data types and identifies key relationships." 
+            title: "Unified Data Sources", 
+            desc: "Upload multiple Excel, CSV, or JSON sheets. Manage all unified files from the contextual 'Sources' header dashboard in a single workspace." 
         },
         { 
             icon: Bot, 
@@ -79,13 +80,13 @@ export default function LandingPage() {
         },
         { 
             icon: BarChart3, 
-            title: "Instant Visuals", 
-            desc: "Turn spreadsheets into dashboards. Catalyst generates interactive charts and reports based on your conversational queries." 
+            title: "8 Interactive Visuals", 
+            desc: "Instantly render Line, Area, Composed, Horizontal Bar, Radar, Scatter, Bar, and Pie charts with dynamic tick-interval spacing to prevent categorical overlap." 
         },
         { 
             icon: Table, 
-            title: "Interactive Workspace", 
-            desc: "A high-performance grid experience. Edit data manually or let the AI handle bulk transformations in real-time." 
+            title: "Dynamic Textarea Input", 
+            desc: "Enter multi-line corporate prompts in a custom, vertically-expanding chat box that hides default scrollbars for an ultra-premium layout." 
         },
         { 
             icon: Filter, 
@@ -103,13 +104,22 @@ export default function LandingPage() {
             desc: "Snapshot every transformation. Catalyst maintains a full audit log, allowing you to undo any AI or manual change instantly." 
         },
         { 
-            icon: Zap, 
-            title: "Data Sandbox Security", 
-            desc: "Your raw data never leaves your machine during analysis. Catalyst generates code that executes locally in a secure browser sandbox." 
+            icon: Code2, 
+            title: "Self-Healing AI Sandbox", 
+            desc: "Your data runs locally. Catalyst's runtime compiler intercepts and auto-corrects AI variable spelling typos, preventing fatal browser crashes." 
         }
     ];
     
     const agentProtocols = [
+        {
+            id: "conversational",
+            title: "Conversational Analytics",
+            icon: MessageSquare,
+            desc: "Everything in Catalyst operates on zero-formula, zero-code natural language. Ask direct business questions in everyday English, and watch the AI process raw columns, calculate exact aggregates, and answer instantly.",
+            mechanic: "Instant Conversational Q&A",
+            query: "What is the total sales? Which country has the highest volume? What is the product with the highest sales?",
+            outcome: "The agent instantly compiles a narrative breakdown, calculates precise mathematical sums and maximums, and returns immediate high-fidelity answers."
+        },
         {
             id: "transform",
             title: "The Transformation Engine",
@@ -132,10 +142,19 @@ export default function LandingPage() {
             id: "reporting",
             title: "Strategic Dashboarding",
             icon: BarChart3,
-            desc: "Turn private analysis into a SaaS-grade dashboard with Tableau-inspired layouts. Catalyst automatically creates visual hierarchies: putting master trends in large 'Hero' slots and details in secondary cards.",
+            desc: "Turn spreadsheets into high-fidelity executive command centers with Tableau-inspired layouts. Catalyst unifies all visuals with a custom Catalyst AI Intelligence Summary, offering strategic narratives from the perspective of an elite Advisory Lead.",
             mechanic: "Strategic Grid Architecture",
             query: "Generate an executive report with a massive revenue trend at the top and small category breakdowns below.",
-            outcome: "The agent assigns dynamic 'size' properties to widgets (Large/Medium/Small), creating a professional report layout instantly."
+            outcome: "Instantly renders exactly the requested count of Area, Composed, Horizontal Bar, Radar, Scatter, Line, Bar, or Pie charts, complete with a professional corporate advisory summary."
+        },
+        {
+            id: "self-healing",
+            title: "Self-Healing Execution Sandbox",
+            icon: Code2,
+            desc: "AI engines occasionally output code with minor variable spelling mismatches. Catalyst prevents page-shattering crashes by deploying a dynamic self-healing compiler loop that catches and auto-corrects typos on the fly.",
+            mechanic: "Auto-Correcting Sandbox",
+            query: "Filter out refunds and calculate average order value [AI spells variable as 'avgOrder' instead of 'avgOrderValue']",
+            outcome: "The sandbox compiler intercepts the ReferenceError, dynamically declares the missing variable as 0 on the fly, recovers execution, and builds the dashboard safely with zero downtime."
         },
         {
             id: "cross-sheet",
