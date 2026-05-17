@@ -11,6 +11,7 @@ import {
     Database,
     ChevronDown,
     Undo2,
+    Redo2,
     Trash2,
     Settings2,
     FileBox
@@ -56,7 +57,8 @@ export default function Workspace({ params }) {
     const updateDashboard = useMutation(api.dashboards.update);
 
     const versions = useQuery(api.versions.listBySheet, activeSheetId ? { sheetId: activeSheetId } : "skip");
-    const restoreVersion = useMutation(api.sheets.restoreVersion);
+    const undo = useMutation(api.sheets.undo);
+    const redo = useMutation(api.sheets.redo);
 
     useEffect(() => {
         if (sheets?.length > 0 && !activeSheetId) {
@@ -83,24 +85,43 @@ export default function Workspace({ params }) {
         toast.success(`Dashboard is now ${!currentPublic ? 'Public' : 'Private'}`);
     };
 
+    const historyPointer = activeSheet?.historyPointer;
+    const isUndoDisabled = !versions || versions.length === 0 || (historyPointer !== undefined && historyPointer !== null && historyPointer >= versions.length - 1);
+    const isRedoDisabled = !versions || versions.length === 0 || historyPointer === undefined || historyPointer === null;
+
     const handleUndo = async () => {
-        if (!versions || versions.length === 0) {
+        if (isUndoDisabled) {
             toast.error("No history available to undo");
             return;
         }
         
-        const loadingToast = toast.loading("Rolling back...");
+        const loadingToast = toast.loading("Undoing last change...");
         try {
-            // The latest version in the 'versions' table is the state BEFORE the last change
-            const latestVersion = versions[0];
-            await restoreVersion({
-                sheetId: activeSheetId,
-                versionId: latestVersion._id
+            await undo({
+                sheetId: activeSheetId || activeSheet?._id
             });
-            toast.success("Undid last change", { id: loadingToast });
+            toast.success("Undid change", { id: loadingToast });
         } catch (e) {
             console.error(e);
             toast.error("Undo failed", { id: loadingToast });
+        }
+    };
+
+    const handleRedo = async () => {
+        if (isRedoDisabled) {
+            toast.error("Nothing to redo");
+            return;
+        }
+        
+        const loadingToast = toast.loading("Redoing next change...");
+        try {
+            await redo({
+                sheetId: activeSheetId || activeSheet?._id
+            });
+            toast.success("Redid change", { id: loadingToast });
+        } catch (e) {
+            console.error(e);
+            toast.error("Redo failed", { id: loadingToast });
         }
     };
 
@@ -195,14 +216,24 @@ export default function Workspace({ params }) {
                         <Button 
                             variant="ghost" 
                             size="sm" 
-                            disabled={!versions || versions.length === 0}
+                            disabled={isUndoDisabled}
                             onClick={handleUndo}
-                            className="rounded-lg font-bold text-xs h-8 px-3 hover:bg-white dark:hover:bg-slate-700"
+                            className="rounded-lg font-bold text-xs h-8 px-2.5 hover:bg-white dark:hover:bg-slate-700"
                         >
-                            <History className="w-4 h-4 mr-2" />
+                            <Undo2 className="w-4 h-4 mr-1.5" />
                             Undo
                         </Button>
-                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-700" />
+                        <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            disabled={isRedoDisabled}
+                            onClick={handleRedo}
+                            className="rounded-lg font-bold text-xs h-8 px-2.5 hover:bg-white dark:hover:bg-slate-700"
+                        >
+                            <Redo2 className="w-4 h-4 mr-1.5" />
+                            Redo
+                        </Button>
+                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
                         <Button 
                             variant="ghost" 
                             size="icon" 
@@ -246,14 +277,14 @@ export default function Workspace({ params }) {
                                     const isCsv = file?.name?.endsWith('.csv');
 
                                     return (
-                                        <button
+                                        <div
                                             key={sheet._id}
                                             onClick={() => {
                                                 setActiveSheetId(sheet._id);
                                                 setPreviewData(null);
                                             }}
                                             className={cn(
-                                                "px-4 h-9 flex items-center text-[10px] font-black uppercase tracking-[0.1em] transition-all rounded-xl border-2 shrink-0 group relative",
+                                                "px-4 h-9 flex items-center text-[10px] font-black uppercase tracking-[0.1em] transition-all rounded-xl border-2 shrink-0 group relative cursor-pointer select-none",
                                                 activeSheetId === sheet._id 
                                                     ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20" 
                                                     : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700 hover:border-emerald-200 hover:text-emerald-500"
@@ -316,7 +347,7 @@ export default function Workspace({ params }) {
                                                     </button>
                                                 </div>
                                             )}
-                                        </button>
+                                        </div>
                                     );
                                 })}
                                 <Button 

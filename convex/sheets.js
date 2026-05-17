@@ -36,6 +36,21 @@ export const updateData = mutation({
     const sheet = await ctx.db.get(args.id);
     if (!sheet) throw new Error("Sheet not found");
 
+    // If we were in an undone state, discard all future versions (redo stack)
+    if (sheet.historyPointer !== undefined && sheet.historyPointer !== null && sheet.historyPointer > 0) {
+      const versions = await ctx.db
+        .query("versions")
+        .withIndex("by_sheet", (q) => q.eq("sheetId", args.id))
+        .order("desc")
+        .collect();
+
+      for (let i = 0; i < sheet.historyPointer; i++) {
+        if (versions[i]) {
+          await ctx.db.delete(versions[i]._id);
+        }
+      }
+    }
+
     // 1. Create a version snapshot of the CURRENT data before updating
     await ctx.db.insert("versions", {
       sheetId: args.id,
@@ -46,8 +61,94 @@ export const updateData = mutation({
       description: args.description || "Manual edit",
     });
 
-    // 2. Update to new data
-    await ctx.db.patch(args.id, { data: args.data });
+    // 2. Update to new data and clear history pointer
+    await ctx.db.patch(args.id, { 
+      data: args.data,
+      historyPointer: undefined
+    });
+  },
+});
+
+export const undo = mutation({
+  args: {
+    sheetId: v.id("sheets"),
+  },
+  handler: async (ctx, args) => {
+    const sheet = await ctx.db.get(args.sheetId);
+    if (!sheet) throw new Error("Sheet not found");
+
+    const versions = await ctx.db
+      .query("versions")
+      .withIndex("by_sheet", (q) => q.eq("sheetId", args.sheetId))
+      .order("desc")
+      .collect();
+
+    if (versions.length === 0) {
+      throw new Error("No history available to undo");
+    }
+
+    let pointer = sheet.historyPointer;
+    if (pointer === undefined || pointer === null) {
+      // 1. Save the current state to versions so we can redo back to it
+      await ctx.db.insert("versions", {
+        sheetId: args.sheetId,
+        workbookId: sheet.workbookId,
+        data: sheet.data,
+        timestamp: Date.now(),
+        type: 'manual',
+        description: "Latest state snapshot before undo",
+      });
+
+      // 2. Since we just inserted a version, the new list will have the snapshot at index 0.
+      // The state we want to restore is the previous index 0, which is now at index 1.
+      const targetVersion = versions[0];
+      await ctx.db.patch(args.sheetId, {
+        data: targetVersion.data,
+        historyPointer: 1
+      });
+    } else {
+      if (pointer + 1 >= versions.length) {
+        throw new Error("Cannot undo further");
+      }
+
+      const targetVersion = versions[pointer + 1];
+      await ctx.db.patch(args.sheetId, {
+        data: targetVersion.data,
+        historyPointer: pointer + 1
+      });
+    }
+    return true;
+  },
+});
+
+export const redo = mutation({
+  args: {
+    sheetId: v.id("sheets"),
+  },
+  handler: async (ctx, args) => {
+    const sheet = await ctx.db.get(args.sheetId);
+    if (!sheet) throw new Error("Sheet not found");
+
+    const pointer = sheet.historyPointer;
+    if (pointer === undefined || pointer === null || pointer === 0) {
+      throw new Error("Cannot redo");
+    }
+
+    const versions = await ctx.db
+      .query("versions")
+      .withIndex("by_sheet", (q) => q.eq("sheetId", args.sheetId))
+      .order("desc")
+      .collect();
+
+    // The target version is at pointer - 1
+    const targetVersion = versions[pointer - 1];
+    const nextPointer = pointer - 1 === 0 ? undefined : pointer - 1;
+
+    await ctx.db.patch(args.sheetId, {
+      data: targetVersion.data,
+      historyPointer: nextPointer
+    });
+    return true;
   },
 });
 
@@ -71,7 +172,10 @@ export const restoreVersion = mutation({
         description: "Rollback snapshot",
       });
 
-    await ctx.db.patch(args.sheetId, { data: version.data });
+    await ctx.db.patch(args.sheetId, { 
+      data: version.data,
+      historyPointer: undefined
+    });
     return true;
   },
 });

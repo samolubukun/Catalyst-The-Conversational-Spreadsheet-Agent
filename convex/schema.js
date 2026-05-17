@@ -31,6 +31,7 @@ export default defineSchema({
     data: v.any(), // Array of objects or rows
     schema: v.optional(v.any()), // Column definitions
     order: v.number(),
+    historyPointer: v.optional(v.number()), // Pointer to current position in version history
   }).index("by_file", ["fileId"]).index("by_workbook", ["workbookId"]),
 
   messages: defineTable({
