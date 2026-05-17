@@ -553,20 +553,44 @@ export default function Workspace({ params }) {
                         </DialogHeader>
                         
                         <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                            {files?.map(file => (
-                                <div key={file._id} className="relative group overflow-hidden">
-                                    <div className="p-6 border-4 border-black bg-slate-50 dark:bg-slate-900 flex items-center justify-between transition-all hover:bg-white group-hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-black flex items-center justify-center border-2 border-emerald-500 shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]">
-                                                <FileBox className="w-6 h-6 text-emerald-500" />
+                            {files?.map(file => {
+                                const cleanType = (file.type || '').toLowerCase();
+                                const isExcel = cleanType === 'xlsx' || cleanType === 'xls';
+                                const isJson = cleanType === 'json';
+                                
+                                // Dynamic Color mappings
+                                const borderClass = isExcel ? "border-emerald-500" : isJson ? "border-amber-500" : "border-blue-500";
+                                const shadowClass = isExcel ? "shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]" : isJson ? "shadow-[4px_4px_0px_0px_rgba(245,158,11,1)]" : "shadow-[4px_4px_0px_0px_rgba(59,130,246,1)]";
+                                const textClass = isExcel ? "text-emerald-500" : isJson ? "text-amber-500" : "text-blue-500";
+                                const badgeClass = isExcel 
+                                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" 
+                                    : isJson 
+                                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20" 
+                                    : "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
+
+                                return (
+                                    <div key={file._id} className="relative group overflow-hidden">
+                                        <div className="p-6 border-4 border-black bg-slate-50 dark:bg-slate-900 flex items-center justify-between transition-all hover:bg-white dark:hover:bg-slate-800 group-hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                                            <div className="flex items-center gap-4">
+                                                <div className={cn("w-12 h-12 bg-black flex items-center justify-center border-2 transition-all", borderClass, shadowClass)}>
+                                                    {isExcel ? (
+                                                        <FileSpreadsheet className={cn("w-6 h-6", textClass)} />
+                                                    ) : isJson ? (
+                                                        <FileJson className={cn("w-6 h-6", textClass)} />
+                                                    ) : (
+                                                        <FileBox className={cn("w-6 h-6", textClass)} />
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-black text-black dark:text-white uppercase tracking-tighter truncate max-w-[200px]">{file.name}</h4>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-1.5">
+                                                        <span className={cn("px-1.5 py-0.5 rounded border text-[8px] font-black tracking-wide", badgeClass)}>
+                                                            {file.type}
+                                                        </span>
+                                                        • {sheets?.filter(s => s.fileId === file._id).length} Sheets
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h4 className="font-black text-black dark:text-white uppercase tracking-tighter truncate max-w-[200px]">{file.name}</h4>
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                                    {file.type} • {sheets?.filter(s => s.fileId === file._id).length} Sheets
-                                                </p>
-                                            </div>
-                                        </div>
                                         <Button 
                                             variant="outline" 
                                             size="sm" 
@@ -606,7 +630,8 @@ export default function Workspace({ params }) {
                                         </div>
                                     )}
                                 </div>
-                            ))}
+                                );
+                            })}
                             {files?.length === 0 && (
                                 <p className="text-center py-12 text-slate-400 font-bold uppercase tracking-widest text-xs">No data sources found.</p>
                             )}
