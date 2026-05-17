@@ -194,6 +194,15 @@ export default function Workspace({ params }) {
                                 <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                                 <span className="text-[8px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Live Sync</span>
                             </div>
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => setIsSourceModalOpen(true)}
+                                className="h-6 px-2 rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all bg-slate-50 dark:bg-slate-900"
+                            >
+                                <Settings2 className="w-3.5 h-3.5" />
+                                Sources
+                            </Button>
                         </div>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                             {files?.length > 0 ? `${files.length} Files Unified in Workspace` : "No files uploaded"}
@@ -234,15 +243,7 @@ export default function Workspace({ params }) {
                             <Redo2 className="w-4 h-4 mr-1.5" />
                             Redo
                         </Button>
-                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-700 mx-1" />
-                        <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => setIsSourceModalOpen(true)}
-                            className="rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
-                        >
-                            <Settings2 className="w-5 h-5 text-slate-500" />
-                        </Button>
+
                         <Button 
                             variant="ghost" 
                             size="sm" 
