@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button"
 import FileUploader from '@/components/FileUploader'
 import SpreadsheetViewer from '@/components/SpreadsheetViewer'
+import Loader from '@/components/Loader'
 import { toast } from 'sonner'
 import {
     Dialog,
@@ -176,7 +177,7 @@ export default function Workspace({ params }) {
         }
     };
 
-    if (!workbook) return <div className="h-full flex items-center justify-center">Loading...</div>;
+    if (!workbook) return <Loader />;
 
     return (
         <div className="h-full w-full bg-white dark:bg-slate-950 flex flex-col overflow-hidden">
