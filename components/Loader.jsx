@@ -33,8 +33,8 @@ const Loader = () => {
                     <div className="h-1 w-12 bg-emerald-500"></div>
                 </div>
                 <div className="flex flex-col items-center">
-                    <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 animate-pulse">
-                        Initializing Agentic Spreadsheet Intelligence
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">
+                        Initializing Agentic Conversational Data Agent
                     </p>
                     <div className="mt-4 flex gap-1">
                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
