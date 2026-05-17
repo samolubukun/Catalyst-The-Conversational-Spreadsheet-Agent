@@ -269,10 +269,57 @@ export default function SharedDashboard({ params }) {
                                     kpiWidgets.length >= 4 && "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
                                 )}>
                                     {kpiWidgets.map((widget, i) => {
-                                        const valueStr = String(widget.value || widget.chartConfig?.value || widget.notes || (widget.chartConfig?.data && widget.chartConfig.data[0] && (widget.chartConfig.data[0].value || widget.chartConfig.data[0][widget.chartConfig.yAxis])) || "");
-                                        const isCurrency = valueStr.includes('$');
-                                        const isPercentage = valueStr.includes('%');
-                                        
+                                        const rawVal = widget.value || widget.chartConfig?.value || widget.notes || (widget.chartConfig?.data && widget.chartConfig.data[0] && (widget.chartConfig.data[0].value || widget.chartConfig.data[0][widget.chartConfig.yAxis])) || "";
+                                        const valStr = String(rawVal).trim();
+                                        const titleLower = (widget.title || "").toLowerCase();
+                                        const subtextLower = (widget.subtext || "").toLowerCase();
+
+                                        const isCurrency = valStr.includes('$') || 
+                                                           titleLower.includes('revenue') || 
+                                                           titleLower.includes('sales') || 
+                                                           titleLower.includes('profit') || 
+                                                           titleLower.includes('cost') ||
+                                                           titleLower.includes('value') ||
+                                                           subtextLower.includes('sales') ||
+                                                           subtextLower.includes('revenue');
+
+                                        const isPercentage = valStr.includes('%') || 
+                                                             titleLower.includes('percent') || 
+                                                             titleLower.includes('rate') || 
+                                                             titleLower.includes('margin %');
+
+                                        // Advanced Multi-Tier KPI Formatting Engine
+                                        let parsedNum = NaN;
+                                        let cleanStr = valStr.replace(/[$,]/g, "").toLowerCase();
+                                        if (cleanStr.endsWith('k')) {
+                                            parsedNum = Number(cleanStr.slice(0, -1)) * 1000;
+                                        } else if (cleanStr.endsWith('m')) {
+                                            parsedNum = Number(cleanStr.slice(0, -1)) * 1000000;
+                                        } else if (cleanStr.endsWith('b')) {
+                                            parsedNum = Number(cleanStr.slice(0, -1)) * 1000000000;
+                                        } else {
+                                            parsedNum = Number(cleanStr);
+                                        }
+
+                                        let valueStr = valStr;
+                                        if (!isNaN(parsedNum)) {
+                                            if (isPercentage) {
+                                                valueStr = `${parsedNum.toFixed(1)}%`;
+                                            } else {
+                                                let formatted = "";
+                                                if (Math.abs(parsedNum) >= 1000000000) {
+                                                    formatted = `${(parsedNum / 1000000000).toFixed(2)}B`;
+                                                } else if (Math.abs(parsedNum) >= 1000000) {
+                                                    formatted = `${(parsedNum / 1000000).toFixed(2)}M`;
+                                                } else if (Math.abs(parsedNum) >= 10000 && isCurrency) {
+                                                    formatted = `${(parsedNum / 1000).toFixed(1)}K`;
+                                                } else {
+                                                    formatted = parsedNum.toLocaleString(undefined, { maximumFractionDigits: 2 });
+                                                }
+                                                valueStr = isCurrency ? `$${formatted}` : formatted;
+                                            }
+                                        }
+
                                         const metricLabel = isCurrency 
                                             ? "Financial Metric" 
                                             : isPercentage 
@@ -435,7 +482,7 @@ export default function SharedDashboard({ params }) {
                             <h4 className={cn(
                                 "text-[10px] font-black uppercase tracking-[0.4em]",
                                 theme === 'executive' ? "text-slate-400" : "text-emerald-400"
-                            )}>AI Intelligence Summary</h4>
+                            )}>Catalyst AI Intelligence Summary</h4>
                         </div>
                         <p className={cn(
                             "text-lg font-bold leading-tight uppercase tracking-tight max-w-4xl italic",

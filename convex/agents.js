@@ -124,8 +124,8 @@ export const orchestrate = action({
                 - MANDATORY: The code MUST end with a 'return [...]' statement returning a flat array of widgets.
                 - DO NOT include Markdown code blocks (\`\`\`) inside the code string.
                - The first widget MUST be a "summary" type.
-               - In "summary" notes, ALWAYS start with: "This automated result was generated using Catalyst AI." followed by deep data-driven insights.
-               - IMPORTANT: The summary MUST be a holistic narrative that references the specific charts being generated.
+               - In "summary" notes, ALWAYS start with: "This automated result was generated using Catalyst AI." followed by deep data-driven insights. The summary MUST be a cohesive, high-value executive narrative that cuts across and directly references ALL generated widgets (e.g., tying together the high-level KPI card figures with specific trends in the line/area charts, regional metrics in the bar/radar/composed charts, and coordinates in the scatter plot to deliver a unified global business insight).
+               - IMPORTANT: The summary MUST be a holistic narrative is extremely professional, clear, and action-oriented.
                - STRATEGIC LAYOUT (Power BI / Tableau Inspiration):
                  - Every widget can have a "size": "large" (full width), "medium" (2/3 width), or "small" (1/3 width).
                  - WIDGET TYPES:
