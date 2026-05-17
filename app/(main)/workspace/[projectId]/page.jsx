@@ -14,8 +14,11 @@ import {
     Redo2,
     Trash2,
     Settings2,
-    FileBox
+    FileBox,
+    FileSpreadsheet,
+    FileJson
 } from 'lucide-react'
+import * as XLSX from 'xlsx'
 import { Button } from "@/components/ui/button"
 import FileUploader from '@/components/FileUploader'
 import SpreadsheetViewer from '@/components/SpreadsheetViewer'
@@ -44,6 +47,7 @@ export default function Workspace({ params }) {
     const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
     const [sourceDeletingId, setSourceDeletingId] = useState(null);
     const [sheetDeletingId, setSheetDeletingId] = useState(null);
+    const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
 
     // Convex Data
     const workbook = useQuery(api.workbooks.getById, { id: workbookId });
@@ -126,7 +130,7 @@ export default function Workspace({ params }) {
         }
     };
 
-    const handleExport = () => {
+    const handleExport = (format = 'csv') => {
         if (!activeSheet || !activeSheet.data || activeSheet.data.length === 0) {
             toast.error("No data to export");
             return;
@@ -134,25 +138,46 @@ export default function Workspace({ params }) {
 
         try {
             const data = activeSheet.data;
-            const headers = Object.keys(data[0]);
-            const csvContent = [
-                headers.join(","),
-                ...data.map(row => headers.map(h => {
-                    const cell = row[h] === null || row[h] === undefined ? "" : String(row[h]);
-                    return `"${cell.replace(/"/g, '""')}"`;
-                }).join(","))
-            ].join("\n");
+            
+            if (format === 'json') {
+                const dataStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", `${activeSheet.name}_export.json`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                toast.success("JSON Exported successfully!");
+            } else if (format === 'xlsx') {
+                const worksheet = XLSX.utils.json_to_sheet(data);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, activeSheet.name || "Sheet1");
+                XLSX.writeFile(workbook, `${activeSheet.name}_export.xlsx`);
+                toast.success("Excel Sheet Exported successfully!");
+            } else {
+                const headers = Object.keys(data[0]);
+                const csvContent = [
+                    headers.join(","),
+                    ...data.map(row => headers.map(h => {
+                        const cell = row[h] === null || row[h] === undefined ? "" : String(row[h]);
+                        return `"${cell.replace(/"/g, '""')}"`;
+                    }).join(","))
+                ].join("\n");
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `${activeSheet.name}_export.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            toast.success("CSV Exported successfully!");
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", `${activeSheet.name}_export.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                toast.success("CSV Exported successfully!");
+            }
         } catch (e) {
             console.error(e);
             toast.error("Export failed");
@@ -244,15 +269,64 @@ export default function Workspace({ params }) {
                             Redo
                         </Button>
 
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={handleExport}
-                            className="rounded-lg font-bold text-xs h-8 px-3 hover:bg-white dark:hover:bg-slate-700"
-                        >
-                            <Download className="w-4 h-4 mr-2" />
-                            Export
-                        </Button>
+                        <div className="relative">
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
+                                className={cn(
+                                    "rounded-lg font-bold text-xs h-8 px-3 hover:bg-white dark:hover:bg-slate-700 transition-all",
+                                    isExportDropdownOpen && "bg-white dark:bg-slate-700 shadow-sm"
+                                )}
+                            >
+                                <Download className="w-4 h-4 mr-1.5" />
+                                Export
+                                <ChevronDown className="w-3.5 h-3.5 ml-1 opacity-60" />
+                            </Button>
+
+                            {isExportDropdownOpen && (
+                                <>
+                                    {/* Click outside handler */}
+                                    <div 
+                                        className="fixed inset-0 z-40" 
+                                        onClick={() => setIsExportDropdownOpen(false)}
+                                    />
+                                    
+                                    <div className="absolute right-0 mt-1.5 w-48 bg-white dark:bg-slate-900 border-2 border-black dark:border-slate-800 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-none rounded-xl p-1 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                                        <button
+                                            onClick={() => {
+                                                handleExport('xlsx');
+                                                setIsExportDropdownOpen(false);
+                                            }}
+                                            className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs font-black uppercase text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-700 dark:hover:text-emerald-400 rounded-lg transition-colors"
+                                        >
+                                            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                                            Excel Sheet (.xlsx)
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                handleExport('csv');
+                                                setIsExportDropdownOpen(false);
+                                            }}
+                                            className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs font-black uppercase text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-700 dark:hover:text-blue-400 rounded-lg transition-colors"
+                                        >
+                                            <FileBox className="w-4 h-4 text-blue-600" />
+                                            CSV Sheet (.csv)
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                handleExport('json');
+                                                setIsExportDropdownOpen(false);
+                                            }}
+                                            className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-xs font-black uppercase text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800 hover:text-amber-700 dark:hover:text-amber-400 rounded-lg transition-colors"
+                                        >
+                                            <FileJson className="w-4 h-4 text-amber-600" />
+                                            JSON Structure (.json)
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
                     
                     <Button 
