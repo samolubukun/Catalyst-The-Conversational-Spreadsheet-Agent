@@ -19,6 +19,7 @@ export default function ChatPanel({ workbookId, activeSheetId, onPreview, onClea
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const scrollRef = useRef(null);
+    const textareaRef = useRef(null);
 
     const messages = useQuery(api.messages.list, { workbookId }) || [];
     const activeSheet = useQuery(api.sheets.getById, activeSheetId ? { id: activeSheetId } : "skip");
@@ -34,6 +35,14 @@ export default function ChatPanel({ workbookId, activeSheetId, onPreview, onClea
             }
         }
     }, [messages, isTyping]);
+
+    // Auto-resize chat input height as user types
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 160)}px`;
+        }
+    }, [input]);
 
     const handleCreateDashboard = async (layout, name, isPublic) => {
         const loadingToast = toast.loading("Publishing dashboard...");
@@ -240,13 +249,19 @@ export default function ChatPanel({ workbookId, activeSheetId, onPreview, onClea
             {/* Input Area */}
             <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shrink-0">
                 <div className="relative flex items-center gap-2 max-w-2xl mx-auto">
-                    <input
-                        type="text"
+                    <textarea
+                        ref={textareaRef}
+                        rows={1}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSend();
+                            }
+                        }}
                         placeholder="Ask Catalyst to clean, analyze or visualize..."
-                        className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-900 dark:text-white"
+                        className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-[11px] text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-900 dark:text-white resize-none max-h-[160px] overflow-y-auto no-scrollbar"
                     />
                     <Button 
                         onClick={handleSend}

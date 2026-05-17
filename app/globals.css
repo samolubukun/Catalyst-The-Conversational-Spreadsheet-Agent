@@ -221,3 +221,12 @@ body {
 .sdt-trigger {
   display: none !important;
 }
+
+/* High-End Scrollbar Purge Utility */
+.no-scrollbar {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important; /* Safari and Chrome */
+}
