@@ -86,7 +86,7 @@ export default function ReportManagementModal({ isOpen, onClose, workbookId }) {
                         dashboards.map((d) => (
                             <div key={d._id} className="group bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-5 hover:border-black dark:hover:border-emerald-500/50 transition-all">
                                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                    <div className="flex items-start gap-4">
+                                    <div className="flex items-start gap-4 min-w-0 flex-1">
                                         <div className={cn(
                                             "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]",
                                             d.isPublic ? "bg-emerald-500" : "bg-amber-500"
@@ -94,7 +94,7 @@ export default function ReportManagementModal({ isOpen, onClose, workbookId }) {
                                             {d.isPublic ? <Globe className="w-5 h-5 text-white" /> : <Lock className="w-5 h-5 text-white" />}
                                         </div>
                                         <div className="min-w-0">
-                                            <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-tight truncate">{d.name}</h3>
+                                            <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-tight whitespace-normal break-words">{d.name}</h3>
                                             <div className="flex items-center gap-2 mt-1">
                                                 <span className={cn(
                                                     "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
@@ -107,7 +107,7 @@ export default function ReportManagementModal({ isOpen, onClose, workbookId }) {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 shrink-0">
                                         <Button 
                                             variant="outline" 
                                             size="sm"
