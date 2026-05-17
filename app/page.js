@@ -182,6 +182,15 @@ export default function LandingPage() {
             mechanic: "Contextual Threading",
             query: "Filter these rows for Q4. [Follow-up]: Now take those results and show me the top 5 customers.",
             outcome: "The agent maintains a 'Rearview Mirror' of your session, understanding words like 'those', 'them', or 'that' based on previous context."
+        },
+        {
+            id: "sheet-generation",
+            title: "Dynamic Sheet Compilation",
+            icon: Sparkles,
+            desc: "Generate entirely new sheets or compile dynamic summaries on the fly conversationally. Catalyst executes the generation in a secure sandbox, appends the tab, and redirects your focus instantly.",
+            mechanic: "Conversational Compilation",
+            query: "Create a new sheet called 'Q4 Targets' with mock target revenues for each month of Q4.",
+            outcome: "Instantly compiles the mock data array, appends the tab to the workbook, and focuses the grid view on the new dataset."
         }
     ];
 
