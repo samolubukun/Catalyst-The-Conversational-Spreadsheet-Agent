@@ -16,7 +16,8 @@ import {
     Moon,
     Monitor,
     Layout,
-    Palette
+    Palette,
+    TrendingUp
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import ChartRenderer from '@/components/ChartRenderer';
@@ -243,54 +244,181 @@ export default function SharedDashboard({ params }) {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {dashboard.config.filter(w => w.type !== 'summary').map((widget, i) => {
-                        const size = widget.size || 'small';
-                        const gridClass = {
-                            small: "md:col-span-1 lg:col-span-1",
-                            medium: "md:col-span-2 lg:col-span-2",
-                            large: "md:col-span-2 lg:col-span-3"
-                        }[size] || "md:col-span-1 lg:col-span-1";
+                {/* Dynamic KPI & Chart Rows */}
+                {(() => {
+                    const kpiWidgets = dashboard.config.filter(w => 
+                        w.type === 'metric' || 
+                        w.type === 'kpi' || 
+                        (w.type === 'chart' && (!w.chartConfig || !Array.isArray(w.chartConfig.data) || w.chartConfig.data.length === 0))
+                    );
+                    
+                    const otherWidgets = dashboard.config.filter(w => 
+                        w.type !== 'summary' && 
+                        !(w.type === 'metric' || w.type === 'kpi' || (w.type === 'chart' && (!w.chartConfig || !Array.isArray(w.chartConfig.data) || w.chartConfig.data.length === 0)))
+                    );
 
-                        return (
-                            <div 
-                                key={i} 
-                                className={cn(
-                                    "p-6 flex flex-col transition-all duration-500",
-                                    gridClass,
-                                    theme === 'catalyst' && "bg-white dark:bg-slate-900 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]",
-                                    theme === 'executive' && "bg-white border-2 border-slate-100 shadow-lg rounded-[2rem]",
-                                    theme === 'midnight' && "bg-slate-900 border-2 border-indigo-500/30 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.3)] rounded-[2rem]"
-                                )}
-                            >
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center gap-3">
-                                    <div className={cn(
-                                        "w-8 h-8 border-2 flex items-center justify-center transition-all",
-                                        theme === 'catalyst' ? "bg-slate-100 dark:bg-slate-800 border-black" : 
-                                        theme === 'executive' ? "bg-blue-50 border-blue-200 rounded-lg text-blue-600" :
-                                        "bg-indigo-500/10 border-indigo-500/50 rounded-lg text-indigo-400"
-                                    )}>
-                                        {widget.type === 'chart' ? <BarChart3 className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
-                                    </div>
-                                    <h3 className={cn(
-                                        "text-sm font-black uppercase tracking-tight transition-colors",
-                                        theme === 'executive' ? "text-slate-900" : "text-white"
-                                    )}>{widget.title}</h3>
+                    return (
+                        <div className="flex flex-col gap-6 w-full">
+                            {/* KPI Metrics Row */}
+                            {kpiWidgets.length > 0 && (
+                                <div className={cn(
+                                    "grid gap-6 w-full transition-all duration-500",
+                                    kpiWidgets.length === 1 && "grid-cols-1",
+                                    kpiWidgets.length === 2 && "grid-cols-1 md:grid-cols-2",
+                                    kpiWidgets.length === 3 && "grid-cols-1 md:grid-cols-3 lg:grid-cols-3",
+                                    kpiWidgets.length >= 4 && "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+                                )}>
+                                    {kpiWidgets.map((widget, i) => {
+                                        const valueStr = String(widget.value || widget.chartConfig?.value || widget.notes || (widget.chartConfig?.data && widget.chartConfig.data[0] && (widget.chartConfig.data[0].value || widget.chartConfig.data[0][widget.chartConfig.yAxis])) || "");
+                                        const isCurrency = valueStr.includes('$');
+                                        const isPercentage = valueStr.includes('%');
+                                        
+                                        const metricLabel = isCurrency 
+                                            ? "Financial Metric" 
+                                            : isPercentage 
+                                                ? "Performance Rate" 
+                                                : "Volume / Count";
+
+                                        const trendColor = widget.trendType === 'positive' 
+                                            ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/30" 
+                                            : widget.trendType === 'negative' 
+                                                ? "text-rose-600 bg-rose-50 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-200 dark:border-rose-900/30" 
+                                                : "text-slate-600 bg-slate-50 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-750";
+
+                                        return (
+                                            <div 
+                                                key={`kpi-${i}`} 
+                                                className={cn(
+                                                    "p-6 flex flex-col transition-all duration-500",
+                                                    theme === 'catalyst' && "bg-white dark:bg-slate-900 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]",
+                                                    theme === 'executive' && "bg-white border-2 border-slate-100 shadow-lg rounded-[2rem]",
+                                                    theme === 'midnight' && "bg-slate-900 border-2 border-indigo-500/30 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.35)] rounded-[2rem]"
+                                                )}
+                                            >
+                                                <div className="flex items-center justify-between mb-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={cn(
+                                                            "w-8 h-8 border-2 flex items-center justify-center transition-all",
+                                                            theme === 'catalyst' ? "bg-slate-100 dark:bg-slate-800 border-black text-slate-900 dark:text-white" : 
+                                                            theme === 'executive' ? "bg-blue-50 border-blue-200 rounded-lg text-blue-600" :
+                                                            "bg-indigo-500/10 border-indigo-500/50 rounded-lg text-indigo-400"
+                                                        )}>
+                                                            <TrendingUp className="w-4 h-4" />
+                                                        </div>
+                                                        <h3 className={cn(
+                                                            "text-sm font-black uppercase tracking-tight transition-colors",
+                                                            theme === 'midnight' ? "text-white" : "text-slate-900 dark:text-white"
+                                                        )}>{widget.title}</h3>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="flex-1 flex flex-col justify-between py-2 relative pl-4 border-l-4 transition-all duration-500" style={{ borderLeftColor: isCurrency ? '#10b981' : isPercentage ? '#f59e0b' : '#3b82f6' }}>
+                                                    <div className="flex items-center justify-between mb-4">
+                                                        <span className={cn(
+                                                            "text-[8px] font-black uppercase tracking-widest",
+                                                            theme === 'midnight' ? "text-indigo-400/80" : "text-slate-400"
+                                                        )}>
+                                                            {metricLabel}
+                                                        </span>
+                                                        {widget.trend && (
+                                                            <span className={cn(
+                                                                "px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider",
+                                                                trendColor
+                                                            )}>
+                                                                {widget.trend}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Giant Bold Value Accent (Dynamic Scale & Overflow-Proof) */}
+                                                    <div className="my-2 overflow-hidden pr-2">
+                                                        <span className={cn(
+                                                            "font-black tracking-tight uppercase block leading-none transition-all duration-500 truncate",
+                                                            valueStr.length > 12 ? "text-xl md:text-2xl" :
+                                                            valueStr.length > 9 ? "text-2xl md:text-3xl" :
+                                                            valueStr.length > 7 ? "text-3xl md:text-4xl" :
+                                                            "text-4xl md:text-5xl",
+                                                            theme === 'midnight' ? "text-white" : "text-slate-900 dark:text-white"
+                                                        )}>
+                                                            {valueStr || "N/A"}
+                                                        </span>
+                                                    </div>
+
+                                                    <div className="mt-2">
+                                                        <span className={cn(
+                                                            "text-[9px] font-black uppercase tracking-[0.2em] block transition-colors",
+                                                            theme === 'midnight' ? "text-slate-400" : "text-slate-500 dark:text-slate-400"
+                                                        )}>
+                                                            {widget.subtext || "Key Performance Indicator"}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                            </div>
-                            
-                            {widget.type === 'chart' ? (
-                                <ChartRenderer config={widget.chartConfig} />
-                            ) : (
-                                <div className="prose prose-sm dark:prose-invert max-w-none">
-                                    <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed italic">{widget.notes}</p>
+                            )}
+
+                            {/* Main Charts & Visualizations Row (Flexbox Auto-Stretch) */}
+                            {otherWidgets.length > 0 && (
+                                <div className="flex flex-wrap gap-6 w-full transition-all duration-500">
+                                    {otherWidgets.map((widget, i) => {
+                                        const size = widget.size || 'small';
+                                        
+                                        // Dynamic Flexbox sizing: Auto-stretches to fill empty row space!
+                                        const flexClass = {
+                                            small: "flex-1 lg:flex-[1_1_21%] min-w-[290px]",
+                                            medium: "w-full lg:w-[48%] lg:flex-[2_2_48%] min-w-[320px]",
+                                            large: "w-full min-w-full flex-shrink-0"
+                                        }[size] || "flex-1 min-w-[290px]";
+
+                                        return (
+                                            <div 
+                                                key={`other-${i}`} 
+                                                className={cn(
+                                                    "p-6 flex flex-col transition-all duration-500",
+                                                    flexClass,
+                                                    theme === 'catalyst' && "bg-white dark:bg-slate-900 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]",
+                                                    theme === 'executive' && "bg-white border-2 border-slate-100 shadow-lg rounded-[2rem]",
+                                                    theme === 'midnight' && "bg-slate-900 border-2 border-indigo-500/30 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.35)] rounded-[2rem]"
+                                                )}
+                                            >
+                                                <div className="flex items-center justify-between mb-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={cn(
+                                                            "w-8 h-8 border-2 flex items-center justify-center transition-all",
+                                                            theme === 'catalyst' ? "bg-slate-100 dark:bg-slate-800 border-black text-slate-900 dark:text-white" : 
+                                                            theme === 'executive' ? "bg-blue-50 border-blue-200 rounded-lg text-blue-600" :
+                                                            "bg-indigo-500/10 border-indigo-500/50 rounded-lg text-indigo-400"
+                                                        )}>
+                                                            {widget.type === 'chart' ? (
+                                                                <BarChart3 className="w-4 h-4" />
+                                                            ) : (
+                                                                <FileText className="w-4 h-4" />
+                                                            )}
+                                                        </div>
+                                                        <h3 className={cn(
+                                                            "text-sm font-black uppercase tracking-tight transition-colors",
+                                                            theme === 'midnight' ? "text-white" : "text-slate-900 dark:text-white"
+                                                        )}>{widget.title}</h3>
+                                                    </div>
+                                                </div>
+                                                
+                                                {widget.type === 'chart' && widget.chartConfig && Array.isArray(widget.chartConfig.data) && widget.chartConfig.data.length > 0 ? (
+                                                    <ChartRenderer config={widget.chartConfig} />
+                                                ) : (
+                                                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                                                        <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed italic">{widget.notes}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>
                     );
-                })}
-                </div>
+                })()}
 
                 {dashboard.config.find(w => w.type === 'summary') && (
                     <div className={cn(

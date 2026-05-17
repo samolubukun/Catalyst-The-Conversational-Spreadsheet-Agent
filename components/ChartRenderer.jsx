@@ -44,7 +44,7 @@ export default function ChartRenderer({ config }) {
         switch (config.type?.toLowerCase()) {
             case 'bar':
                 return (
-                    <BarChart data={config.data} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                    <BarChart data={config.data} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis {...commonXAxisProps} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} tickFormatter={formatYAxis} />
@@ -57,7 +57,7 @@ export default function ChartRenderer({ config }) {
                 );
             case 'line':
                 return (
-                    <LineChart data={config.data} margin={{ top: 10, right: 10, left: 0, bottom: 20 }}>
+                    <LineChart data={config.data} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                         <XAxis {...commonXAxisProps} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} tickFormatter={formatYAxis} />
@@ -69,32 +69,40 @@ export default function ChartRenderer({ config }) {
                     </LineChart>
                 );
             case 'pie':
+                const pieTotal = config.data.reduce((sum, item) => sum + (Number(item[config.yAxis]) || 0), 0);
                 return (
-                    <PieChart margin={{ top: 0, right: 30, left: 30, bottom: 0 }}>
+                    <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
                         <Pie
                             data={config.data}
                             dataKey={config.yAxis}
                             nameKey={config.xAxis}
                             cx="50%"
                             cy="50%"
-                            outerRadius={55}
-                            innerRadius={35}
-                            paddingAngle={5}
+                            outerRadius={70}
+                            innerRadius={40}
+                            paddingAngle={4}
                             fill="#8884d8"
-                            label={({ name, percent, x, y, cx, cy, midAngle }) => (
-                                <text 
-                                    x={x} 
-                                    y={y} 
-                                    fill="#64748b" 
-                                    textAnchor={x > cx ? 'start' : 'end'} 
-                                    dominantBaseline="central"
-                                    fontSize="10"
-                                    fontWeight="bold"
-                                >
-                                    {`${name} (${(percent * 100).toFixed(0)}%)`}
-                                </text>
-                            )}
-                            labelLine={true}
+                            label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                                const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+                                const RADIAN = Math.PI / 180;
+                                const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                
+                                return percent > 0.05 ? (
+                                    <text 
+                                        x={x} 
+                                        y={y} 
+                                        fill="#ffffff" 
+                                        textAnchor="middle" 
+                                        dominantBaseline="central"
+                                        fontSize="10"
+                                        fontWeight="black"
+                                    >
+                                        {`${(percent * 100).toFixed(0)}%`}
+                                    </text>
+                                ) : null;
+                            }}
+                            labelLine={false}
                         >
                             {config.data.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -103,7 +111,14 @@ export default function ChartRenderer({ config }) {
                         <Tooltip 
                             contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
                         />
-                        <Legend wrapperStyle={{ fontSize: '10px' }} />
+                        <Legend 
+                            wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} 
+                            formatter={(value, entry) => {
+                                const rawVal = Number(entry.payload?.[config.yAxis]) || 0;
+                                const percent = pieTotal > 0 ? (rawVal / pieTotal) : 0;
+                                return `${value} (${(percent * 100).toFixed(0)}%)`;
+                            }}
+                        />
                     </PieChart>
                 );
             default:

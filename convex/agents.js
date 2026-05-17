@@ -128,18 +128,22 @@ export const orchestrate = action({
                - IMPORTANT: The summary MUST be a holistic narrative that references the specific charts being generated.
                - STRATEGIC LAYOUT (Power BI / Tableau Inspiration):
                  - Every widget can have a "size": "large" (full width), "medium" (2/3 width), or "small" (1/3 width).
-                 - Put the most important, high-impact chart or trend at the top as "large" or "medium".
-                 - Group secondary metrics or categorical breakdowns below as "small" widgets.
+                 - WIDGET TYPES:
+                   1. "summary": Global executive narrative summary. Put at the very first element.
+                   2. "chart": High-fidelity data visualization charts (bar, line, pie).
+                   3. "metric": A gorgeous, bold single-metric KPI card. MUST include a calculated "value" string (e.g. "$1,234,567", "98.2%", or "2,450 units") and a descriptive "subtext" string (e.g., "YTD Revenue" or "Total Orders"). Optionally include a "trend" string and a "trendType" string ('positive' | 'negative' | 'neutral') to render dynamic green/red badges like Power BI or Tableau! IMPORTANT: The "trend" string MUST be a professional quantitative BI metric (e.g., "+12.4% vs Target", "+5.3% MoM", "-2.1% YoY", or "+8.5% vs Plan"). NEVER use vague qualitative phrases like "Performance Stable", "Consistent", or "Inventory Active" - always use real growth percentages or target deviations! Size: "small" works best for metric cards so they can sit side-by-side!
+                 - Generate a row of 3 or 4 small 'metric' widgets to display key aggregates side-by-side at the very top of the dashboard (e.g. Sales, Margins, Volumes, Active Counts), followed by larger trend and breakdown charts below.
                  - Variety is key: Don't just make a list. Create a visual hierarchy.
                - USER SPECIFICATIONS: Pay extreme attention to the user's specific requests for chart types or layout. If they ask for a "big revenue chart", make it size: "large".
                - CRITICAL: Avoid vague generalities. Use ACTUAL category names and EXACT numbers.
                - Example structure for "code":
-                 const total = data.reduce((acc, r) => acc + r.Sales, 0);
+                 const totalSales = data.reduce((acc, r) => acc + (Number(r.Sales) || 0), 0);
+                 const formattedTotal = '$' + totalSales.toLocaleString();
                  return [
                    { "type": "summary", "title": "Executive Summary", "notes": "..." },
-                   { "type": "chart", "title": "Master Trend", "size": "large", "chartConfig": { ... } },
-                   { "type": "chart", "title": "Segment Breakdown", "size": "small", "chartConfig": { ... } },
-                   { "type": "chart", "title": "Regional Split", "size": "small", "chartConfig": { ... } }
+                   { "type": "metric", "title": "Total Sales Revenue", "size": "small", "value": formattedTotal, "subtext": "YTD Cumulative Gross Revenue", "trend": "+12.4% vs Target", "trendType": "positive" },
+                   { "type": "chart", "title": "Sales Trend Over Time", "size": "medium", "chartConfig": { ... } },
+                   { "type": "chart", "title": "Category Breakdown", "size": "small", "chartConfig": { ... } }
                  ];
               
               Response format MUST be a single JSON object with "type", "content", and optional "code", "config", or "layout".`
@@ -156,7 +160,23 @@ export const orchestrate = action({
       }
       
       const rawResult = data.candidates[0].content.parts[0].text;
-      const result = JSON.parse(rawResult.replace(/```json/g, '').replace(/```/g, ''));
+      
+      // Clean up markdown wrapping if present
+      let cleanText = rawResult.trim();
+      if (cleanText.startsWith("```")) {
+        const lines = cleanText.split("\n");
+        if (lines[0].startsWith("```")) lines.shift();
+        if (lines[lines.length - 1].startsWith("```")) lines.pop();
+        cleanText = lines.join("\n").trim();
+      }
+
+      let result;
+      try {
+        result = JSON.parse(cleanText);
+      } catch (e) {
+        console.error("FAILED TO PARSE AI RESPONSE JSON. Raw Response Text:", rawResult);
+        throw new Error("AI response was not formatted as valid JSON: " + e.message);
+      }
 
       // 5. Log the AI response
       await ctx.runMutation(api.messages.send, {
