@@ -101,7 +101,7 @@ export default function LandingPage() {
         { 
             icon: History, 
             title: "Master Version Control", 
-            desc: "Snapshot every transformation. Catalyst maintains a full audit log, allowing you to undo any AI or manual change instantly." 
+            desc: "Snapshot every transformation. Catalyst maintains a full audit log, allowing you to undo and redo any AI or manual change instantly." 
         },
         { 
             icon: Code2, 
@@ -376,8 +376,8 @@ export default function LandingPage() {
                                 },
                                 { 
                                     title: "Master Version Control", 
-                                    desc: "Snapshots every change. Revert AI or manual edits instantly with the Undo system.",
-                                    action: "Use the History/Undo button in the toolbar." 
+                                    desc: "Snapshots every change. Revert or re-apply AI or manual edits instantly with the complete Undo and Redo system.",
+                                    action: "Use the Undo and Redo buttons in the toolbar." 
                                 }
                             ].map((item, i) => (
                                 <div key={i} className="bg-slate-800 border-4 border-black p-8 hover:bg-slate-700 transition-colors">
