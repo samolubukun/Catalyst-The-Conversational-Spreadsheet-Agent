@@ -188,6 +188,13 @@ export default function Workspace({ params }) {
         if (!previewData || !activeSheetId) return;
         const loadingToast = toast.loading("Applying changes...");
         try {
+            // Safety check: ensure the serialized JSON data does not exceed the Convex 1MB document limit
+            const serializedSize = new Blob([JSON.stringify(previewData)]).size;
+            if (serializedSize > 900 * 1024) {
+                toast.error("Transformed data exceeds database size limit. Try filtering or grouping your data into smaller aggregations.", { id: loadingToast });
+                return;
+            }
+
             await updateSheetData({
                 id: activeSheetId,
                 data: previewData,

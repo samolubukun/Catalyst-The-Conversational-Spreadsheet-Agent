@@ -78,8 +78,23 @@ const FileUploader = ({ workbookId, onUploadComplete }) => {
               // 5. Save each sheet to Convex
               for (let j = 0; j < workbookData.length; j++) {
                 const { name, data } = workbookData[j];
-                const previewData = data.slice(0, 1000);
                 metadata.rowCount[name] = data.length;
+
+                // Dynamically scale down preview data size to stay under Convex 1MB document limit
+                let sliceCount = Math.min(data.length, 1000);
+                let previewData = data.slice(0, sliceCount);
+                
+                // Calculate size in bytes and scale down if needed (under 800 KB is safe)
+                let serializedSize = new Blob([JSON.stringify(previewData)]).size;
+                while (serializedSize > 800 * 1024 && sliceCount > 5) {
+                  sliceCount = Math.floor(sliceCount * 0.7); // scale down by 30% each step
+                  previewData = data.slice(0, sliceCount);
+                  serializedSize = new Blob([JSON.stringify(previewData)]).size;
+                }
+
+                if (sliceCount < data.length) {
+                  toast.info(`Optimized ${name} to ${sliceCount} rows for ultra-fast browser sandboxing.`, { duration: 6000 });
+                }
 
                 await createSheet({
                   fileId,
