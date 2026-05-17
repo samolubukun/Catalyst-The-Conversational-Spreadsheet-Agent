@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/logo.png" width="200" alt="Catalyst Logo" />
+  <img src="public/logo-dark.png" width="200" alt="Catalyst Logo" />
   <h1>Catalyst — The Conversational Data Agent</h1>
   
   <p align="center">
