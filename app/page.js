@@ -19,6 +19,7 @@ import {
     ArrowRight,
     CheckCircle2,
     History,
+    Paintbrush,
     Download,
     Code2,
     Globe,
@@ -191,6 +192,24 @@ export default function LandingPage() {
             mechanic: "Conversational Compilation",
             query: "Create a new sheet called 'Q4 Targets' with mock target revenues for each month of Q4.",
             outcome: "Instantly compiles the mock data array, appends the tab to the workbook, and focuses the grid view on the new dataset."
+        },
+        {
+            id: "highlighting",
+            title: "Aesthetic Highlight Conditioning",
+            icon: Paintbrush,
+            desc: "Add instant visual structure with natural language highlighting. Catalyst evaluates custom conditional statements in real-time, applying custom background colors and styles directly to rows or cells inside the grid canvas.",
+            mechanic: "Interactive Visual Conditioning",
+            query: "Highlight all rows where COUNTRY is 'USA' in yellow, and style any STATUS that is 'Shipped' in light green.",
+            outcome: "The AI agent generates precise layout metadata and colors the spreadsheet cells instantly on your screen."
+        },
+        {
+            id: "version-control",
+            title: "State-Snapshot Version Control",
+            icon: History,
+            desc: "Protect against data corruption and incorrect AI decisions. Catalyst takes a complete state snapshot before every single manual edit or AI transformation, allowing you to roll back (Undo) or step forward (Redo) with zero database fragmentation.",
+            mechanic: "Multi-Turn Rollback Engine",
+            query: "Undo that change. [Follow-up]: Actually, redo it.",
+            outcome: "Reverts or re-applies the full spreadsheet cell matrix state immediately with a single click, keeping your data pristine."
         }
     ];
 
@@ -384,9 +403,9 @@ export default function LandingPage() {
                                     action: "'Perform a deep-dive audit of our revenue.'" 
                                 },
                                 { 
-                                    title: "Master Version Control", 
-                                    desc: "Snapshots every change. Revert or re-apply AI or manual edits instantly with the complete Undo and Redo system.",
-                                    action: "Use the Undo and Redo buttons in the toolbar." 
+                                    title: "Byte-Safe Volume Protection", 
+                                    desc: "Automatically analyzes dataset byte sizes and scales down massive rows on the fly, preventing database overloads and keeping cloud sandbox operations sub-second.",
+                                    action: "Upload massive 10,000+ row sheets without latency or crashes." 
                                 }
                             ].map((item, i) => (
                                 <div key={i} className="bg-slate-800 border-4 border-black p-8 hover:bg-slate-700 transition-colors">
