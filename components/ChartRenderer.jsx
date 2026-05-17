@@ -13,7 +13,17 @@ import {
     CartesianGrid, 
     Tooltip, 
     Legend, 
-    Cell 
+    Cell,
+    AreaChart,
+    Area,
+    ComposedChart,
+    RadarChart,
+    PolarGrid,
+    PolarAngleAxis,
+    PolarRadiusAxis,
+    Radar,
+    ScatterChart,
+    Scatter
 } from 'recharts';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
@@ -54,6 +64,21 @@ export default function ChartRenderer({ config }) {
                         />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
                         <Bar dataKey={config.yAxis} fill="#10b981" radius={[4, 4, 0, 0]} barSize={40} />
+                    </BarChart>
+                );
+            case 'horizontalbar':
+            case 'horizontal-bar':
+            case 'horizontal_bar':
+                return (
+                    <BarChart layout="vertical" data={config.data} margin={{ top: 15, right: 25, left: 30, bottom: 15 }}>
+                        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                        <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} tickFormatter={formatYAxis} />
+                        <YAxis type="category" dataKey={config.xAxis} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} width={80} />
+                        <Tooltip 
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
+                        />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
+                        <Bar dataKey={config.yAxis} fill="#10b981" radius={[0, 4, 4, 0]} barSize={20} />
                     </BarChart>
                 );
             case 'line':
@@ -121,6 +146,56 @@ export default function ChartRenderer({ config }) {
                             }}
                         />
                     </PieChart>
+                );
+            case 'area':
+                return (
+                    <AreaChart data={config.data} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
+                        <defs>
+                            <linearGradient id="colorArea" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
+                                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis {...commonXAxisProps} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} tickFormatter={formatYAxis} />
+                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px' }} />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
+                        <Area type="monotone" dataKey={config.yAxis} stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorArea)" />
+                    </AreaChart>
+                );
+            case 'composed':
+                return (
+                    <ComposedChart data={config.data} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis {...commonXAxisProps} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} tickFormatter={formatYAxis} />
+                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px' }} />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
+                        <Bar dataKey={config.yAxis} fill="#3b82f6" opacity={0.7} radius={[4, 4, 0, 0]} barSize={30} />
+                        <Line type="monotone" dataKey={config.yAxis} stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: '#10b981' }} />
+                    </ComposedChart>
+                );
+            case 'radar':
+                return (
+                    <RadarChart cx="50%" cy="50%" outerRadius="75%" data={config.data}>
+                        <PolarGrid stroke="#e2e8f0" />
+                        <PolarAngleAxis dataKey={config.xAxis} tick={{ fontSize: 9, fill: '#64748b' }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fontSize: 8, fill: '#94a3b8' }} />
+                        <Radar name={config.yAxis} dataKey={config.yAxis} stroke="#10b981" fill="#10b981" fillOpacity={0.4} />
+                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px' }} />
+                    </RadarChart>
+                );
+            case 'scatter':
+                return (
+                    <ScatterChart margin={{ top: 15, right: 20, left: -10, bottom: 35 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                        <XAxis type="category" {...commonXAxisProps} />
+                        <YAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} tickFormatter={formatYAxis} />
+                        <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', fontSize: '12px' }} />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
+                        <Scatter name={config.yAxis} data={config.data} fill="#10b981" />
+                    </ScatterChart>
                 );
             default:
                 return <div className="p-4 text-slate-500 text-xs italic">Unsupported chart type: {config.type}</div>;
