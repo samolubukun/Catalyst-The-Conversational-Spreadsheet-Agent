@@ -14,7 +14,7 @@ import ChartRenderer from '@/components/ChartRenderer';
 import { UserContext } from '@/app/_context/UserContext';
 import { useContext } from 'react';
 
-export default function ChatPanel({ workbookId, activeSheetId, onPreview, onClearPreview }) {
+export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChange, onPreview, onClearPreview }) {
     const { userData } = useContext(UserContext);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -23,9 +23,11 @@ export default function ChatPanel({ workbookId, activeSheetId, onPreview, onClea
 
     const messages = useQuery(api.messages.list, { workbookId }) || [];
     const activeSheet = useQuery(api.sheets.getById, activeSheetId ? { id: activeSheetId } : "skip");
+    const allSheets = useQuery(api.sheets.getByWorkbook, { workbookId }) || [];
     const orchestrate = useAction(api.agents.orchestrate);
     const updateSheetData = useMutation(api.sheets.updateData);
     const createDashboard = useMutation(api.dashboards.create);
+    const createSheet = useMutation(api.sheets.create);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -126,6 +128,39 @@ export default function ChatPanel({ workbookId, activeSheetId, onPreview, onClea
         }
     };
 
+    const handleCreateSheet = async (code, name) => {
+        if (!activeSheet) {
+            toast.error("Please upload or select a sheet first.");
+            return;
+        }
+
+        const loadingToast = toast.loading("Generating sheet...");
+        try {
+            const transformFn = new Function("data", code);
+            const newData = transformFn(activeSheet.data || []);
+            
+            if (!Array.isArray(newData)) throw new Error("Generated code must return an array of row objects");
+
+            const nextOrder = allSheets ? allSheets.length : 1;
+
+            const sheetId = await createSheet({
+                fileId: activeSheet.fileId,
+                name: name || "New Sheet",
+                data: newData,
+                order: nextOrder,
+            });
+
+            toast.success(`Sheet "${name}" created successfully!`, { id: loadingToast });
+            
+            if (onActiveSheetChange) {
+                onActiveSheetChange(sheetId);
+            }
+        } catch (error) {
+            console.error("Create sheet error:", error);
+            toast.error(`Failed to create sheet: ${error.message}`, { id: loadingToast });
+        }
+    };
+
     return (
         <div className="flex flex-col h-full bg-white dark:bg-slate-900 overflow-hidden w-full border-l border-slate-200 dark:border-slate-800">
             {/* Header */}
@@ -210,6 +245,17 @@ export default function ChatPanel({ workbookId, activeSheetId, onPreview, onClea
                                             />
                                         </div>
                                     )}
+
+                                    {isAssistant && msg.type === 'create_sheet' && messageData.code && (
+                                        <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-col gap-2">
+                                            <CreateSheetBlock 
+                                                code={messageData.code} 
+                                                name={messageData.name || "New Sheet"}
+                                                activeSheet={activeSheet}
+                                                onCreateSheet={handleCreateSheet}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                                 
                                 {/* Visual Feedback for Types */}
@@ -217,6 +263,12 @@ export default function ChatPanel({ workbookId, activeSheetId, onPreview, onClea
                                     <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 rounded-full border border-amber-100 dark:border-amber-500/20 text-[10px] font-black uppercase tracking-widest">
                                         <Zap className="w-3 h-3" />
                                         Data Transformation Proposed
+                                    </div>
+                                )}
+                                {msg.type === 'create_sheet' && (
+                                    <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-100 dark:border-emerald-500/20 text-[10px] font-black uppercase tracking-widest">
+                                        <Zap className="w-3 h-3" />
+                                        Conversational Sheet Generation Proposed
                                     </div>
                                 )}
                                 {msg.type === 'visualize' && (
@@ -543,6 +595,57 @@ function DashboardGenerator({ code, activeSheet, onCreate, name }) {
                     All reports are initialized as <span className="font-bold text-slate-600">Private</span>. You can enable public sharing in the Report Hub.
                 </p>
             )}
+        </div>
+    );
+}
+
+// ----------------------------------------------------------------------
+// CreateSheetBlock Component
+// Handles the UI for creating a new sheet conversationally.
+// ----------------------------------------------------------------------
+function CreateSheetBlock({ code, name, activeSheet, onCreateSheet }) {
+    const [isCreated, setIsCreated] = useState(false);
+    const [showDev, setShowDev] = useState(false);
+
+    const handleCreate = async () => {
+        setIsCreated(true);
+        await onCreateSheet(code, name);
+    };
+
+    return (
+        <div className="flex flex-col gap-2">
+            <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowDev(!showDev)}
+                className="self-start text-[10px] h-6 px-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 uppercase tracking-widest font-black"
+            >
+                {showDev ? "Hide Technical Details" : "View Technical Details"}
+            </Button>
+
+            {showDev && (
+                <div className="p-3 bg-slate-900 rounded-xl overflow-x-auto animate-in slide-in-from-top-1 fade-in duration-200">
+                    <span className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">
+                        Sheet Generation Code
+                    </span>
+                    <code className="text-[10px] text-emerald-400 font-mono">
+                        {code}
+                    </code>
+                </div>
+            )}
+
+            <Button 
+                onClick={handleCreate}
+                disabled={isCreated || !activeSheet}
+                className={cn(
+                    "font-black uppercase tracking-widest text-[10px] h-10 rounded-xl w-full border-2 border-black transition-all mt-1",
+                    isCreated 
+                        ? "bg-emerald-50 text-emerald-600 border-emerald-200 shadow-none cursor-default" 
+                        : "bg-black text-white hover:bg-slate-800 shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]"
+                )}
+            >
+                {isCreated ? "Sheet Created Successfully!" : `Create Sheet "${name}"`}
+            </Button>
         </div>
     );
 }

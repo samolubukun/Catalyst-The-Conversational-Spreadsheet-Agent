@@ -17,6 +17,7 @@ export default function SpreadsheetViewer({ sheetData, originalData, onCellChang
     const gridRef = useRef();
 
     // Compute column definitions from data keys
+    // Compute column definitions from data keys
     const columnDefs = useMemo(() => {
         if (!sheetData || sheetData.length === 0) return [];
         const keys = Object.keys(sheetData[0]);
@@ -26,8 +27,23 @@ export default function SpreadsheetViewer({ sheetData, originalData, onCellChang
             sortable: true,
             filter: true,
             editable: true,
-            // Cell styling for diff highlights
+            // Cell styling for dynamic AI styles and diff highlights
             cellStyle: (params) => {
+                const row = params.data;
+                if (row) {
+                    // Check for custom cell style injected by the AI
+                    if (row._cellStyle && row._cellStyle[params.colDef.field]) {
+                        return row._cellStyle[params.colDef.field];
+                    }
+                    if (row._style && row._style[params.colDef.field]) {
+                        return row._style[params.colDef.field];
+                    }
+                    const fieldHighlightKey = `_highlight_${params.colDef.field}`;
+                    if (row[fieldHighlightKey]) {
+                        return { backgroundColor: 'rgba(254, 240, 138, 0.25)', borderLeft: '4px solid #eab308' };
+                    }
+                }
+
                 if (!originalData) return null;
                 
                 const rowIndex = params.node.rowIndex;
@@ -57,6 +73,28 @@ export default function SpreadsheetViewer({ sheetData, originalData, onCellChang
         resizable: true,
     }), []);
 
+    const getRowStyle = useCallback((params) => {
+        const row = params.data;
+        if (!row) return null;
+        
+        // 1. Explicit style object injected by AI
+        if (row._rowStyle) return row._rowStyle;
+        if (row._style && typeof row._style === 'object' && !row._style[Object.keys(row._style)[0]]) {
+            return row._style;
+        }
+        
+        // 2. Background color or hex code
+        if (row._bg) return { backgroundColor: row._bg };
+        if (row._backgroundColor) return { backgroundColor: row._backgroundColor };
+        
+        // 3. Boolean highlight flag (soft yellow neobrutalist style)
+        if (row._highlight || row.highlighted || row.isHighlighted) {
+            return { backgroundColor: 'rgba(254, 240, 138, 0.25)', borderLeft: '4px solid #eab308' };
+        }
+        
+        return null;
+    }, []);
+
     const onCellValueChanged = useCallback((event) => {
         if (onCellChange) {
             onCellChange(sheetData, event.colDef.field, event.newValue);
@@ -72,6 +110,7 @@ export default function SpreadsheetViewer({ sheetData, originalData, onCellChang
                 columnDefs={columnDefs}
                 defaultColDef={defaultColDef}
                 onCellValueChanged={onCellValueChanged}
+                getRowStyle={getRowStyle}
                 animateRows={true}
                 pagination={true}
                 paginationPageSize={50}

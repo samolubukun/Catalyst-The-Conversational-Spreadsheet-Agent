@@ -100,11 +100,22 @@ export const orchestrate = action({
               
               Analyze the request and decide the next step.
               
-              If the user wants to CLEAN, FORMAT, or TRANSFORM the spreadsheet data:
+              If the user wants to CLEAN, FORMAT, TRANSFORM, HIGHLIGHT, or COLOR-CODE the spreadsheet data:
               - Set "type" to "transform".
               - In "content", explain what you will do.
               - In "code", provide a JavaScript function body that takes an array 'data' and returns the transformed array.
-                Example: "return data.filter(row => row.status === 'Active')"
+                - To filter/format: Return the filtered/modified array. Example: "return data.filter(row => row.status === 'Active')"
+                - To HIGHLIGHT or COLOR-CODE rows/cells: Return the array where you inject styling metadata into matching rows:
+                  * To highlight a whole row: Add 'row._highlight = true' or 'row._bg = "rgba(254, 240, 138, 0.3)"' (or hex/rgb color) to matching row objects.
+                  * To style specific cells: Add 'row._cellStyle = { columnName: { backgroundColor: "rgba(254, 240, 138, 0.3)" } }' to matching row objects.
+              
+              If the user wants to CREATE A NEW SHEET, GENERATE A MOCK SHEET/DATASET, or COMPILE A SUMMARY SHEET into a new sheet tab:
+              - Set "type" to "create_sheet".
+              - In "content", explain what you will generate.
+              - In "name", provide a short, catchy, professional name for the new sheet (e.g., "Q4 Revenue Summary", "Mock Personnel").
+              - In "code", provide a JavaScript function body that takes an array 'data' (representing the active sheet's data) and returns a brand new array of row objects representing the new sheet's data.
+                - Example: "return [ { Month: 'Jan', Target: 10000 }, { Month: 'Feb', Target: 12000 } ]"
+                - Or dynamically using the active 'data': "return data.map(r => ({ Name: r.name, Email: r.email }))"
               
               If the user wants to ANALYZE or ASK A QUESTION (including creating CHARTS) about the data:
               - Set "type" to "analyze".

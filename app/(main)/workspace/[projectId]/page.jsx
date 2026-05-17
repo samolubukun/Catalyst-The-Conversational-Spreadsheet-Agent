@@ -500,6 +500,7 @@ export default function Workspace({ params }) {
                     <ChatPanel 
                         workbookId={workbookId} 
                         activeSheetId={activeSheet?._id} 
+                        onActiveSheetChange={setActiveSheetId}
                         onPreview={setPreviewData}
                         onClearPreview={() => setPreviewData(null)}
                     />
