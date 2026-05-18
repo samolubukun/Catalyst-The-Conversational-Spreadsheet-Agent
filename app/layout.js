@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Catalyst | AI-Powered Excel & Data Analytics Assistant",
+  title: "Catalyst | AI-Powered Spreadsheet & Data Analytics Assistant",
   description: "Talk to your spreadsheets in natural language. Clean data, run analysis, and build financial models with AI.",
   icons: {
     icon: "/logo.png",

@@ -395,13 +395,13 @@ export default function LandingPage() {
                     <div className="max-w-7xl mx-auto relative z-10">
                         <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
                             <div className="max-w-2xl">
-                                <h2 className="text-sm font-black uppercase tracking-[0.4em] text-emerald-500 mb-4">The Master Protocol</h2>
+                                <h2 className="text-sm font-black uppercase tracking-[0.4em] text-emerald-500 mb-4">The Catalyst Protocol</h2>
                                 <h3 className="text-5xl md:text-8xl font-black text-white leading-[0.9] uppercase tracking-tighter">
                                     Agent <br /><span className="text-emerald-500 italic underline decoration-white">Capabilities.</span>
                                 </h3>
                             </div>
                             <p className="text-slate-400 font-bold max-w-sm uppercase text-xs leading-relaxed tracking-wider">
-                                This document outlines the full scope of your data assistant's capabilities. Use these queries as templates for your own data.
+                                Discover the full operational scope of your AI analytical partner. Deploy these optimized query templates to clean, structure, and visualize your spreadsheets.
                             </p>
                         </div>
 
