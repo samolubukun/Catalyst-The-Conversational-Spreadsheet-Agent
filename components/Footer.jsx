@@ -11,7 +11,7 @@ export default function Footer() {
             </div>
             <div className="space-y-6">
                 <p className="text-slate-300 text-[10px] md:text-sm font-black uppercase tracking-[0.2em] px-4 leading-relaxed max-w-md mx-auto italic">
-                    The agentic spreadsheet for the intelligence era.
+                    The conversational data agent for spreadsheet intelligence.
                 </p>
                 <p className="text-xs md:text-sm text-slate-400 font-black uppercase tracking-widest">
                     © 2026 CATALYST. ALL RIGHTS RESERVED.
