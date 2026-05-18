@@ -26,7 +26,7 @@ Here is how Catalyst's **Schema-First Client Sandbox** compares:
 | Feature Dimension | Traditional AI Chat Thread | The Catalyst Protocol |
 | :--- | :--- | :--- |
 | **Mathematical Precision** | ❌ **High Hallucination**. Approximates sums, counts, and financial formulas probabilistically. | 🟢 **100% Deterministic**. Runs exact generated JavaScript code in a client-side execution sandbox. |
-| **Data Privacy** | ❌ **No Control**. Uploads your entire raw CSV/Excel contents to third-party AI cloud servers. | 🟢 **Strictly Local**. Raw dataset never leaves the browser. Only the schema and a 3-row sample are analyzed by the AI. |
+| **Data Privacy** | ❌ **No Control**. Uploads your entire raw CSV/Excel contents to third-party AI cloud models. | 🟢 **AI Schema-First Privacy**. Raw datasets are stored securely in your private Convex database. Only the table headers and a tiny 3-row sample are sent to the AI. |
 | **Dataset Size Limits** | ❌ **Strict Limits**. Crashes or runs out of context window when analyzing datasets over 5,000 rows. | 🟢 **Sub-Second Speed**. Processes spreadsheets with 10,000+ rows instantly via AG Grid browser memory. |
 | **Web Data Augmentation** | ❌ **Stale Data**. Restated static data limited to LLM training cutoff. | 🟢 **Live Web Scraping**. Automated search agent (Firecrawl) queries the web and injects live info to sheets. |
 
@@ -109,10 +109,12 @@ Catalyst operates under a state-of-the-art analytical architecture. It supports 
 ---
 
 ## Security & Privacy
-Catalyst is designed with a **privacy-first** architecture:
-- **Local Analysis**: All data processing and transformations happen in your browser's secure sandbox. Your raw datasets are never sent to the cloud for analysis.
-- **Schema-Only AI**: We only share your table headers and a tiny sample with the AI to generate logic. Your full dataset remains strictly local.
-- **Zero Retention**: Your spreadsheets are stored in your private Convex instance, and analysis results are never used for model training.
+
+Catalyst is designed with a secure, **privacy-first** hybrid architecture:
+- **Private Cloud Storage**: Your raw datasets are uploaded and securely stored in your private Convex cloud database instance, ensuring persistence and rapid grid loading across sessions.
+- **Client-Side Sandbox Execution**: All data mutations, formulas, and code executions run securely inside your browser's local sandbox memory, keeping raw calculations isolated.
+- **Schema-Only AI Communication**: We **never** upload your full datasets to third-party AI models (Google Gemini). The compiler only receives your table schema (headers and types) and a tiny 3-row sample to safely generate the transformation script.
+- **Zero Model Training**: Your workspace is completely private; neither Convex nor third-party models retain or use your analytical results for training.
 
 ## Supported Formats & Exporting
 
