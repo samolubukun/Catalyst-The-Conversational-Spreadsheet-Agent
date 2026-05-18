@@ -30,33 +30,84 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const BackgroundElements = () => {
+    // Elegant background logos of various sizes and positions
+    const logos = [
+        { size: 24, top: "12%", left: "6%", delay: 0, duration: 24, xRange: [0, 15, -10, 0], yRange: [0, -25, 15, 0], opacity: 0.08 },
+        { size: 24, top: "22%", right: "8%", delay: 2, duration: 28, xRange: [0, -20, 15, 0], yRange: [0, 20, -15, 0], opacity: 0.12 },
+        { size: 32, top: "58%", left: "10%", delay: 1, duration: 20, xRange: [0, 10, -15, 0], yRange: [0, -15, 10, 0], opacity: 0.09 },
+        { size: 32, top: "72%", right: "5%", delay: 4, duration: 32, xRange: [0, -15, 20, 0], yRange: [0, 25, -20, 0], opacity: 0.10 },
+        { size: 24, top: "8%", right: "28%", delay: 3, duration: 26, xRange: [0, 20, -15, 0], yRange: [0, 15, -25, 0], opacity: 0.07 },
+        { size: 36, top: "45%", left: "26%", delay: 1.5, duration: 25, xRange: [0, -15, 10, 0], yRange: [0, -20, 20, 0], opacity: 0.06 },
+        { size: 40, top: "78%", left: "38%", delay: 5, duration: 30, xRange: [0, 25, -10, 0], yRange: [0, 20, -15, 0], opacity: 0.11 },
+        { size: 28, top: "38%", right: "22%", delay: 2.5, duration: 22, xRange: [0, -10, 15, 0], yRange: [0, -15, 15, 0], opacity: 0.08 }
+    ];
+
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            <motion.div 
-                animate={{ 
-                    rotate: [0, 90, 180, 270, 360],
-                    scale: [1, 1.1, 1]
-                }}
-                transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-                className="absolute -top-40 -right-40 w-[600px] h-[600px] border-4 border-emerald-500/10 rounded-full" 
-            />
-            <motion.div 
-                animate={{ 
-                    x: [0, 50, 0], 
-                    y: [0, -50, 0],
-                }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute top-1/2 left-0 w-[400px] h-[400px] border-4 border-emerald-400/10 rounded-none rotate-45" 
-            />
-            <div className="absolute inset-0 opacity-[0.05]"
+            {/* Elegant glowing background orbs to elevate the premium visual feel */}
+            <div className="absolute top-1/10 left-1/5 w-[500px] h-[500px] rounded-full bg-emerald-300/10 blur-[100px]" />
+            <div className="absolute bottom-1/10 right-1/5 w-[600px] h-[600px] rounded-full bg-teal-200/15 blur-[120px]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-slate-200/5 blur-[150px]" />
+
+            {/* Neo-brutalist tech grid overlay */}
+            <div className="absolute inset-0 opacity-[0.04]"
                 style={{ 
                     backgroundImage: `linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)`,
-                    backgroundSize: '60px 60px',
+                    backgroundSize: '80px 80px',
                 }}
             />
+
+            {/* Sizable, floating, interactive Catalyst logo elements */}
+            {logos.map((logo, index) => (
+                <motion.div
+                    key={index}
+                    style={{
+                        position: "absolute",
+                        top: logo.top,
+                        left: logo.left,
+                        right: logo.right,
+                        width: logo.size,
+                        height: logo.size,
+                        opacity: logo.opacity,
+                    }}
+                    animate={{
+                        x: logo.xRange,
+                        y: logo.yRange,
+                    }}
+                    whileHover={{
+                        scale: 1.25,
+                        opacity: 0.35,
+                        filter: "drop-shadow(0px 8px 20px rgba(16, 185, 129, 0.5))",
+                    }}
+                    transition={{
+                        x: {
+                            duration: logo.duration,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: logo.delay,
+                        },
+                        y: {
+                            duration: logo.duration * 0.85,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: logo.delay + 0.5,
+                        },
+                        scale: { duration: 0.3, ease: "easeOut" },
+                        opacity: { duration: 0.3, ease: "easeOut" }
+                    }}
+                    className="pointer-events-auto cursor-pointer"
+                >
+                    <img 
+                        src="/logo.png" 
+                        alt="Catalyst background logo hint" 
+                        className="w-full h-full object-contain filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.05)] transition-all" 
+                    />
+                </motion.div>
+            ))}
         </div>
     );
 };
+
 
 export default function LandingPage() {
     const router = useRouter();
