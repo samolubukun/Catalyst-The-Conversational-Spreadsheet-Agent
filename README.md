@@ -3,11 +3,11 @@
   <h1>Catalyst — The Conversational Data Agent</h1>
   
   <p align="center">
-    <img src="https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
-    <img src="https://img.shields.io/badge/Convex-Backend-22C55E?style=for-the-badge&logo=convex&logoColor=white" alt="Convex" />
-    <img src="https://img.shields.io/badge/Gemini-AI-8E75FF?style=for-the-badge&logo=google-gemini&logoColor=white" alt="Gemini" />
-    <img src="https://img.shields.io/badge/Tailwind-Styling-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
-    <img src="https://img.shields.io/badge/Stack_Auth-Identity-FF4B4B?style=for-the-badge&logo=auth0&logoColor=white" alt="Auth" />
+    <img src="https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=next.js&logoColor=white&labelColor=0F172A" alt="Next.js" />
+    <img src="https://img.shields.io/badge/Convex-Backend-10B981?style=for-the-badge&logo=convex&logoColor=white&labelColor=064E3B" alt="Convex" />
+    <img src="https://img.shields.io/badge/Gemini-AI-8E75FF?style=for-the-badge&logo=google-gemini&logoColor=white&labelColor=312E81" alt="Gemini" />
+    <img src="https://img.shields.io/badge/Tailwind-CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white&labelColor=0C4A6E" alt="Tailwind" />
+    <img src="https://img.shields.io/badge/Stack_Auth-Identity-F43F5E?style=for-the-badge&logo=auth0&logoColor=white&labelColor=881337" alt="Auth" />
   </p>
 </div>
 
