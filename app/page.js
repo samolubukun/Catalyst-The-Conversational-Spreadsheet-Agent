@@ -24,7 +24,8 @@ import {
     Code2,
     Globe,
     Users,
-    MessageSquare
+    MessageSquare,
+    TrendingUp
 } from 'lucide-react';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -175,7 +176,7 @@ export default function LandingPage() {
         {
             id: "in-chat-visuals",
             title: "In-Chat Visualizations",
-            icon: BarChart3,
+            icon: TrendingUp,
             desc: "You don't need to compile a full dashboard to visualize your data. Catalyst generates and embeds live, interactive Recharts (Line, Area, Composed, Horizontal Bar, Radar, Scatter, Bar, Pie) directly inside your ongoing conversational chat feed.",
             mechanic: "Inline Thread Visuals",
             query: "Show me a quick scatter plot comparing order volume against shipping costs directly in the thread.",
@@ -191,6 +192,15 @@ export default function LandingPage() {
             outcome: "Catalyst generates a 'Transform Block'. Click 'Preview Highlights' to see changes in amber, then 'Apply' to save permanently."
         },
         {
+            id: "reporting",
+            title: "Strategic Dashboarding",
+            icon: BarChart3,
+            desc: "Turn spreadsheets into high-fidelity executive dashboards with custom multi-grid layouts. Catalyst unifies all visuals with a custom Catalyst AI Intelligence Summary, offering strategic narratives from the perspective of an elite Advisory Lead.",
+            mechanic: "Strategic Grid Architecture",
+            query: "Generate an executive report with a massive revenue trend at the top and small category breakdowns below.",
+            outcome: "Instantly renders exactly the requested count of Area, Composed, Horizontal Bar, Radar, Scatter, Line, Bar, or Pie charts, complete with a professional corporate advisory summary."
+        },
+        {
             id: "research",
             title: "Multi-Agent Research",
             icon: Globe,
@@ -198,15 +208,6 @@ export default function LandingPage() {
             mechanic: "Web-to-Sheet Augmentation",
             query: "Find the current stock prices and CEOs for the company names in Column A, then show me a comparison table.",
             outcome: "The agent searches the web, scrapes official sites, and merges the findings into your workspace automatically."
-        },
-        {
-            id: "reporting",
-            title: "Strategic Dashboarding",
-            icon: BarChart3,
-            desc: "Turn spreadsheets into high-fidelity executive command centers with Tableau-inspired layouts. Catalyst unifies all visuals with a custom Catalyst AI Intelligence Summary, offering strategic narratives from the perspective of an elite Advisory Lead.",
-            mechanic: "Strategic Grid Architecture",
-            query: "Generate an executive report with a massive revenue trend at the top and small category breakdowns below.",
-            outcome: "Instantly renders exactly the requested count of Area, Composed, Horizontal Bar, Radar, Scatter, Line, Bar, or Pie charts, complete with a professional corporate advisory summary."
         },
         {
             id: "self-healing",
