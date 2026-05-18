@@ -159,7 +159,7 @@ export default function LandingPage() {
         { 
             icon: Code2, 
             title: "Self-Healing AI Sandbox", 
-            desc: "Your data runs locally. Catalyst's runtime compiler intercepts and auto-corrects AI variable spelling typos, preventing fatal browser crashes." 
+            desc: "Secure client-side compiler. Catalyst runs code executions securely in your browser's local sandbox, intercepting and auto-correcting AI variable spelling typos to prevent crashes." 
         }
     ];
     
