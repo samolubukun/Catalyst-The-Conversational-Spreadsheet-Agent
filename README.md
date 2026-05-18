@@ -41,9 +41,9 @@ Catalyst uses a unique **Schema-First Code Generation** strategy to solve the mo
 ```mermaid
 graph TD
     %% Styling Nodes
-    classDef client fill:#f8fafc,stroke:#475569,stroke-width:2px;
-    classDef convex fill:#ecfdf5,stroke:#10b981,stroke-width:2px;
-    classDef ai fill:#f5f3ff,stroke:#8e75ff,stroke-width:2px;
+    classDef client fill:#f8fafc,stroke:#475569,stroke-width:2px,color:#0f172a;
+    classDef convex fill:#ecfdf5,stroke:#10b981,stroke-width:2px,color:#065f46;
+    classDef ai fill:#f5f3ff,stroke:#8e75ff,stroke-width:2px,color:#5b21b6;
     
     %% User Actions
     User([User uploads Excel/CSV/JSON]) -->|1. Flatten & Ingest| Grid[AG Grid Client Sandbox]
