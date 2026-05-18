@@ -119,7 +119,7 @@ export default function LandingPage() {
         { 
             icon: Database, 
             title: "Unified Data Sources", 
-            desc: "Upload multiple Excel, CSV, or JSON sheets. Manage all unified files from the contextual 'Sources' header dashboard in a single workspace." 
+            desc: "Upload multiple Excel, CSV, or raw JSON sheets. Catalyst automatically flattens nested JSON structures into clean 2D relational grids, unifying all files under a single interactive workspace." 
         },
         { 
             icon: Bot, 
@@ -147,9 +147,9 @@ export default function LandingPage() {
             desc: "Slice and dice your data with natural language. No more complex pivot tables or hidden Excel menus." 
         },
         { 
-            icon: Search, 
-            title: "Universal Data Hub", 
-            desc: "Upload multiple CSV, Excel, and JSON files simultaneously. Catalyst unifies them into a single intelligent workspace." 
+            icon: Globe, 
+            title: "Web-to-Sheet Scraper", 
+            desc: "Enrich spreadsheets with live real-world knowledge. Catalyst's integrated search agent queries the web to pull fresh stock prices, addresses, or CEO names directly into your workbook." 
         },
         { 
             icon: History, 
@@ -336,11 +336,11 @@ export default function LandingPage() {
                                 </h3>
                                 <div className="space-y-6 pt-6">
                                     {[
-                                        "Upload Excel, CSV, or raw JSON data",
-                                        "Ask questions in plain English",
-                                        "Review and approve AI-generated changes",
-                                        "Export clean, structured data instantly"
-                                    ].map((text, i) => (
+                                         "Upload Excel, CSV, or raw JSON files",
+                                         "Catalyst flattens JSON objects to relational 2D grids",
+                                         "Interact, query, and transform with natural language",
+                                         "Export instantly in Excel, CSV, or structured JSON formats"
+                                     ].map((text, i) => (
                                         <div key={i} className="flex items-start gap-4">
                                             <div className="mt-1 w-6 h-6 border-2 border-black bg-emerald-400 flex items-center justify-center shrink-0">
                                                 <CheckCircle2 className="w-4 h-4 text-black" />
