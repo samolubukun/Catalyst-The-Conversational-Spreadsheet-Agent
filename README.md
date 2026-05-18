@@ -17,9 +17,58 @@ Catalyst is a comprehensive data analytics platform that allows you to interact 
 
 ---
 
+## Why Catalyst?
+
+Standard LLM chat platforms (like raw ChatGPT or Claude threads) are highly probabilistic and fail at precise spreadsheet operations because of three key limitations: **data privacy leaks**, **context token limits**, and **mathematical hallucinations** (LLMs do not calculate averages or growth curves; they simply guess the next word based on probability).
+
+Here is how Catalyst's **Schema-First Client Sandbox** compares:
+
+| Feature Dimension | Traditional AI Chat Thread | The Catalyst Protocol |
+| :--- | :--- | :--- |
+| **Mathematical Precision** | ❌ **High Hallucination**. Approximates sums, counts, and financial formulas probabilistically. | 🟢 **100% Deterministic**. Runs exact generated JavaScript code in a client-side execution sandbox. |
+| **Data Privacy** | ❌ **No Control**. Uploads your entire raw CSV/Excel contents to third-party AI cloud servers. | 🟢 **Strictly Local**. Raw dataset never leaves the browser. Only the schema and a 3-row sample are analyzed by the AI. |
+| **Dataset Size Limits** | ❌ **Strict Limits**. Crashes or runs out of context window when analyzing datasets over 5,000 rows. | 🟢 **Sub-Second Speed**. Processes spreadsheets with 10,000+ rows instantly via AG Grid browser memory. |
+| **Web Data Augmentation** | ❌ **Stale Data**. Restated static data limited to LLM training cutoff. | 🟢 **Live Web Scraping**. Automated search agent (Firecrawl) queries the web and injects live info to sheets. |
+
+---
+
 ## The Engine: Hybrid Agentic Architecture
 
 Catalyst uses a unique **Schema-First Code Generation** strategy to solve the most common problems in AI data analysis: token limits, privacy, and hallucinations.
+
+### Interactive Data Flow
+
+```mermaid
+graph TD
+    %% Styling Nodes
+    classDef client fill:#f8fafc,stroke:#475569,stroke-width:2px;
+    classDef convex fill:#ecfdf5,stroke:#10b981,stroke-width:2px;
+    classDef ai fill:#f5f3ff,stroke:#8e75ff,stroke-width:2px;
+    
+    %% User Actions
+    User([User uploads Excel/CSV/JSON]) -->|1. Flatten & Ingest| Grid[AG Grid Client Sandbox]
+    
+    %% Schema Extraction
+    Grid -->|2. Extracts Header Schema & 3-Row Sample| LocalEnv[Client Memory]
+    LocalEnv -->|3. Syncs Schema Meta| DB[(Convex Real-Time Database)]
+    
+    %% AI Generation
+    DB -->|4. Triggers Serverless Action| AIOrchestrator[Gemini AI Orchestrator]
+    AIOrchestrator -->|5. Generates Secure JS Transformation Logic| DB
+    
+    %% Client execution
+    DB -->|6. Pushes Code back to Client| Grid
+    Grid -->|7. Secure deterministic execution in browser sandbox| Output[Clean transformed spreadsheet / Dynamic Recharts Visuals]
+    
+    %% Web scraper integration
+    User -->|Conversational Web Scraper Command| ResearchAgent[Firecrawl Web Scraper Agent]
+    ResearchAgent -->|Browses & crawls web info| DB
+    DB -->|Merges rich datasets| Grid
+    
+    class User,Grid,LocalEnv,Output client;
+    class DB,ResearchAgent convex;
+    class AIOrchestrator ai;
+```
 
 ### How it Works:
 1.  **Context Optimization**: Instead of sending your entire dataset to the LLM, Catalyst only sends the **Table Schema** (columns/types) and a tiny 3-row sample. This reduces token usage by 99% and ensures absolute data privacy.
@@ -35,8 +84,27 @@ Catalyst uses a unique **Schema-First Code Generation** strategy to solve the mo
 -   **Smart Data Transformations**: Clean, format, and filter massive datasets by simply describing what you want to achieve.
 -   **Interactive AG Grid Integration**: View your data in a premium, enterprise-grade grid with real-time sync via Convex.
 -   **Automated Dashboards**: Generate "Blueprint Dashboards" instantly. The AI proposes layouts and charts which are then rendered live against your data.
--   **Multi-Agent Research**: Integrated with **Firecrawl** and **LangSearch** to augment your internal spreadsheets with real-world web data.
--   **Universal Versioning**: Track every change and transformation. Preview AI-proposed edits before applying them to your master record.
+-   **Universal Versioning**: Track every change and transformation. Preview AI-proposed edits in Amber Mode before applying them.
+
+---
+
+## The Catalyst Protocol: Agent Capabilities
+
+Catalyst operates under a state-of-the-art analytical architecture. It supports a full suite of interactive, context-aware agent behaviors:
+
+| Capability | Mechanic | Query Example | Expected Outcome |
+| :--- | :--- | :--- | :--- |
+| **Conversational Analytics** | Zero-Formula Q&A | *"What is the total sales? Which country had the highest volume?"* | Narratives with precise mathematical aggregates compiled instantly. |
+| **In-Chat Visualizations** | Inline Thread charts | *"Show me a quick scatter plot comparing volume vs. shipping costs."* | Embedded live interactive Recharts (Line, Area, Composed, Scatter, etc.) right in the chat feed (using `TrendingUp` styling). |
+| **Strategic Dashboarding** | Custom Multi-Grid | *"Generate an executive report with a revenue trend and small categories below."* | Multi-chart executive layouts complete with corporate advisory summaries. |
+| **Web-to-Sheet Scraper** | Live Scraper (Firecrawl) | *"Find stock prices and CEOs for company names in Column A."* | AI crawls the web in real-time, extracts fresh information, and merges it back into your grid. |
+| **The Transformation Engine** | Amber Preview | *"Capitalize names in Column B and fill missing values with the average."* | Enters Preview Mode, highlights changes in amber, and updates cell values upon approval. |
+| **Self-Healing Sandbox** | Auto-correcting typos | [AI spelling typos like `avgOrder` instead of `avgOrderValue`] | Compiler intercepts errors, declares variables dynamically, self-heals, and renders charts. |
+| **Cross-Sheet Intelligence** | Multi-Tab Relational Logic | *"Compare 'Inventory' sheet with 'Orders'. Which products have highest demand?"* | Resolves complex lookups and joins across sheet tabs in the same workbook. |
+| **Analytical Memory** | 10-turn Rearview Mirror | *"Filter results for Q4. [Follow-up] Show me the top 5 customers from them."* | Retains context for follow-up questions, understanding pronouns like "them", "those", or "that". |
+| **Dynamic Sheet Compilation** | Conversational Creation | *"Create a new tab called 'Q4 Targets' with mock target revenues."* | Generates the data array, appends the tab to the workbook, and shifts grid focus. |
+| **Cell Highlighting** | Visual Conditioning | *"Highlight rows where Country is USA in yellow and status Shipped in green."* | Evaluates conditional statements in real-time and injects styled cell metadata. |
+| **Undo/Redo Engine** | State-Snapshot rollback | *"Undo that transform. [Follow-up] Actually, redo it."* | Takes full state snapshots before any transformation to guarantee zero data loss. |
 
 ---
 
@@ -46,10 +114,15 @@ Catalyst is designed with a **privacy-first** architecture:
 - **Schema-Only AI**: We only share your table headers and a tiny sample with the AI to generate logic. Your full dataset remains strictly local.
 - **Zero Retention**: Your spreadsheets are stored in your private Convex instance, and analysis results are never used for model training.
 
-## Supported Formats
--   **Excel**: `.xlsx`, `.xls` (multi-sheet support)
--   **CSV**: Standard comma-separated values
--   **JSON**: Automatic flattening of structured data objects
+## Supported Formats & Exporting
+
+Catalyst handles seamless import and export transitions across three major data structures:
+
+*   **Excel (`.xlsx`, `.xls`)**: Import multi-sheet workbooks and export clean, structured Excel grids with original relational integrity intact.
+*   **CSV (Comma-Separated Values)**: High-speed ingestion of standard tabular documents and rapid export capability.
+*   **JSON (JavaScript Object Notation)**:
+    *   **Auto-Flattening Import**: Catalyst automatically parses complex, nested JSON objects or arrays and normalizes them into clean relational 2D grids with headers.
+    *   **Structured Export**: Download your final mutated workbook instantly as clean, modular JSON.
 
 ---
 
