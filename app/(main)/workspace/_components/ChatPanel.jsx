@@ -92,8 +92,8 @@ export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChan
         
         const loadingToast = toast.loading("Calculating changes...");
         try {
-            const transformFn = new Function("data", code);
-            const transformedData = transformFn(activeSheet.data);
+            const transformFn = new Function("data", "allSheets", code);
+            const transformedData = transformFn(activeSheet.data, allSheets || []);
             
             if (!Array.isArray(transformedData)) throw new Error("Code must return an array");
 
@@ -110,8 +110,8 @@ export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChan
         
         const loadingToast = toast.loading("Applying changes...");
         try {
-            const transformFn = new Function("data", code);
-            const transformedData = transformFn(activeSheet.data);
+            const transformFn = new Function("data", "allSheets", code);
+            const transformedData = transformFn(activeSheet.data, allSheets || []);
             
             if (!Array.isArray(transformedData)) throw new Error("Code must return an array");
 
@@ -137,8 +137,8 @@ export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChan
 
         const loadingToast = toast.loading("Generating sheet...");
         try {
-            const transformFn = new Function("data", code);
-            const newData = transformFn(activeSheet.data || []);
+            const transformFn = new Function("data", "allSheets", code);
+            const newData = transformFn(activeSheet.data || [], allSheets || []);
             
             if (!Array.isArray(newData)) throw new Error("Generated code must return an array of row objects");
 
