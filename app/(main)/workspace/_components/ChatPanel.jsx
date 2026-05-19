@@ -400,6 +400,7 @@ function AutoAnalyzer({ messageId, code, activeSheet, savedResult }) {
                     </div>
                 )}
                 
+                {/* 
                 <Button 
                     variant="ghost" 
                     size="sm" 
@@ -431,6 +432,7 @@ function AutoAnalyzer({ messageId, code, activeSheet, savedResult }) {
                         </div>
                     </div>
                 )}
+                */}
             </div>
         );
     }
@@ -453,6 +455,7 @@ function TransformBlock({ code, onPreview, onApply }) {
 
     return (
         <div className="flex flex-col gap-2">
+            {/* 
             <Button 
                 variant="ghost" 
                 size="sm" 
@@ -472,6 +475,7 @@ function TransformBlock({ code, onPreview, onApply }) {
                     </code>
                 </div>
             )}
+            */}
 
             <div className="grid grid-cols-2 gap-2 mt-1">
                 <Button 
@@ -628,6 +632,7 @@ function CreateSheetBlock({ code, name, activeSheet, onCreateSheet }) {
 
     return (
         <div className="flex flex-col gap-2">
+            {/* 
             <Button 
                 variant="ghost" 
                 size="sm" 
@@ -647,6 +652,7 @@ function CreateSheetBlock({ code, name, activeSheet, onCreateSheet }) {
                     </code>
                 </div>
             )}
+            */}
 
             <Button 
                 onClick={handleCreate}
