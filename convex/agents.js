@@ -64,9 +64,22 @@ export const orchestrate = action({
                 text: `User Request: "${args.userMessage}"
                 Context: ${context}
                 
-                Decide if you need to SEARCH the web or SCRAPE a specific URL.
+                Decide if you need to:
+                1. SEARCH the web once (single global query) -> "search"
+                2. SCRAPE a specific URL once -> "scrape"
+                3. BATCH SEARCH: Search for each row's value in a column (e.g. enriching/updating a sheet row-by-row with web research) -> "batch_search"
+                4. BATCH SCRAPE: Scrape a URL for each row in a column -> "batch_scrape"
+                5. Do nothing -> "none"
+                
                 Respond ONLY with a JSON object: 
-                {"action": "search" | "scrape" | "none", "query": "optimal query", "url": "url if scrape"}`
+                {
+                  "action": "search" | "scrape" | "batch_search" | "batch_scrape" | "none", 
+                  "query": "optimal query for single search", 
+                  "url": "url if single scrape",
+                  "queryTemplate": "template query for batch search (use '{ColumnName}' to represent the placeholder for row value, e.g. 'CEO of {Company}'), replacing ColumnName with the exact column header name",
+                  "urlTemplate": "template URL for batch scrape (use '{ColumnName}' to represent the placeholder, e.g. '{Website}'), replacing ColumnName with the exact column header name",
+                  "columnName": "the exact column header name to read values from"
+                }`
             }]
             }]
         })
@@ -80,6 +93,60 @@ export const orchestrate = action({
         } else if (decisionResult.action === "scrape" && firecrawlKey && decisionResult.url) {
             const result = await firecrawlScrape(decisionResult.url, firecrawlKey);
             extraContext = `Scraped Content from ${decisionResult.url}: ${result.markdown?.slice(0, 5000)}`;
+        } else if (decisionResult.action === "batch_search" && langSearchKey && args.activeSheetId) {
+            const activeSheet = allSheets.find(s => s._id === args.activeSheetId);
+            if (activeSheet && activeSheet.data.length > 0) {
+                const colName = decisionResult.columnName;
+                const template = decisionResult.queryTemplate || "search for {value}";
+                // Cap batch to 10 rows to keep it fast and stay within API rate limits/timeouts
+                const targetRows = activeSheet.data.slice(0, 10);
+                const batchResults = [];
+                for (let i = 0; i < targetRows.length; i++) {
+                    const row = targetRows[i];
+                    // Fallback to first property if column is missing
+                    const val = row[colName] || Object.values(row)[0] || "";
+                    if (val) {
+                        const query = template.replace(new RegExp(`{${colName}}`, 'g'), val).replace(/{value}/g, val);
+                        try {
+                            const res = await langSearch(query, langSearchKey);
+                            const snippet = res.webPages?.value?.[0]?.snippet || "No result found";
+                            batchResults.push({ rowIndex: i, rowValue: val, resultSnippet: snippet });
+                        } catch (err) {
+                            console.error(`Batch search failed for row ${i} (${val}):`, err);
+                            batchResults.push({ rowIndex: i, rowValue: val, resultSnippet: `Error: ${err.message}` });
+                        }
+                    }
+                }
+                extraContext = `BATCH ENRICHMENT SEARCH RESULTS PER ROW:\n${JSON.stringify(batchResults)}\n\nIMPORTANT: For batch search requests, ALWAYS set type to "transform" (or "create_sheet" if adding to a new sheet). In your JavaScript code, write a function that takes 'data' and maps these row-by-row pre-fetched search results back into a new or updated column. Do not call fetch or search in your JS code, use the batchResults dataset pre-fetched here! Example in code:\nconst batchResults = ${JSON.stringify(batchResults)};\nreturn data.map((row, idx) => { ... });`;
+            }
+        } else if (decisionResult.action === "batch_scrape" && firecrawlKey && args.activeSheetId) {
+            const activeSheet = allSheets.find(s => s._id === args.activeSheetId);
+            if (activeSheet && activeSheet.data.length > 0) {
+                const colName = decisionResult.columnName;
+                const template = decisionResult.urlTemplate || "{value}";
+                // Cap batch to 5 rows for scrapers as scraping is slower
+                const targetRows = activeSheet.data.slice(0, 5);
+                const batchResults = [];
+                for (let i = 0; i < targetRows.length; i++) {
+                    const row = targetRows[i];
+                    let val = row[colName] || Object.values(row)[0] || "";
+                    if (val) {
+                        let url = template.replace(new RegExp(`{${colName}}`, 'g'), val).replace(/{value}/g, val);
+                        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                            url = "https://" + url;
+                        }
+                        try {
+                            const res = await firecrawlScrape(url, firecrawlKey);
+                            const summary = res.markdown?.slice(0, 1000) || "Empty content";
+                            batchResults.push({ rowIndex: i, rowValue: val, resultSnippet: summary });
+                        } catch (err) {
+                            console.error(`Batch scrape failed for row ${i} (${url}):`, err);
+                            batchResults.push({ rowIndex: i, rowValue: val, resultSnippet: `Error: ${err.message}` });
+                        }
+                    }
+                }
+                extraContext = `BATCH ENRICHMENT SCRAPE RESULTS PER ROW:\n${JSON.stringify(batchResults)}\n\nIMPORTANT: For batch scrape requests, ALWAYS set type to "transform" (or "create_sheet" if adding to a new sheet). In your JavaScript code, write a function that takes 'data' and maps these row-by-row pre-fetched scrape results back into a new or updated column. Do not call fetch or scrape in your JS code, use the batchResults dataset pre-fetched here! Example in code:\nconst batchResults = ${JSON.stringify(batchResults)};\nreturn data.map((row, idx) => { ... });`;
+            }
         }
     } catch (e) {
         console.error("Agent Decision failed:", e);
