@@ -74,3 +74,6 @@ desktop.ini
 *.log
 
 .qodo/
+
+# Test scripts
+test_scraper.js
