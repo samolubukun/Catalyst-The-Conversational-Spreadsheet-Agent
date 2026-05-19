@@ -230,3 +230,71 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none !important; /* Safari and Chrome */
 }
+
+/* Premium Markdown Table Styling for Chat Messages */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  text-align: left;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.prose thead {
+  background-color: #0f172a;
+  color: #ffffff;
+}
+
+.prose th {
+  padding: 0.6rem 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+.prose tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  background-color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+.prose tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.prose tbody tr:hover {
+  background-color: rgba(16, 185, 129, 0.04);
+}
+
+.prose td {
+  padding: 0.5rem 0.8rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+/* Dark Mode Overrides */
+.dark .prose thead {
+  background-color: #020617;
+}
+
+.dark .prose tbody tr {
+  background-color: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.dark .prose tbody tr:nth-child(even) {
+  background-color: #0f172a;
+}
+
+.dark .prose tbody tr:hover {
+  background-color: rgba(16, 185, 129, 0.08);
+}
+
+.dark .prose td {
+  color: #cbd5e1;
+}

@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useQuery, useAction, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import ChartRenderer from '@/components/ChartRenderer';
@@ -212,7 +213,7 @@ export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChan
                                         : "bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-100 dark:border-slate-700 rounded-tl-none"
                                 )}>
                                     <div className="prose prose-sm dark:prose-invert max-w-none font-medium leading-relaxed">
-                                        <ReactMarkdown>
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                             {messageData.content}
                                         </ReactMarkdown>
                                     </div>

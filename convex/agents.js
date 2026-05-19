@@ -106,6 +106,7 @@ export const orchestrate = action({
               - ALWAYS insert double newlines ("\n\n") between paragraphs, bullet points, or key sections to ensure they render with clean spacing in the UI.
               - NEVER write run-on sentences or clump separate summaries, companies, or distinct entities into a single continuous block/paragraph of text.
               - Format links elegantly with descriptive custom text (e.g. [Benchling Website](http://www.benchling.com) instead of [Visit Website](http://www.benchling.com)).
+              - When generating Markdown Tables (such as financial models or WACC/growth sensitivity matrices), ALWAYS place a single newline ("\n") at the end of every table row (including the header row, separator row, and all data rows) so they parse and render as highly professional HTML tables. NEVER compress a table onto a single line.
               - Use rich styles like bold headers, bold inline keywords, and spacing to make complex information digestible at a glance.
               
               If the user wants to CLEAN, FORMAT, TRANSFORM, HIGHLIGHT, or COLOR-CODE the spreadsheet data:
