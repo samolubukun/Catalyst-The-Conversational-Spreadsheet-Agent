@@ -386,8 +386,10 @@ function AutoAnalyzer({ messageId, code, activeSheet, savedResult }) {
         return (
             <div className="mt-2 flex flex-col gap-2">
                 {narrativeText && (
-                    <div className="p-3 bg-emerald-600 text-white rounded-xl text-sm font-medium leading-relaxed shadow-sm">
-                        {narrativeText}
+                    <div className="p-3 bg-emerald-600 text-white rounded-xl text-sm font-medium leading-relaxed shadow-sm prose prose-sm prose-invert max-w-none">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {narrativeText}
+                        </ReactMarkdown>
                     </div>
                 )}
 

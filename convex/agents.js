@@ -206,7 +206,7 @@ export const orchestrate = action({
               - In "code", provide a JavaScript function body that takes an array 'data' and returns an object:
                 { 
                   raw: <any>, 
-                  narrative: "Natural language explanation",
+                  narrative: \`Natural language explanation using BACKTICKS (template literals) for all dynamic variables (e.g. \\\`Mean: \\\${mean.toFixed(2)}\\\`). CRITICAL: Always wrap the narrative string in backticks (not single/double quotes) if you are interpolating computed numbers using \\\${}, otherwise they render as literal code blocks! To output bullet lists in this narrative, you MUST insert a double newline (e.g. \\\`\\n\\n* \\\` or \\\`\\n\\n- \\\`) before each list item so they render as clean, distinct bullets instead of collapsing onto a single line with literal asterisks!\`,
                   chartConfig: { type: "bar"|"line"|"pie", xAxis: "columnName", yAxis: "columnName", data: <aggregatedDataArray> } (OPTIONAL)
                 }
               
