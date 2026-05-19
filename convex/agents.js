@@ -100,6 +100,14 @@ export const orchestrate = action({
               
               Analyze the request and decide the next step.
               
+              FORMATTING INSTRUCTIONS:
+              - Always format your text response ("content") with beautiful, rich, professional markdown structure.
+              - When listing multiple items, companies, suggestions, or insights, ALWAYS use bulleted lists (e.g. "* **Item Title**: Description") and place each item on its own separate line.
+              - ALWAYS insert double newlines ("\n\n") between paragraphs, bullet points, or key sections to ensure they render with clean spacing in the UI.
+              - NEVER write run-on sentences or clump separate summaries, companies, or distinct entities into a single continuous block/paragraph of text.
+              - Format links elegantly with descriptive custom text (e.g. [Benchling Website](http://www.benchling.com) instead of [Visit Website](http://www.benchling.com)).
+              - Use rich styles like bold headers, bold inline keywords, and spacing to make complex information digestible at a glance.
+              
               If the user wants to CLEAN, FORMAT, TRANSFORM, HIGHLIGHT, or COLOR-CODE the spreadsheet data:
               - Set "type" to "transform".
               - In "content", explain what you will do.
