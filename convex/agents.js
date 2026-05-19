@@ -3,6 +3,7 @@ import { action } from "./_generated/server";
 import { api } from "./_generated/api";
 import { langSearch } from "../lib/langsearch";
 import { firecrawlScrape } from "../lib/firecrawl";
+import { searchArxiv } from "../lib/arxiv";
 
 const model = process.env.GEMINI_MODEL || "gemini-2.0-flash-lite";
 
@@ -69,12 +70,13 @@ export const orchestrate = action({
                 2. SCRAPE a specific URL once -> "scrape"
                 3. BATCH SEARCH: Search for each row's value in a column (e.g. enriching/updating a sheet row-by-row with web research) -> "batch_search"
                 4. BATCH SCRAPE: Scrape a URL for each row in a column -> "batch_scrape"
-                5. Do nothing -> "none"
+                5. SEARCH ARXIV: Fetch academic research papers from arXiv -> "arxiv"
+                6. Do nothing -> "none"
                 
                 Respond ONLY with a JSON object: 
                 {
-                  "action": "search" | "scrape" | "batch_search" | "batch_scrape" | "none", 
-                  "query": "optimal query for single search", 
+                  "action": "search" | "scrape" | "batch_search" | "batch_scrape" | "arxiv" | "none", 
+                  "query": "optimal query for single search or arXiv query (e.g. 'all:electron' or 'cat:cs.AI' or specific keywords)", 
                   "url": "url if single scrape",
                   "queryTemplate": "template query for batch search (use '{ColumnName}' to represent the placeholder for row value, e.g. 'CEO of {Company}'), replacing ColumnName with the exact column header name",
                   "urlTemplate": "template URL for batch scrape (use '{ColumnName}' to represent the placeholder, e.g. '{Website}'), replacing ColumnName with the exact column header name",
@@ -93,6 +95,9 @@ export const orchestrate = action({
         } else if (decisionResult.action === "scrape" && firecrawlKey && decisionResult.url) {
             const result = await firecrawlScrape(decisionResult.url, firecrawlKey);
             extraContext = `Scraped Content from ${decisionResult.url}: ${result.markdown?.slice(0, 5000)}`;
+        } else if (decisionResult.action === "arxiv") {
+            const results = await searchArxiv(decisionResult.query, 10);
+            extraContext = `arXiv Academic Research Papers for query "${decisionResult.query}":\n${JSON.stringify(results)}\n\nIMPORTANT: For arXiv research, ALWAYS set type to "create_sheet". Explain the summaries professionally. Provide a short, catchy, professional name for the new sheet (e.g. "arXiv: cs.AI Papers"). In your JavaScript code, return a brand new array of row objects representing these papers. Each paper object must have: title, authors, publishedDate, pdfLink, infoLink, category, and a professional summary. Example in code:\nreturn ${JSON.stringify(results)};`;
         } else if (decisionResult.action === "batch_search" && langSearchKey && args.activeSheetId) {
             const activeSheet = allSheets.find(s => s._id === args.activeSheetId);
             if (activeSheet && activeSheet.data.length > 0) {
