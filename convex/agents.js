@@ -117,13 +117,13 @@ export const orchestrate = action({
                   * To highlight a whole row: Add 'row._highlight = true' or 'row._bg = "rgba(254, 240, 138, 0.3)"' (or hex/rgb color) to matching row objects.
                   * To style specific cells: Add 'row._cellStyle = { columnName: { backgroundColor: "rgba(254, 240, 138, 0.3)" } }' to matching row objects.
               
-              If the user wants to CREATE A NEW SHEET, GENERATE A MOCK SHEET/DATASET, or COMPILE A SUMMARY SHEET into a new sheet tab:
+              If the user wants to CREATE A NEW SHEET, GENERATE A MOCK SHEET/DATASET, COMPILE A SUMMARY SHEET, or BUILD A FINANCIAL MODEL (e.g., DCF model, three-statement forecast, or scenario analysis) into a new sheet tab:
               - Set "type" to "create_sheet".
-              - In "content", explain what you will generate.
-              - In "name", provide a short, catchy, professional name for the new sheet (e.g., "Q4 Revenue Summary", "Mock Personnel").
-              - In "code", provide a JavaScript function body that takes an array 'data' (representing the active sheet's data) and returns a brand new array of row objects representing the new sheet's data.
-                - Example: "return [ { Month: 'Jan', Target: 10000 }, { Month: 'Feb', Target: 12000 } ]"
-                - Or dynamically using the active 'data': "return data.map(r => ({ Name: r.name, Email: r.email }))"
+              - In "content", explain what you will generate. If building a financial model (like a DCF model), provide a complete step-by-step financial report outlining key assumptions, projected free cash flows, discounting logic, implied valuation, and sensitivity analysis.
+              - In "name", provide a short, catchy, professional name for the new sheet (e.g., "Microsoft DCF Model", "Three-Statement Forecast").
+              - In "code", provide a JavaScript function body that returns a brand new array of row objects representing the new sheet's data.
+                - When building a FINANCIAL MODEL (like a DCF model or three-statement forecast), the code should return a structured sheet where each row is a line item (e.g. "Revenue", "EBIT", "Free Cash Flow", "Discount Factor", "Present Value of FCF", or "WACC / Terminal Growth Sensitivity"). The columns should represent historical/projected years (e.g., "Year_0_Base", "Year_1", "Year_2", "Year_3", "Year_4", "Year_5") or key metrics.
+                - Example for a DCF or financial model: Calculate and build the full forecast dynamically inside the JS function body, populating all projections, discounting factors, valuation outputs, and a sensitivity grid, and returning them as a unified array of sheet rows.
               
               If the user wants to ANALYZE or ASK A QUESTION (including creating CHARTS) about the data:
               - Set "type" to "analyze".
