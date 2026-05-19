@@ -42,3 +42,20 @@ export const clear = mutation({
     }
   },
 });
+
+export const updateResult = mutation({
+  args: {
+    id: v.id("messages"),
+    result: v.any(),
+  },
+  handler: async (ctx, args) => {
+    const msg = await ctx.db.get(args.id);
+    if (!msg) return;
+    
+    const content = typeof msg.content === 'object' 
+      ? { ...msg.content, result: args.result } 
+      : { content: msg.content, result: args.result };
+      
+    await ctx.db.patch(args.id, { content });
+  },
+});

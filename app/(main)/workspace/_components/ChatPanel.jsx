@@ -232,7 +232,12 @@ export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChan
 
                                     {isAssistant && msg.type === 'analyze' && messageData.code && (
                                         <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-col gap-2">
-                                            <AutoAnalyzer code={messageData.code} activeSheet={activeSheet} />
+                                            <AutoAnalyzer 
+                                                messageId={msg._id}
+                                                code={messageData.code} 
+                                                activeSheet={activeSheet} 
+                                                savedResult={messageData.result}
+                                            />
                                         </div>
                                     )}
 
@@ -336,20 +341,29 @@ export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChan
 // Automatically executes the AI-generated JavaScript analysis code safely 
 // on the frontend using the active sheet data and renders the result.
 // ----------------------------------------------------------------------
-function AutoAnalyzer({ code, activeSheet }) {
-    const [result, setResult] = useState(null);
+function AutoAnalyzer({ messageId, code, activeSheet, savedResult }) {
+    const [result, setResult] = useState(savedResult || null);
     const [error, setError] = useState(null);
+    const updateMessageResult = useMutation(api.messages.updateResult);
 
     useEffect(() => {
+        if (savedResult) {
+            setResult(savedResult);
+            return;
+        }
         if (!activeSheet || !activeSheet.data) return;
         try {
             const analyzeFn = new Function("data", code);
             const res = analyzeFn(activeSheet.data);
             setResult(res);
+            updateMessageResult({
+                id: messageId,
+                result: res
+            }).catch(err => console.error("Failed to save analyze result:", err));
         } catch (e) {
             setError(e.message);
         }
-    }, [code, activeSheet]);
+    }, [code, activeSheet, savedResult, messageId, updateMessageResult]);
 
     const [showDev, setShowDev] = useState(false);
 

@@ -93,11 +93,44 @@ export default function ChartRenderer({ config, theme = 'catalyst' }) {
 
     const palette = THEME_PALETTES[theme] || THEME_PALETTES.catalyst;
     const PIE_COLORS = palette.pie;
+    const yAxisKey = config.yAxis;
+    const xAxisKey = config.xAxis;
+
+    // Sanitize data: strip $, %, and commas from numeric fields to ensure Recharts gets clean numbers
+    const sanitizedData = config.data.map(row => {
+        if (!row || typeof row !== 'object') return {};
+        const newRow = { ...row };
+        if (yAxisKey) {
+            let val = row[yAxisKey];
+            if (typeof val === 'string') {
+                const cleanVal = val.replace(/[\$,\s%]/g, '').trim();
+                const parsed = parseFloat(cleanVal);
+                newRow[yAxisKey] = isNaN(parsed) ? 0 : parsed;
+            } else if (typeof val === 'number') {
+                newRow[yAxisKey] = isNaN(val) ? 0 : val;
+            } else {
+                newRow[yAxisKey] = 0;
+            }
+        }
+        if (xAxisKey) {
+            let val = row[xAxisKey];
+            if (val === undefined || val === null) {
+                newRow[xAxisKey] = '';
+            } else if (typeof val === 'number' && isNaN(val)) {
+                newRow[xAxisKey] = '';
+            } else {
+                newRow[xAxisKey] = String(val);
+            }
+        }
+        return newRow;
+    });
 
     const formatYAxis = (value) => {
-        if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
-        if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
-        return value;
+        if (value === undefined || value === null || isNaN(value)) return '';
+        const numVal = Number(value);
+        if (numVal >= 1000000) return `${(numVal / 1000000).toFixed(1)}M`;
+        if (numVal >= 1000) return `${(numVal / 1000).toFixed(0)}K`;
+        return String(numVal);
     };
 
     const isDarkTheme = ['midnight', 'emerald', 'cyberpunk', 'aurora', 'corporate_dark'].includes(theme);
@@ -111,14 +144,14 @@ export default function ChartRenderer({ config, theme = 'catalyst' }) {
 
     const renderChart = () => {
         const commonXAxisProps = {
-            dataKey: config.xAxis,
+            dataKey: xAxisKey,
             axisLine: false,
             tickLine: false,
             tick: { fontSize: 9, fill: tickColor },
-            interval: config.data.length > 30 ? Math.ceil(config.data.length / 6) : 
-                      config.data.length > 15 ? 2 : 0,
-            angle: config.data.length > 5 ? -45 : 0,
-            textAnchor: config.data.length > 5 ? 'end' : 'middle',
+            interval: sanitizedData.length > 30 ? Math.ceil(sanitizedData.length / 6) : 
+                      sanitizedData.length > 15 ? 2 : 0,
+            angle: sanitizedData.length > 5 ? -45 : 0,
+            textAnchor: sanitizedData.length > 5 ? 'end' : 'middle',
             height: 60
         };
 
@@ -134,47 +167,47 @@ export default function ChartRenderer({ config, theme = 'catalyst' }) {
         switch (config.type?.toLowerCase()) {
             case 'bar':
                 return (
-                    <BarChart data={config.data} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
+                    <BarChart data={sanitizedData} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
                         <Tooltip contentStyle={tooltipContentStyle} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
-                        <Bar dataKey={config.yAxis} fill={palette.primary} radius={[4, 4, 0, 0]} barSize={40} />
+                        <Bar dataKey={yAxisKey} fill={palette.primary} radius={[4, 4, 0, 0]} barSize={40} />
                     </BarChart>
                 );
             case 'horizontalbar':
             case 'horizontal-bar':
             case 'horizontal_bar':
                 return (
-                    <BarChart layout="vertical" data={config.data} margin={{ top: 15, right: 25, left: 30, bottom: 15 }}>
+                    <BarChart layout="vertical" data={sanitizedData} margin={{ top: 15, right: 25, left: 30, bottom: 15 }}>
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={gridColor} />
                         <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
-                        <YAxis type="category" dataKey={config.xAxis} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} width={80} />
+                        <YAxis type="category" dataKey={xAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} width={80} />
                         <Tooltip contentStyle={tooltipContentStyle} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
-                        <Bar dataKey={config.yAxis} fill={palette.primary} radius={[0, 4, 4, 0]} barSize={20} />
+                        <Bar dataKey={yAxisKey} fill={palette.primary} radius={[0, 4, 4, 0]} barSize={20} />
                     </BarChart>
                 );
             case 'line':
                 return (
-                    <LineChart data={config.data} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
+                    <LineChart data={sanitizedData} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
                         <Tooltip contentStyle={tooltipContentStyle} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
-                        <Line type="monotone" dataKey={config.yAxis} stroke={palette.primary} strokeWidth={3} dot={{ r: 4, fill: palette.primary }} activeDot={{ r: 6 }} />
+                        <Line type="monotone" dataKey={yAxisKey} stroke={palette.primary} strokeWidth={3} dot={{ r: 4, fill: palette.primary }} activeDot={{ r: 6 }} />
                     </LineChart>
                 );
             case 'pie':
-                const pieTotal = config.data.reduce((sum, item) => sum + (Number(item[config.yAxis]) || 0), 0);
+                const pieTotal = sanitizedData.reduce((sum, item) => sum + (Number(item[yAxisKey]) || 0), 0);
                 return (
                     <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
                         <Pie
-                            data={config.data}
-                            dataKey={config.yAxis}
-                            nameKey={config.xAxis}
+                            data={sanitizedData}
+                            dataKey={yAxisKey}
+                            nameKey={xAxisKey}
                             cx="50%"
                             cy="50%"
                             outerRadius={70}
@@ -203,7 +236,7 @@ export default function ChartRenderer({ config, theme = 'catalyst' }) {
                             }}
                             labelLine={false}
                         >
-                            {config.data.map((entry, index) => (
+                            {sanitizedData.map((entry, index) => (
                                 <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                             ))}
                         </Pie>
@@ -211,7 +244,7 @@ export default function ChartRenderer({ config, theme = 'catalyst' }) {
                         <Legend 
                             wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} 
                             formatter={(value, entry) => {
-                                const rawVal = Number(entry.payload?.[config.yAxis]) || 0;
+                                const rawVal = Number(entry.payload?.[yAxisKey]) || 0;
                                 const percent = pieTotal > 0 ? (rawVal / pieTotal) : 0;
                                 return `${value} (${(percent * 100).toFixed(0)}%)`;
                             }}
@@ -221,7 +254,7 @@ export default function ChartRenderer({ config, theme = 'catalyst' }) {
             case 'area':
                 const gradientId = `colorArea-${theme}`;
                 return (
-                    <AreaChart data={config.data} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
+                    <AreaChart data={sanitizedData} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
                         <defs>
                             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor={palette.primary} stopOpacity={0.4}/>
@@ -233,28 +266,28 @@ export default function ChartRenderer({ config, theme = 'catalyst' }) {
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
                         <Tooltip contentStyle={tooltipContentStyle} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
-                        <Area type="monotone" dataKey={config.yAxis} stroke={palette.primary} strokeWidth={3} fillOpacity={1} fill={`url(#${gradientId})`} />
+                        <Area type="monotone" dataKey={yAxisKey} stroke={palette.primary} strokeWidth={3} fillOpacity={1} fill={`url(#${gradientId})`} />
                     </AreaChart>
                 );
             case 'composed':
                 return (
-                    <ComposedChart data={config.data} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
+                    <ComposedChart data={sanitizedData} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
                         <Tooltip contentStyle={tooltipContentStyle} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
-                        <Bar dataKey={config.yAxis} fill={palette.secondary} opacity={0.7} radius={[4, 4, 0, 0]} barSize={30} />
-                        <Line type="monotone" dataKey={config.yAxis} stroke={palette.primary} strokeWidth={3} dot={{ r: 4, fill: palette.primary }} />
+                        <Bar dataKey={yAxisKey} fill={palette.secondary} opacity={0.7} radius={[4, 4, 0, 0]} barSize={30} />
+                        <Line type="monotone" dataKey={yAxisKey} stroke={palette.primary} strokeWidth={3} dot={{ r: 4, fill: palette.primary }} />
                     </ComposedChart>
                 );
             case 'radar':
                 return (
-                    <RadarChart cx="50%" cy="50%" outerRadius="75%" data={config.data}>
+                    <RadarChart cx="50%" cy="50%" outerRadius="75%" data={sanitizedData}>
                         <PolarGrid stroke={gridColor} />
-                        <PolarAngleAxis dataKey={config.xAxis} tick={{ fontSize: 9, fill: tickColor }} />
+                        <PolarAngleAxis dataKey={xAxisKey} tick={{ fontSize: 9, fill: tickColor }} />
                         <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fontSize: 8, fill: tickColor }} />
-                        <Radar name={config.yAxis} dataKey={config.yAxis} stroke={palette.primary} fill={palette.primary} fillOpacity={0.4} />
+                        <Radar name={yAxisKey} dataKey={yAxisKey} stroke={palette.primary} fill={palette.primary} fillOpacity={0.4} />
                         <Tooltip contentStyle={tooltipContentStyle} />
                     </RadarChart>
                 );
@@ -263,10 +296,10 @@ export default function ChartRenderer({ config, theme = 'catalyst' }) {
                     <ScatterChart margin={{ top: 15, right: 20, left: -10, bottom: 35 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis type="category" {...commonXAxisProps} />
-                        <YAxis type="number" dataKey={config.yAxis} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
+                        <YAxis type="number" dataKey={yAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
                         <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={tooltipContentStyle} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
-                        <Scatter name={config.yAxis} data={config.data} fill={palette.primary} />
+                        <Scatter name={yAxisKey} data={sanitizedData} fill={palette.primary} />
                     </ScatterChart>
                 );
             default:
