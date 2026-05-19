@@ -85,6 +85,7 @@ graph TD
 -   **Interactive AG Grid Integration**: View your data in a premium, enterprise-grade grid with real-time sync via Convex.
 -   **Automated Dashboards**: Generate "Blueprint Dashboards" instantly. The AI proposes layouts and charts which are then rendered live against your data.
 -   **Universal Versioning**: Track every change and transformation. Preview AI-proposed edits in Amber Mode before applying them.
+-   **Academic Research Tracker**: Track and monitor scholarly publications directly inside your workspace via live arXiv integration, gathering complete abstracts, author details, direct PDF links, and custom AI-synthesized executive briefs.
 
 ---
 
@@ -98,6 +99,7 @@ Catalyst operates under a state-of-the-art analytical architecture. It supports 
 | **In-Chat Visualizations** | Inline Thread charts | *"Show me a quick scatter plot comparing volume vs. shipping costs."* | Embedded live interactive Recharts (Line, Area, Composed, Scatter, etc.) right in the chat feed (using `TrendingUp` styling). |
 | **Strategic Dashboarding** | Custom Multi-Grid | *"Generate an executive report with a revenue trend and small categories below."* | Multi-chart executive layouts complete with corporate advisory summaries. |
 | **Web-to-Sheet Scraper** | Live Scraper (Firecrawl) | *"Find stock prices and CEOs for company names in Column A."* | AI crawls the web in real-time, extracts fresh information, and merges it back into your grid. |
+| **Academic Paper Tracker** | arXiv API Ingestion | *"Find the latest research papers on 'Large Language Models' on arXiv."* | Queries the public arXiv database in real-time, extracts metadata, full abstracts, and direct PDF downloads into structured sheets. |
 | **The Transformation Engine** | Amber Preview | *"Capitalize names in Column B and fill missing values with the average."* | Enters Preview Mode, highlights changes in amber, and updates cell values upon approval. |
 | **Self-Healing Sandbox** | Auto-correcting typos | [AI spelling typos like `avgOrder` instead of `avgOrderValue`] | Compiler intercepts errors, declares variables dynamically, self-heals, and renders charts. |
 | **Cross-Sheet Intelligence** | Multi-Tab Relational Logic | *"Compare 'Inventory' sheet with 'Orders'. Which products have highest demand?"* | Resolves complex lookups and joins across sheet tabs in the same workbook. |
