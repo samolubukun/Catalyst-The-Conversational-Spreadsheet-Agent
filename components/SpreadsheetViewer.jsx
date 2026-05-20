@@ -16,7 +16,42 @@ ModuleRegistry.registerModules([
 export default function SpreadsheetViewer({ sheetData, originalData, onCellChange }) {
     const gridRef = useRef();
 
-    // Compute column definitions from data keys
+    // Memoize cell styling separately from column structure.
+    // This way columnDefs only rebuilds when the column keys change (new file loaded),
+    // NOT on every data update or preview toggle — a major cause of grid freezing.
+    const getCellStyle = useCallback((params) => {
+        const row = params.data;
+        if (row) {
+            if (row._cellStyle && row._cellStyle[params.colDef.field]) {
+                return row._cellStyle[params.colDef.field];
+            }
+            if (row._style && row._style[params.colDef.field]) {
+                return row._style[params.colDef.field];
+            }
+            const fieldHighlightKey = `_highlight_${params.colDef.field}`;
+            if (row[fieldHighlightKey]) {
+                return { backgroundColor: 'rgba(254, 240, 138, 0.25)', borderLeft: '4px solid #eab308' };
+            }
+        }
+        if (!originalData) return null;
+        const rowIndex = params.node.rowIndex;
+        const originalRow = originalData[rowIndex];
+        if (!originalRow) {
+            return { backgroundColor: 'rgba(16, 185, 129, 0.15)', borderLeft: '4px solid #10b981' };
+        }
+        const currentValue = params.value;
+        const originalValue = originalRow[params.colDef.field];
+        if (currentValue !== originalValue) {
+            return { backgroundColor: 'rgba(245, 158, 11, 0.15)', borderLeft: '4px solid #f59e0b' };
+        }
+        return null;
+    }, [originalData]);
+
+    // Derive a stable column key string — only changes when the actual column structure changes
+    const columnKeySignature = useMemo(() =>
+        sheetData && sheetData.length > 0 ? Object.keys(sheetData[0]).join(',') : ''
+    , [sheetData]);
+
     // Compute column definitions from data keys
     const columnDefs = useMemo(() => {
         if (!sheetData || sheetData.length === 0) return [];
@@ -27,45 +62,9 @@ export default function SpreadsheetViewer({ sheetData, originalData, onCellChang
             sortable: true,
             filter: true,
             editable: true,
-            // Cell styling for dynamic AI styles and diff highlights
-            cellStyle: (params) => {
-                const row = params.data;
-                if (row) {
-                    // Check for custom cell style injected by the AI
-                    if (row._cellStyle && row._cellStyle[params.colDef.field]) {
-                        return row._cellStyle[params.colDef.field];
-                    }
-                    if (row._style && row._style[params.colDef.field]) {
-                        return row._style[params.colDef.field];
-                    }
-                    const fieldHighlightKey = `_highlight_${params.colDef.field}`;
-                    if (row[fieldHighlightKey]) {
-                        return { backgroundColor: 'rgba(254, 240, 138, 0.25)', borderLeft: '4px solid #eab308' };
-                    }
-                }
-
-                if (!originalData) return null;
-                
-                const rowIndex = params.node.rowIndex;
-                const originalRow = originalData[rowIndex];
-                
-                if (!originalRow) {
-                    // New row
-                    return { backgroundColor: 'rgba(16, 185, 129, 0.15)', borderLeft: '4px solid #10b981' };
-                }
-                
-                const currentValue = params.value;
-                const originalValue = originalRow[params.colDef.field];
-                
-                if (currentValue !== originalValue) {
-                    // Modified cell
-                    return { backgroundColor: 'rgba(245, 158, 11, 0.15)', borderLeft: '4px solid #f59e0b' };
-                }
-                
-                return null;
-            }
+            cellStyle: getCellStyle,
         }));
-    }, [sheetData, originalData]);
+    }, [columnKeySignature, getCellStyle]);
 
     const defaultColDef = useMemo(() => ({
         flex: 1,
@@ -111,7 +110,8 @@ export default function SpreadsheetViewer({ sheetData, originalData, onCellChang
                 defaultColDef={defaultColDef}
                 onCellValueChanged={onCellValueChanged}
                 getRowStyle={getRowStyle}
-                animateRows={true}
+                animateRows={false}
+                rowBuffer={20}
                 pagination={true}
                 paginationPageSize={50}
                 rowSelection="multiple"

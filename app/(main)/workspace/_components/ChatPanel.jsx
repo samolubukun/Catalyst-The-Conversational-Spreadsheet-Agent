@@ -15,7 +15,7 @@ import ChartRenderer from '@/components/ChartRenderer';
 import { UserContext } from '@/app/_context/UserContext';
 import { useContext } from 'react';
 
-export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChange, onPreview, onClearPreview }) {
+export default function ChatPanel({ workbookId, activeSheetId, allSheets: allSheetsProp, onActiveSheetChange, onPreview, onClearPreview }) {
     const { userData } = useContext(UserContext);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
@@ -24,7 +24,9 @@ export default function ChatPanel({ workbookId, activeSheetId, onActiveSheetChan
 
     const messages = useQuery(api.messages.list, { workbookId }) || [];
     const activeSheet = useQuery(api.sheets.getById, activeSheetId ? { id: activeSheetId } : "skip");
-    const allSheets = useQuery(api.sheets.getByWorkbook, { workbookId }) || [];
+    // Use the pre-fetched allSheets prop from the parent if available (avoids duplicate subscription)
+    const allSheetsQuery = useQuery(api.sheets.getByWorkbook, allSheetsProp ? "skip" : { workbookId });
+    const allSheets = allSheetsProp || allSheetsQuery || [];
     const orchestrate = useAction(api.agents.orchestrate);
     const updateSheetData = useMutation(api.sheets.updateData);
     const createDashboard = useMutation(api.dashboards.create);
@@ -346,13 +348,20 @@ function AutoAnalyzer({ messageId, code, activeSheet, savedResult }) {
     const [result, setResult] = useState(savedResult || null);
     const [error, setError] = useState(null);
     const updateMessageResult = useMutation(api.messages.updateResult);
+    // Guard: prevent re-executing expensive JS sandbox on every Convex subscription tick.
+    // Once the analysis runs and is saved via updateMessageResult, savedResult will be
+    // populated on the next render and the early-return at the top handles subsequent renders.
+    const hasRun = useRef(false);
 
     useEffect(() => {
         if (savedResult) {
             setResult(savedResult);
             return;
         }
+        if (hasRun.current) return; // Already executed; waiting for savedResult to persist
         if (!activeSheet || !activeSheet.data) return;
+
+        hasRun.current = true;
         try {
             const analyzeFn = new Function("data", code);
             const res = analyzeFn(activeSheet.data);

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, use, useEffect } from 'react'
+import { useState, use, useEffect, useMemo, useCallback, useRef } from 'react'
 import { useQuery, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { cn } from '@/lib/utils'
@@ -54,7 +54,10 @@ export default function Workspace({ params }) {
     const files = useQuery(api.files.getByWorkbook, { workbookId });
     const updateSheetData = useMutation(api.sheets.updateData);
     const sheets = useQuery(api.sheets.getByWorkbook, { workbookId });
-    const activeSheet = sheets?.find(s => s._id === activeSheetId) || sheets?.[0];
+    const activeSheet = useMemo(
+        () => sheets?.find(s => s._id === activeSheetId) || sheets?.[0],
+        [sheets, activeSheetId]
+    );
     const removeSheet = useMutation(api.sheets.remove);
     const removeFile = useMutation(api.files.remove);
     
@@ -69,21 +72,26 @@ export default function Workspace({ params }) {
         if (sheets?.length > 0 && !activeSheetId) {
             setActiveSheetId(sheets[0]._id);
         }
-    }, [sheets]);
+    }, [sheets, activeSheetId]);
 
-    const handleCellChange = async (data, field, value) => {
+    const cellEditDebounceRef = useRef(null);
+    const handleCellChange = useCallback((data, field, value) => {
         if (!activeSheetId) return;
-        try {
-            await updateSheetData({
-                id: activeSheetId,
-                data: data,
-            });
-            toast.success("Saved manual edit");
-        } catch (e) {
-            console.error(e);
-            toast.error("Failed to save edit");
-        }
-    };
+        // Debounce: wait 800ms after the last keystroke before persisting to DB
+        if (cellEditDebounceRef.current) clearTimeout(cellEditDebounceRef.current);
+        cellEditDebounceRef.current = setTimeout(async () => {
+            try {
+                await updateSheetData({
+                    id: activeSheetId,
+                    data: data,
+                });
+                toast.success("Saved manual edit");
+            } catch (e) {
+                console.error(e);
+                toast.error("Failed to save edit");
+            }
+        }, 800);
+    }, [activeSheetId, updateSheetData]);
 
     const toggleDashboardPublic = async (id, currentPublic) => {
         await updateDashboard({ id, isPublic: !currentPublic });
@@ -499,7 +507,8 @@ export default function Workspace({ params }) {
                 )}>
                     <ChatPanel 
                         workbookId={workbookId} 
-                        activeSheetId={activeSheet?._id} 
+                        activeSheetId={activeSheet?._id}
+                        allSheets={sheets || []}
                         onActiveSheetChange={setActiveSheetId}
                         onPreview={setPreviewData}
                         onClearPreview={() => setPreviewData(null)}
