@@ -331,9 +331,12 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
                         {isTyping ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
                     </Button>
                 </div>
-                <p className="text-[10px] text-center text-slate-400 mt-2 font-medium">
-                    Catalyst executes code in a secure sandbox. All changes can be previewed.
-                </p>
+                <div className="flex justify-between items-center text-[10px] text-slate-400 mt-2 font-medium px-1">
+                    <span>Catalyst executes code in a secure sandbox. All changes can be previewed.</span>
+                    {userData && (
+                        <span className="font-black text-emerald-600 dark:text-emerald-400 shrink-0">{userData.credits ?? 0} Credits Left</span>
+                    )}
+                </div>
             </div>
         </div>
     );

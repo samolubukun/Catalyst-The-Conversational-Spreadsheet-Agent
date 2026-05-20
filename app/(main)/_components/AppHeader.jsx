@@ -113,6 +113,13 @@ function AppHeader() {
                     </div>
                 )}
                 
+                {userData && (
+                    <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1 rounded-full text-xs font-bold text-slate-700 dark:text-slate-300 shadow-sm shrink-0 select-none">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>{userData.credits ?? 0} Credits</span>
+                    </div>
+                )}
+                
                 <UserButton />
             </div>
         </div>

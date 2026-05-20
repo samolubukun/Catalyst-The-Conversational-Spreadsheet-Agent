@@ -26,6 +26,29 @@ export const orchestrate = action({
       type: "text",
     });
 
+    // 0.1 Check and deduct User Credits
+    const workbook = await ctx.runQuery(api.workbooks.getById, { id: args.workbookId });
+    if (!workbook) throw new Error("Workbook not found");
+    const userId = workbook.userId;
+
+    const user = await ctx.runQuery(api.users.getUserById, { id: userId });
+    if (!user || user.credits < 1) {
+        const errorContent = {
+            type: "text",
+            content: `⚠️ **Insufficient Credits**: You have run out of credits! (Remaining: ${user ? user.credits : 0}). Please top up your credits to continue asking the AI.`
+        };
+        await ctx.runMutation(api.messages.send, {
+            workbookId: args.workbookId,
+            role: "assistant",
+            content: errorContent,
+            type: "text",
+        });
+        return errorContent;
+    }
+
+    // Deduct 1 credit
+    await ctx.runMutation(api.users.deductCredit, { userId, amount: 1 });
+
     // 1. Fetch Global Workbook Context (All Sheets)
     const allSheets = await ctx.runQuery(api.sheets.getByWorkbook, { workbookId: args.workbookId });
     const sheetsSummary = allSheets.map(s => {
