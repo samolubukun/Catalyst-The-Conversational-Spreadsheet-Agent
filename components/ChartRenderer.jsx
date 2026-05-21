@@ -25,7 +25,17 @@ import {
     ScatterChart,
     Scatter
 } from 'recharts';
-import { cn } from "@/lib/utils";
+const formatTooltipValue = (value) => {
+    if (value === null || value === undefined) return 'N/A';
+    if (typeof value === 'number') {
+        return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
+    const parsed = Number(value);
+    if (!isNaN(parsed) && String(value).trim() !== '') {
+        return parsed.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
+    return value;
+};
 
 const THEME_PALETTES = {
     catalyst: {
@@ -208,7 +218,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
-                        <Tooltip contentStyle={tooltipContentStyle} cursor={false} />
+                        <Tooltip contentStyle={tooltipContentStyle} cursor={false} formatter={(value, name) => [formatTooltipValue(value), name]} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
                         <Bar dataKey={yAxisKey} fill={palette.primary} radius={[4, 4, 0, 0]} barSize={40} />
                     </BarChart>
@@ -221,7 +231,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={gridColor} />
                         <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
                         <YAxis type="category" dataKey={xAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} width={80} />
-                        <Tooltip contentStyle={tooltipContentStyle} cursor={false} />
+                        <Tooltip contentStyle={tooltipContentStyle} cursor={false} formatter={(value, name) => [formatTooltipValue(value), name]} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
                         <Bar dataKey={yAxisKey} fill={palette.primary} radius={[0, 4, 4, 0]} barSize={20} />
                     </BarChart>
@@ -232,7 +242,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
-                        <Tooltip contentStyle={tooltipContentStyle} />
+                        <Tooltip contentStyle={tooltipContentStyle} formatter={(value, name) => [formatTooltipValue(value), name]} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
                         <Line type="monotone" dataKey={yAxisKey} stroke={palette.primary} strokeWidth={3} dot={{ r: 4, fill: palette.primary }} activeDot={{ r: 6 }} />
                     </LineChart>
@@ -277,7 +287,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                                 <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                             ))}
                         </Pie>
-                        <Tooltip contentStyle={tooltipContentStyle} />
+                        <Tooltip contentStyle={tooltipContentStyle} formatter={(value, name) => [formatTooltipValue(value), name]} />
                         <Legend 
                             wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} 
                             formatter={(value, entry) => {
@@ -301,7 +311,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
-                        <Tooltip contentStyle={tooltipContentStyle} />
+                        <Tooltip contentStyle={tooltipContentStyle} formatter={(value, name) => [formatTooltipValue(value), name]} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
                         <Area type="monotone" dataKey={yAxisKey} stroke={palette.primary} strokeWidth={3} fillOpacity={1} fill={`url(#${gradientId})`} />
                     </AreaChart>
@@ -312,7 +322,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
-                        <Tooltip contentStyle={tooltipContentStyle} cursor={false} />
+                        <Tooltip contentStyle={tooltipContentStyle} cursor={false} formatter={(value, name) => [formatTooltipValue(value), name]} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
                         <Bar dataKey={yAxisKey} fill={palette.secondary} opacity={0.7} radius={[4, 4, 0, 0]} barSize={30} />
                         <Line type="monotone" dataKey={yAxisKey} stroke={palette.primary} strokeWidth={3} dot={{ r: 4, fill: palette.primary }} />
@@ -325,7 +335,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         <PolarAngleAxis dataKey={xAxisKey} tick={{ fontSize: 9, fill: tickColor }} />
                         <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fontSize: 8, fill: tickColor }} />
                         <Radar name={yAxisKey} dataKey={yAxisKey} stroke={palette.primary} fill={palette.primary} fillOpacity={0.4} />
-                        <Tooltip contentStyle={tooltipContentStyle} />
+                        <Tooltip contentStyle={tooltipContentStyle} formatter={(value, name) => [formatTooltipValue(value), name]} />
                     </RadarChart>
                 );
             case 'scatter':
@@ -334,7 +344,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis type="category" {...commonXAxisProps} />
                         <YAxis type="number" dataKey={yAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
-                        <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={tooltipContentStyle} />
+                        <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={tooltipContentStyle} formatter={(value, name) => [formatTooltipValue(value), name]} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
                         <Scatter name={yAxisKey} data={sanitizedData} fill={palette.primary} />
                     </ScatterChart>
