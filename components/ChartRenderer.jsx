@@ -86,12 +86,49 @@ const THEME_PALETTES = {
     }
 };
 
-export default function ChartRenderer({ config, theme = 'catalyst' }) {
+const adjustColorBrightness = (hex, percent) => {
+    if (!hex || hex.length < 7) return hex || '#10b981';
+    try {
+        let R = parseInt(hex.substring(1, 3), 16);
+        let G = parseInt(hex.substring(3, 5), 16);
+        let B = parseInt(hex.substring(5, 7), 16);
+
+        R = parseInt((R * (100 + percent)) / 100);
+        G = parseInt((G * (100 + percent)) / 100);
+        B = parseInt((B * (100 + percent)) / 100);
+
+        R = Math.min(255, Math.max(0, R));
+        G = Math.min(255, Math.max(0, G));
+        B = Math.min(255, Math.max(0, B));
+
+        const rHex = R.toString(16).padStart(2, '0');
+        const gHex = G.toString(16).padStart(2, '0');
+        const bHex = B.toString(16).padStart(2, '0');
+
+        return `#${rHex}${gHex}${bHex}`;
+    } catch (e) {
+        return hex;
+    }
+};
+
+export default function ChartRenderer({ config, theme = 'catalyst', customColor = null }) {
     if (!config || !config.data || !Array.isArray(config.data)) {
         return <div className="p-4 text-slate-500 text-xs italic">Invalid chart configuration</div>;
     }
 
-    const palette = THEME_PALETTES[theme] || THEME_PALETTES.catalyst;
+    let palette = { ...(THEME_PALETTES[theme] || THEME_PALETTES.catalyst) };
+    if (customColor) {
+        palette.primary = customColor;
+        palette.secondary = adjustColorBrightness(customColor, -15);
+        palette.pie = [
+            customColor,
+            adjustColorBrightness(customColor, -15),
+            adjustColorBrightness(customColor, -30),
+            adjustColorBrightness(customColor, 15),
+            adjustColorBrightness(customColor, 30),
+            adjustColorBrightness(customColor, -45)
+        ];
+    }
     const PIE_COLORS = palette.pie;
     const yAxisKey = config.yAxis;
     const xAxisKey = config.xAxis;
