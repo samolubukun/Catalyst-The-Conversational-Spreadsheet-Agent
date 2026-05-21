@@ -68,11 +68,23 @@ export default function Workspace({ params }) {
     const undo = useMutation(api.sheets.undo);
     const redo = useMutation(api.sheets.redo);
 
+    const [pendingActiveFileId, setPendingActiveFileId] = useState(null);
+
     useEffect(() => {
         if (sheets?.length > 0 && !activeSheetId) {
             setActiveSheetId(sheets[0]._id);
         }
     }, [sheets, activeSheetId]);
+
+    useEffect(() => {
+        if (pendingActiveFileId && sheets?.length > 0) {
+            const newSheet = sheets.find(s => s.fileId === pendingActiveFileId);
+            if (newSheet) {
+                setActiveSheetId(newSheet._id);
+                setPendingActiveFileId(null);
+            }
+        }
+    }, [sheets, pendingActiveFileId]);
 
     const cellEditDebounceRef = useRef(null);
     const handleCellChange = useCallback((data, field, value) => {
@@ -493,7 +505,10 @@ export default function Workspace({ params }) {
                             <div className="max-w-md w-full">
                                 <FileUploader 
                                     workbookId={workbookId} 
-                                    onUploadComplete={(fileId) => toast.success("File uploaded and parsed!")} 
+                                    onUploadComplete={(fileId) => {
+                                        setPendingActiveFileId(fileId);
+                                        toast.success("File uploaded and parsed!");
+                                    }} 
                                 />
                             </div>
                         </div>
@@ -543,7 +558,8 @@ export default function Workspace({ params }) {
                         </DialogHeader>
                         <FileUploader 
                             workbookId={workbookId} 
-                            onUploadComplete={() => {
+                            onUploadComplete={(fileId) => {
+                                setPendingActiveFileId(fileId);
                                 setIsUploaderModalOpen(false);
                                 toast.success("Additional data merged into workspace!");
                             }} 
