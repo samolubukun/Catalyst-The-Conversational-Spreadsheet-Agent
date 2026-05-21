@@ -208,7 +208,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
-                        <Tooltip contentStyle={tooltipContentStyle} />
+                        <Tooltip contentStyle={tooltipContentStyle} cursor={false} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
                         <Bar dataKey={yAxisKey} fill={palette.primary} radius={[4, 4, 0, 0]} barSize={40} />
                     </BarChart>
@@ -221,7 +221,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={gridColor} />
                         <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
                         <YAxis type="category" dataKey={xAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} width={80} />
-                        <Tooltip contentStyle={tooltipContentStyle} />
+                        <Tooltip contentStyle={tooltipContentStyle} cursor={false} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
                         <Bar dataKey={yAxisKey} fill={palette.primary} radius={[0, 4, 4, 0]} barSize={20} />
                     </BarChart>
@@ -312,7 +312,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
                         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
-                        <Tooltip contentStyle={tooltipContentStyle} />
+                        <Tooltip contentStyle={tooltipContentStyle} cursor={false} />
                         <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
                         <Bar dataKey={yAxisKey} fill={palette.secondary} opacity={0.7} radius={[4, 4, 0, 0]} barSize={30} />
                         <Line type="monotone" dataKey={yAxisKey} stroke={palette.primary} strokeWidth={3} dot={{ r: 4, fill: palette.primary }} />
