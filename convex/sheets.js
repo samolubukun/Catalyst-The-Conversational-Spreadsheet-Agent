@@ -202,6 +202,20 @@ export const getByWorkbook = query({
   },
 });
 
+export const getByWorkbookMetadata = query({
+  args: { workbookId: v.id("workbooks") },
+  handler: async (ctx, args) => {
+    const sheets = await ctx.db
+      .query("sheets")
+      .withIndex("by_workbook", (q) => q.eq("workbookId", args.workbookId))
+      .order("asc")
+      .collect();
+    
+    // Strip the raw data array to keep the payload ultra-lightweight!
+    return sheets.map(({ data, ...metadata }) => metadata);
+  },
+});
+
 export const getById = query({
   args: { id: v.id("sheets") },
   handler: async (ctx, args) => {
