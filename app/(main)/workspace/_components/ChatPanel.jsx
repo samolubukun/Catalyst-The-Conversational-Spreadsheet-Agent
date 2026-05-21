@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Send, User, Bot, Loader2, Play, Sparkles, MessageSquare, Zap, BarChart3, Database } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { useQuery, useAction, useMutation } from "convex/react";
+import { useQuery, useAction, useMutation, useConvex } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -33,6 +33,7 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
     const createSheet = useMutation(api.sheets.create);
     const createFile = useMutation(api.files.createFile);
     const updateFileStatus = useMutation(api.files.updateStatus);
+    const convex = useConvex();
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -96,8 +97,9 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
         
         const loadingToast = toast.loading("Calculating changes...");
         try {
+            const fullSheets = await convex.query(api.sheets.getByWorkbook, { workbookId });
             const transformFn = new Function("data", "allSheets", code);
-            const transformedData = transformFn(activeSheet.data, allSheets || []);
+            const transformedData = transformFn(activeSheet.data, fullSheets || []);
             
             if (!Array.isArray(transformedData)) throw new Error("Code must return an array");
 
@@ -114,8 +116,9 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
         
         const loadingToast = toast.loading("Applying changes...");
         try {
+            const fullSheets = await convex.query(api.sheets.getByWorkbook, { workbookId });
             const transformFn = new Function("data", "allSheets", code);
-            const transformedData = transformFn(activeSheet.data, allSheets || []);
+            const transformedData = transformFn(activeSheet.data, fullSheets || []);
             
             if (!Array.isArray(transformedData)) throw new Error("Code must return an array");
 
@@ -141,8 +144,9 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
 
         const loadingToast = toast.loading("Generating sheet...");
         try {
+            const fullSheets = await convex.query(api.sheets.getByWorkbook, { workbookId });
             const transformFn = new Function("data", "allSheets", code);
-            const newData = transformFn(activeSheet.data || [], allSheets || []);
+            const newData = transformFn(activeSheet.data || [], fullSheets || []);
             
             if (!Array.isArray(newData)) throw new Error("Generated code must return an array of row objects");
 
@@ -168,7 +172,7 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
                 });
             }
 
-            const nextOrder = allSheets ? allSheets.length : 1;
+            const nextOrder = fullSheets ? fullSheets.length : 1;
 
             const sheetId = await createSheet({
                 fileId: targetFileId,
