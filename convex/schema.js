@@ -73,5 +73,6 @@ export default defineSchema({
     name: v.string(),
     config: v.any(), // Array of widgets: { type, title, notes, chartConfig }
     isPublic: v.boolean(),
+    designSettings: v.optional(v.any()), // Persistent layout design studio settings
   }).index("by_workbook", ["workbookId"]).index("by_user", ["userId"]),
 });
