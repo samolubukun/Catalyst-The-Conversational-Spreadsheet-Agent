@@ -17,7 +17,7 @@ export default defineSchema({
 
   files: defineTable({
     workbookId: v.id('workbooks'),
-    storageId: v.id("_storage"),
+    storageId: v.optional(v.id("_storage")),
     name: v.string(),
     type: v.string(), // xlsx, csv, json
     status: v.string(), // uploading, processing, ready, error
