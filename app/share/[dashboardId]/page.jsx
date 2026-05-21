@@ -51,35 +51,85 @@ const SPACING_MAP = {
     }
 };
 
+const getThemeCardBase = (theme) => {
+    switch (theme) {
+        case 'catalyst':
+            return "bg-white dark:bg-slate-900 text-slate-900 dark:text-white";
+        case 'executive':
+            return "bg-white text-slate-900";
+        case 'midnight':
+            return "bg-slate-900 text-white";
+        case 'emerald':
+            return "bg-[#06281e] text-emerald-50";
+        case 'cyberpunk':
+            return "bg-[#110924] text-white";
+        case 'aurora':
+            return "bg-white/5 backdrop-blur-xl text-white";
+        case 'corporate':
+            return "bg-white text-slate-900";
+        case 'minimalist':
+            return "bg-white text-stone-900";
+        default:
+            return "bg-white dark:bg-slate-900 text-slate-900 dark:text-white";
+    }
+};
+
+const getThemeHeroBase = (theme) => {
+    switch (theme) {
+        case 'catalyst':
+            return "bg-black text-white";
+        case 'executive':
+            return "bg-white text-slate-900";
+        case 'midnight':
+            return "bg-slate-900 text-white";
+        case 'emerald':
+            return "bg-emerald-900 text-emerald-50";
+        case 'cyberpunk':
+            return "bg-[#110924] text-white";
+        case 'aurora':
+            return "bg-white/5 backdrop-blur-xl text-white";
+        case 'corporate':
+            return "bg-[#0b1329] text-white";
+        case 'minimalist':
+            return "bg-[#1c1917] text-stone-100";
+        default:
+            return "bg-black text-white";
+    }
+};
+
 const getCardShapeClasses = (theme, shape) => {
     if (shape === 'theme') {
         return cn(
-            theme === 'catalyst' && "bg-white dark:bg-slate-900 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]",
-            theme === 'executive' && "bg-white border-2 border-slate-100 shadow-lg rounded-[2rem]",
-            theme === 'midnight' && "bg-slate-900 border-2 border-indigo-500/30 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.35)] rounded-[2rem]",
-            theme === 'emerald' && "bg-[#06281e] border-2 border-emerald-500/30 shadow-[4px_4px_0px_0px_rgba(234,179,8,0.15)] rounded-[2rem]",
-            theme === 'cyberpunk' && "bg-[#110924] border-2 border-fuchsia-500/40 shadow-[0_0_20px_-5px_rgba(217,70,239,0.25)] rounded-[2rem]",
-            theme === 'aurora' && "bg-white/5 border border-white/10 shadow-xl backdrop-blur-xl rounded-[2rem]",
-            theme === 'corporate' && "bg-white border border-slate-200 rounded-none shadow-[2px_2px_4px_rgba(0,0,0,0.02)]",
-            theme === 'minimalist' && "bg-white border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(120,110,90,0.06)] rounded-[2rem]"
+            theme === 'catalyst' && "bg-white dark:bg-slate-900 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-slate-900 dark:text-white",
+            theme === 'executive' && "bg-white border-2 border-slate-100 shadow-lg rounded-[2rem] text-slate-900",
+            theme === 'midnight' && "bg-slate-900 border-2 border-indigo-500/30 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.35)] rounded-[2rem] text-white",
+            theme === 'emerald' && "bg-[#06281e] border-2 border-emerald-500/30 shadow-[4px_4px_0px_0px_rgba(234,179,8,0.15)] rounded-[2rem] text-emerald-50",
+            theme === 'cyberpunk' && "bg-[#110924] border-2 border-fuchsia-500/40 shadow-[0_0_20px_-5px_rgba(217,70,239,0.25)] rounded-[2rem] text-white",
+            theme === 'aurora' && "bg-white/5 border border-white/10 shadow-xl backdrop-blur-xl rounded-[2rem] text-white",
+            theme === 'corporate' && "bg-white border border-slate-200 rounded-none shadow-[2px_2px_4px_rgba(0,0,0,0.02)] text-slate-900",
+            theme === 'minimalist' && "bg-white border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(120,110,90,0.06)] rounded-[2rem] text-stone-900"
         );
     }
     
+    const baseClass = getThemeCardBase(theme);
     const isDark = ['midnight', 'emerald', 'cyberpunk', 'aurora'].includes(theme);
-    const bgClass = isDark 
-        ? "bg-slate-900/90 text-white border-white/10" 
-        : "bg-white text-slate-900 border-slate-200";
 
     switch (shape) {
         case 'sharp':
-            return cn(bgClass, "border-4 border-black rounded-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]");
+            return cn(baseClass, "border-4 border-black rounded-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]");
         case 'rounded':
-            return cn(bgClass, "border border-slate-200 shadow-xl rounded-[2.5rem]");
-        case 'glass':
-            return cn("backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl", 
-                      isDark ? "bg-white/5 text-white" : "bg-white/40 text-slate-900");
+            return cn(baseClass, "shadow-xl rounded-[2.5rem]", 
+                      isDark ? "border border-white/10" : "border border-slate-100");
+        case 'dashed':
+            return cn(baseClass, "border-2 border-dashed rounded-xl shadow-md",
+                      isDark ? "border-white/20" : "border-slate-300");
+        case 'double':
+            return cn(baseClass, "border-4 border-double rounded-xl shadow-lg",
+                      isDark ? "border-white/30" : "border-slate-700");
+        case 'floating':
+            return cn(baseClass, "rounded-2xl border border-black/5 dark:border-white/5 shadow-[0_20px_50px_rgba(0,0,0,0.12)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.35)]");
         default:
-            return "";
+            return baseClass;
     }
 };
 
@@ -96,19 +146,26 @@ const getHeroShapeClasses = (theme, shape) => {
             theme === 'minimalist' && "bg-[#1c1917] text-stone-100 rounded-[2.5rem] border border-stone-700 shadow-[0_4px_24px_rgba(28,25,23,0.1)]"
         );
     }
+    
+    const baseClass = getThemeHeroBase(theme);
     const isDark = ['midnight', 'emerald', 'cyberpunk', 'aurora'].includes(theme);
-    const bgClass = isDark ? "bg-[#0f172a] text-white" : "bg-white text-slate-900 border-slate-200";
     
     switch (shape) {
         case 'sharp':
-            return cn(bgClass, "border-4 border-black rounded-none shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]");
+            return cn(baseClass, "border-4 border-black rounded-none shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]");
         case 'rounded':
-            return cn(bgClass, "border border-slate-200 shadow-2xl rounded-[3rem]");
-        case 'glass':
-            return cn("backdrop-blur-xl border border-white/10 shadow-2xl rounded-[2.5rem]", 
-                      isDark ? "bg-white/5 text-white" : "bg-white/50 text-slate-900");
+            return cn(baseClass, "shadow-2xl rounded-[3rem]",
+                      isDark ? "border border-white/10" : "border border-slate-100");
+        case 'dashed':
+            return cn(baseClass, "border-4 border-dashed rounded-3xl shadow-lg",
+                      isDark ? "border-white/30" : "border-slate-800");
+        case 'double':
+            return cn(baseClass, "border-8 border-double rounded-3xl shadow-xl",
+                      isDark ? "border-white/40" : "border-slate-900");
+        case 'floating':
+            return cn(baseClass, "rounded-[2.5rem] border border-black/5 dark:border-white/5 shadow-[0_30px_60px_rgba(0,0,0,0.18)] dark:shadow-[0_30px_60px_rgba(0,0,0,0.45)]");
         default:
-            return "";
+            return baseClass;
     }
 };
 
@@ -613,7 +670,9 @@ export default function SharedDashboard({ params }) {
                                     { id: 'theme', name: 'Default Theme Card' },
                                     { id: 'sharp', name: 'Sharp Neo-Brutalist' },
                                     { id: 'rounded', name: 'Ultra Rounded Pill' },
-                                    { id: 'glass', name: 'Glossy Glassmorphism' }
+                                    { id: 'dashed', name: 'Modern Dashed' },
+                                    { id: 'double', name: 'Retro Double Frame' },
+                                    { id: 'floating', name: 'Soft Shadow Floating' }
                                 ].map(c => (
                                     <button 
                                         key={c.id} 
