@@ -142,6 +142,7 @@ export default function SharedDashboard({ params }) {
             isLoadedRef.current = true;
             if (dashboard.designSettings) {
                 const ds = dashboard.designSettings;
+                if (ds.theme) setTheme(ds.theme);
                 if (ds.font) setFont(ds.font);
                 if (ds.spacing) setSpacing(ds.spacing);
                 if (ds.cardShape) setCardShape(ds.cardShape);
@@ -156,6 +157,7 @@ export default function SharedDashboard({ params }) {
                     const saved = localStorage.getItem(`catalyst-style-${dashboardId}`);
                     if (saved) {
                         const ds = JSON.parse(saved);
+                        if (ds.theme) setTheme(ds.theme);
                         if (ds.font) setFont(ds.font);
                         if (ds.spacing) setSpacing(ds.spacing);
                         if (ds.cardShape) setCardShape(ds.cardShape);
@@ -176,6 +178,7 @@ export default function SharedDashboard({ params }) {
     useEffect(() => {
         try {
             localStorage.setItem(`catalyst-style-${dashboardId}`, JSON.stringify({
+                theme,
                 font,
                 spacing,
                 cardShape,
@@ -188,7 +191,7 @@ export default function SharedDashboard({ params }) {
         } catch (e) {
             // fail silent
         }
-    }, [font, spacing, cardShape, showHero, showSummary, hiddenWidgets, customColor, applyCustomColor, dashboardId]);
+    }, [theme, font, spacing, cardShape, showHero, showSummary, hiddenWidgets, customColor, applyCustomColor, dashboardId]);
 
     const toggleWidgetVisibility = (id) => {
         setHiddenWidgets(prev => {
@@ -207,6 +210,7 @@ export default function SharedDashboard({ params }) {
             await updateDashboard({
                 id: dashboardId,
                 designSettings: {
+                    theme,
                     font,
                     spacing,
                     cardShape,
@@ -223,6 +227,7 @@ export default function SharedDashboard({ params }) {
             toast.error("Failed to save design settings. Make sure you are logged in.");
         }
     };
+
 
     const handleDownloadImage = async () => {
         if (dashboardRef.current === null) return;
@@ -325,108 +330,112 @@ export default function SharedDashboard({ params }) {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <div className="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mr-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setTheme('catalyst')}
-                            className={cn(
-                                "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
-                                theme === 'catalyst' ? "bg-black text-white" : "text-slate-500 hover:bg-black/5"
-                            )}
-                        >
-                            Catalyst
-                        </Button>
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setTheme('executive')}
-                            className={cn(
-                                "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
-                                theme === 'executive' ? "bg-white text-black border-2 border-black" : "text-slate-500 hover:bg-black/5"
-                            )}
-                        >
-                            Executive
-                        </Button>
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setTheme('midnight')}
-                            className={cn(
-                                "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
-                                theme === 'midnight' ? "bg-indigo-600 text-white" : "text-slate-500 hover:bg-black/5"
-                            )}
-                        >
-                            Midnight
-                        </Button>
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setTheme('emerald')}
-                            className={cn(
-                                "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
-                                theme === 'emerald' ? "bg-emerald-600 text-white" : "text-slate-500 hover:bg-emerald-500/10"
-                            )}
-                        >
-                            Emerald
-                        </Button>
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setTheme('cyberpunk')}
-                            className={cn(
-                                "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
-                                theme === 'cyberpunk' ? "bg-fuchsia-600 text-white" : "text-slate-500 hover:bg-fuchsia-500/10"
-                            )}
-                        >
-                            Cyberpunk
-                        </Button>
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setTheme('aurora')}
-                            className={cn(
-                                "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
-                                theme === 'aurora' ? "bg-cyan-600 text-white" : "text-slate-500 hover:bg-cyan-500/10"
-                            )}
-                        >
-                            Aurora
-                        </Button>
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setTheme('corporate')}
-                            className={cn(
-                                "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
-                                theme === 'corporate' ? "bg-slate-700 text-white" : "text-slate-500 hover:bg-slate-500/10"
-                            )}
-                        >
-                            Corporate BI
-                        </Button>
-                        <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => setTheme('minimalist')}
-                            className={cn(
-                                "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
-                                theme === 'minimalist' ? "bg-amber-600 text-white" : "text-slate-500 hover:bg-amber-600/10"
-                            )}
-                        >
-                            Warm Minimalist
-                        </Button>
-                    </div>
+                    {isOwner && (
+                        <>
+                            <div className="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mr-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => setTheme('catalyst')}
+                                    className={cn(
+                                        "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
+                                        theme === 'catalyst' ? "bg-black text-white" : "text-slate-500 hover:bg-black/5"
+                                    )}
+                                >
+                                    Catalyst
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => setTheme('executive')}
+                                    className={cn(
+                                        "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
+                                        theme === 'executive' ? "bg-white text-black border-2 border-black" : "text-slate-500 hover:bg-black/5"
+                                    )}
+                                >
+                                    Executive
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => setTheme('midnight')}
+                                    className={cn(
+                                        "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
+                                        theme === 'midnight' ? "bg-indigo-600 text-white" : "text-slate-500 hover:bg-black/5"
+                                    )}
+                                >
+                                    Midnight
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => setTheme('emerald')}
+                                    className={cn(
+                                        "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
+                                        theme === 'emerald' ? "bg-emerald-600 text-white" : "text-slate-500 hover:bg-emerald-500/10"
+                                    )}
+                                >
+                                    Emerald
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => setTheme('cyberpunk')}
+                                    className={cn(
+                                        "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
+                                        theme === 'cyberpunk' ? "bg-fuchsia-600 text-white" : "text-slate-500 hover:bg-fuchsia-500/10"
+                                    )}
+                                >
+                                    Cyberpunk
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => setTheme('aurora')}
+                                    className={cn(
+                                        "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
+                                        theme === 'aurora' ? "bg-cyan-600 text-white" : "text-slate-500 hover:bg-cyan-500/10"
+                                    )}
+                                >
+                                    Aurora
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => setTheme('corporate')}
+                                    className={cn(
+                                        "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
+                                        theme === 'corporate' ? "bg-slate-700 text-white" : "text-slate-500 hover:bg-slate-500/10"
+                                    )}
+                                >
+                                    Corporate BI
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => setTheme('minimalist')}
+                                    className={cn(
+                                        "h-8 px-3 rounded-lg font-black uppercase text-[9px] transition-all",
+                                        theme === 'minimalist' ? "bg-amber-600 text-white" : "text-slate-500 hover:bg-amber-600/10"
+                                    )}
+                                >
+                                    Warm Minimalist
+                                </Button>
+                            </div>
 
-                    <Button 
-                        onClick={() => setShowDesigner(!showDesigner)}
-                        variant="outline" 
-                        className={cn(
-                            "rounded-none border-2 border-black font-black uppercase tracking-widest text-[10px] h-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all mr-2",
-                            showDesigner ? "bg-black text-white" : "bg-white text-black"
-                        )}
-                    >
-                        <Sliders className="w-4 h-4 mr-2" />
-                        {showDesigner ? "Close Studio" : "Design Studio"}
-                    </Button>
+                            <Button 
+                                onClick={() => setShowDesigner(!showDesigner)}
+                                variant="outline" 
+                                className={cn(
+                                    "rounded-none border-2 border-black font-black uppercase tracking-widest text-[10px] h-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all mr-2",
+                                    showDesigner ? "bg-black text-white" : "bg-white text-black"
+                                )}
+                            >
+                                <Sliders className="w-4 h-4 mr-2" />
+                                {showDesigner ? "Close Studio" : "Design Studio"}
+                            </Button>
+                        </>
+                    )}
 
                     <Button 
                         onClick={handleDownloadImage}
