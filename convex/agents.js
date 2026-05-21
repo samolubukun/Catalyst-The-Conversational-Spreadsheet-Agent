@@ -46,9 +46,6 @@ export const orchestrate = action({
         return errorContent;
     }
 
-    // Deduct 1 credit
-    await ctx.runMutation(api.users.deductCredit, { userId, amount: 1 });
-
     // 1. Fetch Global Workbook Context (All Sheets)
     const allSheets = await ctx.runQuery(api.sheets.getByWorkbook, { workbookId: args.workbookId });
     const sheetsSummary = allSheets.map(s => {
@@ -304,6 +301,9 @@ export const orchestrate = action({
         content: result,
         type: result.type,
       });
+
+      // Deduct 1 credit only after successful response
+      await ctx.runMutation(api.users.deductCredit, { userId, amount: 1 });
 
       return result;
     } catch (error) {
