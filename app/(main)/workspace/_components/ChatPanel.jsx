@@ -31,6 +31,8 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
     const updateSheetData = useMutation(api.sheets.updateData);
     const createDashboard = useMutation(api.dashboards.create);
     const createSheet = useMutation(api.sheets.create);
+    const createFile = useMutation(api.files.createFile);
+    const updateFileStatus = useMutation(api.files.updateStatus);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -144,14 +146,47 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
             
             if (!Array.isArray(newData)) throw new Error("Generated code must return an array of row objects");
 
+            // Detect if this is a derivative sheet or standalone AI-generated data
+            // We strip comments and all double, single, and backtick string literals first 
+            // so we don't accidentally match the word "data" inside research titles/abstracts
+            const codeCleaned = code
+                .replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, "") // comments
+                .replace(/"([^"\\]|\\.)*"/g, '""') // double-quoted strings
+                .replace(/'([^'\\]|\\.)*'/g, "''") // single-quoted strings
+                .replace(/`([^`\\]|\\.)*`/g, "``"); // template literals
+            const usesActiveData = /\bdata\b/.test(codeCleaned);
+
+            let targetFileId = activeSheet.fileId;
+            
+            if (!usesActiveData) {
+                // Standalone AI Generated Data
+                const cleanName = name || "AI Generated Data";
+                targetFileId = await createFile({
+                    workbookId,
+                    name: `${cleanName} (AI Generated)`,
+                    type: "json",
+                });
+            }
+
             const nextOrder = allSheets ? allSheets.length : 1;
 
             const sheetId = await createSheet({
-                fileId: activeSheet.fileId,
+                fileId: targetFileId,
                 name: name || "New Sheet",
                 data: newData,
                 order: nextOrder,
             });
+
+            if (!usesActiveData) {
+                await updateFileStatus({
+                    id: targetFileId,
+                    status: "ready",
+                    metadata: {
+                        sheetNames: [name || "New Sheet"],
+                        rowCount: { [name || "New Sheet"]: newData.length }
+                    }
+                });
+            }
 
             toast.success(`Sheet "${name}" created successfully!`, { id: loadingToast, duration: 4000 });
             
