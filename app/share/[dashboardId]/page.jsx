@@ -434,6 +434,14 @@ export default function SharedDashboard({ params }) {
                                 <Sliders className="w-4 h-4 mr-2" />
                                 {showDesigner ? "Close Studio" : "Design Studio"}
                             </Button>
+
+                            <Button 
+                                onClick={handleSaveDefaultDesign}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white border-2 border-black font-black uppercase tracking-widest text-[10px] h-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all mr-2"
+                            >
+                                <Check className="w-4 h-4 mr-2" />
+                                Save Default
+                            </Button>
                         </>
                     )}
 
