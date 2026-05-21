@@ -172,11 +172,20 @@ export default function Workspace({ params }) {
                 document.body.removeChild(link);
                 toast.success("JSON Exported successfully!");
             } else if (format === 'xlsx') {
-                const worksheet = XLSX.utils.json_to_sheet(data);
+                const parentFile = files?.find(f => f._id === activeSheet.fileId);
+                const siblingSheets = sheets?.filter(s => s.fileId === activeSheet.fileId) || [activeSheet];
+                
                 const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, activeSheet.name || "Sheet1");
-                XLSX.writeFile(workbook, `${activeSheet.name}_export.xlsx`);
-                toast.success("Excel Sheet Exported successfully!");
+                siblingSheets.forEach(sheet => {
+                    const wsData = sheet.data || [];
+                    const worksheet = XLSX.utils.json_to_sheet(wsData);
+                    const cleanSheetName = (sheet.name || "Sheet").substring(0, 30).replace(/[\\\?\*\/\[\]]/g, "");
+                    XLSX.utils.book_append_sheet(workbook, worksheet, cleanSheetName);
+                });
+                
+                const fileName = parentFile ? parentFile.name.replace(/\.[^/.]+$/, "") : activeSheet.name;
+                XLSX.writeFile(workbook, `${fileName}_export.xlsx`);
+                toast.success("Excel Workbook Exported successfully!");
             } else {
                 const headers = Object.keys(data[0]);
                 const csvContent = [
