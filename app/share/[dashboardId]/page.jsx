@@ -605,7 +605,7 @@ export default function SharedDashboard({ params }) {
                                 <span className="text-[10px] font-black uppercase tracking-widest">Branding Attribution</span>
                             </div>
                             <div className="flex flex-col gap-2 p-3 bg-slate-50 dark:bg-slate-800 border-2 border-black">
-                                <label className="text-[9px] font-black text-slate-450 uppercase block leading-none">Custom Owner/Creator Name</label>
+                                <label className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase block leading-none">Custom Owner/Creator Name</label>
                                 <input 
                                     type="text" 
                                     value={ownerName}
@@ -646,7 +646,7 @@ export default function SharedDashboard({ params }) {
                                                 className="w-10 h-10 border-2 border-black cursor-pointer bg-transparent rounded-none"
                                             />
                                             <div className="flex-1">
-                                                <span className="text-[9px] font-black text-slate-450 uppercase block leading-none">Hex Value</span>
+                                                <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase block leading-none">Hex Value</span>
                                                 <input 
                                                     type="text" 
                                                     value={customColor}
@@ -992,13 +992,13 @@ export default function SharedDashboard({ params }) {
                                                         <span 
                                                             className={cn(
                                                                 "text-[8px] font-black uppercase tracking-widest",
-                                                                theme === 'midnight' ? "text-indigo-450" :
-                                                                theme === 'emerald' ? "text-emerald-450" :
-                                                                theme === 'cyberpunk' ? "text-fuchsia-450" :
-                                                                theme === 'aurora' ? "text-cyan-450" :
+                                                                theme === 'midnight' ? "text-indigo-300" :
+                                                                theme === 'emerald' ? "text-emerald-300" :
+                                                                theme === 'cyberpunk' ? "text-fuchsia-300" :
+                                                                theme === 'aurora' ? "text-cyan-300" :
                                                                 theme === 'corporate' ? "text-sky-600 font-bold" :
                                                                 theme === 'minimalist' ? "text-amber-700 font-extrabold" :
-                                                                "text-slate-450"
+                                                                "text-slate-400 dark:text-slate-400"
                                                             )}
                                                             style={applyCustomColor ? { color: customColor } : undefined}
                                                         >
