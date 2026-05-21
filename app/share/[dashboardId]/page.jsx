@@ -368,17 +368,51 @@ export default function SharedDashboard({ params }) {
                     {/* Action Buttons */}
                     <div className="flex flex-wrap items-center gap-3">
                         {isOwner && (
-                            <Button 
-                                onClick={() => setShowDesigner(!showDesigner)}
-                                variant="outline" 
-                                className={cn(
-                                    "rounded-none border-2 border-black font-black uppercase tracking-widest text-[10px] h-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all",
-                                    showDesigner ? "bg-black text-white" : "bg-white text-black"
-                                )}
-                            >
-                                <Sliders className="w-4 h-4 mr-2" />
-                                {showDesigner ? "Close Studio" : "Design Studio"}
-                            </Button>
+                            <>
+                                <Button 
+                                    onClick={() => setShowDesigner(!showDesigner)}
+                                    variant="outline" 
+                                    className={cn(
+                                        "rounded-none border-2 border-black font-black uppercase tracking-widest text-[10px] h-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all",
+                                        showDesigner ? "bg-black text-white" : "bg-white text-black"
+                                    )}
+                                >
+                                    <Sliders className="w-4 h-4 mr-2" />
+                                    {showDesigner ? "Close Studio" : "Design Studio"}
+                                </Button>
+
+                                <Button 
+                                    onClick={async () => {
+                                        try {
+                                            await updateDashboard({
+                                                id: dashboardId,
+                                                isPublic: !dashboard.isPublic
+                                            });
+                                            toast.success(dashboard.isPublic ? "Dashboard is now PRIVATE." : "Dashboard is now PUBLIC!");
+                                        } catch (err) {
+                                            toast.error("Failed to update dashboard visibility.");
+                                        }
+                                    }}
+                                    className={cn(
+                                        "rounded-none border-2 border-black font-black uppercase tracking-widest text-[10px] h-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all",
+                                        dashboard.isPublic 
+                                            ? "bg-amber-400 hover:bg-amber-500 text-black border-black" 
+                                            : "bg-slate-800 hover:bg-slate-900 text-white border-black"
+                                    )}
+                                >
+                                    {dashboard.isPublic ? (
+                                        <>
+                                            <Eye className="w-4 h-4 mr-2" />
+                                            Public
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Lock className="w-4 h-4 mr-2" />
+                                            Private
+                                        </>
+                                    )}
+                                </Button>
+                            </>
                         )}
 
                         <Button 
