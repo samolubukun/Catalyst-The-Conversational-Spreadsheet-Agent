@@ -26,6 +26,7 @@ export const update = mutation({
     config: v.optional(v.any()),
     isPublic: v.optional(v.boolean()),
     name: v.optional(v.string()),
+    designSettings: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
