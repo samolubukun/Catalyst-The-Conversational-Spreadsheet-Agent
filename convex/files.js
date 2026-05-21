@@ -8,7 +8,7 @@ export const generateUploadUrl = mutation(async (ctx) => {
 export const createFile = mutation({
   args: {
     workbookId: v.id("workbooks"),
-    storageId: v.id("_storage"),
+    storageId: v.optional(v.id("_storage")),
     name: v.string(),
     type: v.string(),
   },
@@ -79,7 +79,9 @@ export const remove = mutation({
     }
 
     // 2. Delete storage
-    await ctx.storage.delete(file.storageId);
+    if (file.storageId) {
+      await ctx.storage.delete(file.storageId);
+    }
 
     // 3. Delete file record
     await ctx.db.delete(args.id);
