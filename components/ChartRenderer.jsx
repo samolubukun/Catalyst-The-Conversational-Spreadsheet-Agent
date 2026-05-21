@@ -121,10 +121,19 @@ const adjustColorBrightness = (hex, percent) => {
     }
 };
 
-export default function ChartRenderer({ config, theme = 'catalyst', customColor = null }) {
+export default function ChartRenderer({ config, theme = 'catalyst', customColor = null, font = 'sans' }) {
     if (!config || !config.data || !Array.isArray(config.data)) {
         return <div className="p-4 text-slate-500 text-xs italic">Invalid chart configuration</div>;
     }
+
+    const fontMapping = {
+        sans: "'Inter', sans-serif",
+        serif: "'Lora', serif",
+        tech: "'Space Grotesk', sans-serif",
+        mono: "'Fira Code', monospace",
+        geometric: "'Outfit', sans-serif"
+    };
+    const activeFont = fontMapping[font] || "'Inter', sans-serif";
 
     let palette = { ...(THEME_PALETTES[theme] || THEME_PALETTES.catalyst) };
     if (customColor) {
@@ -194,7 +203,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
             dataKey: xAxisKey,
             axisLine: false,
             tickLine: false,
-            tick: { fontSize: 9, fill: tickColor },
+            tick: { fontSize: 9, fill: tickColor, fontFamily: activeFont },
             interval: sanitizedData.length > 30 ? Math.ceil(sanitizedData.length / 6) : 
                       sanitizedData.length > 15 ? 2 : 0,
             angle: sanitizedData.length > 5 ? -45 : 0,
@@ -208,7 +217,8 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
             backgroundColor: isDarkTheme ? '#0f172a' : '#ffffff',
             boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
             fontSize: '12px',
-            color: isDarkTheme ? '#ffffff' : '#0f172a'
+            color: isDarkTheme ? '#ffffff' : '#0f172a',
+            fontFamily: activeFont
         };
 
         switch (config.type?.toLowerCase()) {
@@ -217,9 +227,9 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                     <BarChart data={sanitizedData} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor, fontFamily: activeFont }} tickFormatter={formatYAxis} />
                         <Tooltip contentStyle={tooltipContentStyle} cursor={false} formatter={(value, name) => [formatTooltipValue(value), name]} />
-                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontFamily: activeFont }} />
                         <Bar dataKey={yAxisKey} fill={palette.primary} radius={[4, 4, 0, 0]} barSize={40} />
                     </BarChart>
                 );
@@ -229,10 +239,10 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                 return (
                     <BarChart layout="vertical" data={sanitizedData} margin={{ top: 15, right: 25, left: 30, bottom: 15 }}>
                         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke={gridColor} />
-                        <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
-                        <YAxis type="category" dataKey={xAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} width={80} />
+                        <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor, fontFamily: activeFont }} tickFormatter={formatYAxis} />
+                        <YAxis type="category" dataKey={xAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor, fontFamily: activeFont }} width={80} />
                         <Tooltip contentStyle={tooltipContentStyle} cursor={false} formatter={(value, name) => [formatTooltipValue(value), name]} />
-                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontFamily: activeFont }} />
                         <Bar dataKey={yAxisKey} fill={palette.primary} radius={[0, 4, 4, 0]} barSize={20} />
                     </BarChart>
                 );
@@ -241,9 +251,9 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                     <LineChart data={sanitizedData} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor, fontFamily: activeFont }} tickFormatter={formatYAxis} />
                         <Tooltip contentStyle={tooltipContentStyle} formatter={(value, name) => [formatTooltipValue(value), name]} />
-                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontFamily: activeFont }} />
                         <Line type="monotone" dataKey={yAxisKey} stroke={palette.primary} strokeWidth={3} dot={{ r: 4, fill: palette.primary }} activeDot={{ r: 6 }} />
                     </LineChart>
                 );
@@ -276,6 +286,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                                         dominantBaseline="central"
                                         fontSize="10"
                                         fontWeight="black"
+                                        fontFamily={activeFont}
                                     >
                                         {`${(percent * 100).toFixed(0)}%`}
                                     </text>
@@ -289,7 +300,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         </Pie>
                         <Tooltip contentStyle={tooltipContentStyle} formatter={(value, name) => [formatTooltipValue(value), name]} />
                         <Legend 
-                            wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} 
+                            wrapperStyle={{ fontSize: '10px', paddingTop: '10px', fontFamily: activeFont }} 
                             formatter={(value, entry) => {
                                 const rawVal = Number(entry.payload?.[yAxisKey]) || 0;
                                 const percent = pieTotal > 0 ? (rawVal / pieTotal) : 0;
@@ -310,9 +321,9 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor, fontFamily: activeFont }} tickFormatter={formatYAxis} />
                         <Tooltip contentStyle={tooltipContentStyle} formatter={(value, name) => [formatTooltipValue(value), name]} />
-                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontFamily: activeFont }} />
                         <Area type="monotone" dataKey={yAxisKey} stroke={palette.primary} strokeWidth={3} fillOpacity={1} fill={`url(#${gradientId})`} />
                     </AreaChart>
                 );
@@ -321,9 +332,9 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                     <ComposedChart data={sanitizedData} margin={{ top: 15, right: 15, left: -10, bottom: 35 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis {...commonXAxisProps} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor, fontFamily: activeFont }} tickFormatter={formatYAxis} />
                         <Tooltip contentStyle={tooltipContentStyle} cursor={false} formatter={(value, name) => [formatTooltipValue(value), name]} />
-                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontFamily: activeFont }} />
                         <Bar dataKey={yAxisKey} fill={palette.secondary} opacity={0.7} radius={[4, 4, 0, 0]} barSize={30} />
                         <Line type="monotone" dataKey={yAxisKey} stroke={palette.primary} strokeWidth={3} dot={{ r: 4, fill: palette.primary }} />
                     </ComposedChart>
@@ -332,8 +343,8 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                 return (
                     <RadarChart cx="50%" cy="50%" outerRadius="75%" data={sanitizedData}>
                         <PolarGrid stroke={gridColor} />
-                        <PolarAngleAxis dataKey={xAxisKey} tick={{ fontSize: 9, fill: tickColor }} />
-                        <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fontSize: 8, fill: tickColor }} />
+                        <PolarAngleAxis dataKey={xAxisKey} tick={{ fontSize: 9, fill: tickColor, fontFamily: activeFont }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fontSize: 8, fill: tickColor, fontFamily: activeFont }} />
                         <Radar name={yAxisKey} dataKey={yAxisKey} stroke={palette.primary} fill={palette.primary} fillOpacity={0.4} />
                         <Tooltip contentStyle={tooltipContentStyle} formatter={(value, name) => [formatTooltipValue(value), name]} />
                     </RadarChart>
@@ -343,9 +354,9 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
                     <ScatterChart margin={{ top: 15, right: 20, left: -10, bottom: 35 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                         <XAxis type="category" {...commonXAxisProps} />
-                        <YAxis type="number" dataKey={yAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor }} tickFormatter={formatYAxis} />
+                        <YAxis type="number" dataKey={yAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: tickColor, fontFamily: activeFont }} tickFormatter={formatYAxis} />
                         <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={tooltipContentStyle} formatter={(value, name) => [formatTooltipValue(value), name]} />
-                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px' }} />
+                        <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '10px', fontFamily: activeFont }} />
                         <Scatter name={yAxisKey} data={sanitizedData} fill={palette.primary} />
                     </ScatterChart>
                 );
@@ -355,7 +366,7 @@ export default function ChartRenderer({ config, theme = 'catalyst', customColor 
     };
 
     return (
-        <div className="w-full h-80 mt-4 bg-transparent p-0 border-none shadow-none">
+        <div className="w-full h-80 mt-4 bg-transparent p-0 border-none shadow-none" style={{ fontFamily: activeFont }}>
             <ResponsiveContainer width="100%" height="100%">
                 {renderChart()}
             </ResponsiveContainer>

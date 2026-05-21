@@ -1218,6 +1218,7 @@ export default function SharedDashboard({ params }) {
                                                         config={widget.chartConfig} 
                                                         theme={theme} 
                                                         customColor={applyCustomColor ? customColor : null}
+                                                        font={font}
                                                     />
                                                 ) : (
                                                     <div className="prose prose-sm dark:prose-invert max-w-none">
