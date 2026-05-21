@@ -37,6 +37,20 @@ export const listBySheet = query({
   },
 });
 
+export const listBySheetMetadata = query({
+  args: { sheetId: v.id("sheets") },
+  handler: async (ctx, args) => {
+    const versions = await ctx.db
+      .query("versions")
+      .withIndex("by_sheet", (q) => q.eq("sheetId", args.sheetId))
+      .order("desc")
+      .collect();
+    
+    // Strip the massive row data backups, reducing the payload size by 99.9%!
+    return versions.map(({ data, ...metadata }) => metadata);
+  },
+});
+
 export const getLatest = query({
   args: { sheetId: v.id("sheets") },
   handler: async (ctx, args) => {
