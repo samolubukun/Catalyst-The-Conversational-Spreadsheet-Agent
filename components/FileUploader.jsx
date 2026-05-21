@@ -52,22 +52,33 @@ const FileUploader = ({ workbookId, onUploadComplete }) => {
         await new Promise((resolve, reject) => {
           reader.onload = async (evt) => {
             try {
+              const baseName = file.name.replace(/\.[^/.]+$/, "");
               let workbookData = [];
               let sheetNames = [];
 
               if (file.name.endsWith('.json')) {
                 const text = evt.target.result;
                 const json = JSON.parse(text);
-                workbookData = [{ name: "JSON Data", data: Array.isArray(json) ? json : [json] }];
-                sheetNames = ["JSON Data"];
+                workbookData = [{ name: baseName, data: Array.isArray(json) ? json : [json] }];
+                sheetNames = [baseName];
               } else {
                 const bstr = evt.target.result;
                 const wb = XLSX.read(bstr, { type: 'binary' });
-                sheetNames = wb.SheetNames;
-                workbookData = sheetNames.map(name => ({
-                  name,
-                  data: XLSX.utils.sheet_to_json(wb.Sheets[name])
-                }));
+                const originalSheetNames = wb.SheetNames;
+                
+                if (originalSheetNames.length === 1) {
+                  workbookData = [{
+                    name: baseName,
+                    data: XLSX.utils.sheet_to_json(wb.Sheets[originalSheetNames[0]])
+                  }];
+                  sheetNames = [baseName];
+                } else {
+                  sheetNames = originalSheetNames;
+                  workbookData = sheetNames.map(name => ({
+                    name,
+                    data: XLSX.utils.sheet_to_json(wb.Sheets[name])
+                  }));
+                }
               }
 
               const metadata = {
