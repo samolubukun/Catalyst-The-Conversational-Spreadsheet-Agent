@@ -1,7 +1,7 @@
 "use client"
 
-import { use, useRef, useState } from 'react';
-import { useQuery } from "convex/react";
+import { use, useRef, useState, useEffect } from 'react';
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toPng } from 'html-to-image';
 import { 
@@ -17,7 +17,13 @@ import {
     Monitor,
     Layout,
     Palette,
-    TrendingUp
+    TrendingUp,
+    Sliders,
+    Type,
+    Eye,
+    EyeOff,
+    RotateCcw,
+    Check
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import ChartRenderer from '@/components/ChartRenderer';
@@ -25,6 +31,85 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useStackApp } from "@stackframe/stack";
 import Loader from '@/components/Loader';
+
+const SPACING_MAP = {
+    compact: {
+        container: "space-y-4",
+        grid: "gap-4",
+        padding: "p-4"
+    },
+    cozy: {
+        container: "space-y-6",
+        grid: "gap-6",
+        padding: "p-6"
+    },
+    roomy: {
+        container: "space-y-10",
+        grid: "gap-10",
+        padding: "p-10"
+    }
+};
+
+const getCardShapeClasses = (theme, shape) => {
+    if (shape === 'theme') {
+        return cn(
+            theme === 'catalyst' && "bg-white dark:bg-slate-900 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]",
+            theme === 'executive' && "bg-white border-2 border-slate-100 shadow-lg rounded-[2rem]",
+            theme === 'midnight' && "bg-slate-900 border-2 border-indigo-500/30 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.35)] rounded-[2rem]",
+            theme === 'emerald' && "bg-[#06281e] border-2 border-emerald-500/30 shadow-[4px_4px_0px_0px_rgba(234,179,8,0.15)] rounded-[2rem]",
+            theme === 'cyberpunk' && "bg-[#110924] border-2 border-fuchsia-500/40 shadow-[0_0_20px_-5px_rgba(217,70,239,0.25)] rounded-[2rem]",
+            theme === 'aurora' && "bg-white/5 border border-white/10 shadow-xl backdrop-blur-xl rounded-[2rem]",
+            theme === 'corporate' && "bg-white border border-slate-200 rounded-none shadow-[2px_2px_4px_rgba(0,0,0,0.02)]",
+            theme === 'minimalist' && "bg-white border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(120,110,90,0.06)] rounded-[2rem]"
+        );
+    }
+    
+    const isDark = ['midnight', 'emerald', 'cyberpunk', 'aurora'].includes(theme);
+    const bgClass = isDark 
+        ? "bg-slate-900/90 text-white border-white/10" 
+        : "bg-white text-slate-900 border-slate-200";
+
+    switch (shape) {
+        case 'sharp':
+            return cn(bgClass, "border-4 border-black rounded-none shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]");
+        case 'rounded':
+            return cn(bgClass, "border border-slate-200 shadow-xl rounded-[2.5rem]");
+        case 'glass':
+            return cn("backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl", 
+                      isDark ? "bg-white/5 text-white" : "bg-white/40 text-slate-900");
+        default:
+            return "";
+    }
+};
+
+const getHeroShapeClasses = (theme, shape) => {
+    if (shape === 'theme') {
+        return cn(
+            theme === 'catalyst' && "bg-black text-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(16,185,129,1)]",
+            theme === 'executive' && "bg-white text-slate-900 border-4 border-slate-100 shadow-xl rounded-[2.5rem]",
+            theme === 'midnight' && "bg-slate-900 text-white border-4 border-indigo-500 shadow-[0_0_50px_-12px_rgba(99,102,241,0.5)] rounded-[2.5rem]",
+            theme === 'emerald' && "bg-emerald-900 text-emerald-50 border-4 border-emerald-500/30 shadow-[12px_12px_0px_0px_rgba(234,179,8,0.2)] rounded-[2.5rem]",
+            theme === 'cyberpunk' && "bg-[#110924] text-white border-4 border-fuchsia-500 shadow-[0_0_40px_-5px_rgba(217,70,239,0.3)] rounded-[2.5rem]",
+            theme === 'aurora' && "bg-white/5 text-white border border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] backdrop-blur-xl rounded-[2.5rem]",
+            theme === 'corporate' && "bg-[#0b1329] text-white rounded-none border border-slate-800 shadow-[0_2px_8px_rgba(0,0,0,0.15)]",
+            theme === 'minimalist' && "bg-[#1c1917] text-stone-100 rounded-[2.5rem] border border-stone-700 shadow-[0_4px_24px_rgba(28,25,23,0.1)]"
+        );
+    }
+    const isDark = ['midnight', 'emerald', 'cyberpunk', 'aurora'].includes(theme);
+    const bgClass = isDark ? "bg-[#0f172a] text-white" : "bg-white text-slate-900 border-slate-200";
+    
+    switch (shape) {
+        case 'sharp':
+            return cn(bgClass, "border-4 border-black rounded-none shadow-[10px_10px_0px_0px_rgba(0,0,0,1)]");
+        case 'rounded':
+            return cn(bgClass, "border border-slate-200 shadow-2xl rounded-[3rem]");
+        case 'glass':
+            return cn("backdrop-blur-xl border border-white/10 shadow-2xl rounded-[2.5rem]", 
+                      isDark ? "bg-white/5 text-white" : "bg-white/50 text-slate-900");
+        default:
+            return "";
+    }
+};
 
 export default function SharedDashboard({ params }) {
     const stack = useStackApp();
@@ -34,8 +119,110 @@ export default function SharedDashboard({ params }) {
     const dashboardRef = useRef(null);
     const [theme, setTheme] = useState('catalyst'); // catalyst, executive, midnight
 
+    // Custom Design States
+    const [showDesigner, setShowDesigner] = useState(false);
+    const [font, setFont] = useState('sans');
+    const [spacing, setSpacing] = useState('cozy');
+    const [cardShape, setCardShape] = useState('theme');
+    const [showHero, setShowHero] = useState(true);
+    const [showSummary, setShowSummary] = useState(true);
+    const [hiddenWidgets, setHiddenWidgets] = useState(new Set());
+    const [customColor, setCustomColor] = useState('#10b981');
+    const [applyCustomColor, setApplyCustomColor] = useState(false);
+
     const dashboard = useQuery(api.dashboards.getById, { id: dashboardId });
     const convexUser = useQuery(api.users.getUserByStackId, user ? { stackId: user.id } : "skip");
+    const updateDashboard = useMutation(api.dashboards.update);
+
+    const isLoadedRef = useRef(false);
+
+    // Load Design Studio Settings from DB or LocalStorage
+    useEffect(() => {
+        if (dashboard && !isLoadedRef.current) {
+            isLoadedRef.current = true;
+            if (dashboard.designSettings) {
+                const ds = dashboard.designSettings;
+                if (ds.font) setFont(ds.font);
+                if (ds.spacing) setSpacing(ds.spacing);
+                if (ds.cardShape) setCardShape(ds.cardShape);
+                if (ds.showHero !== undefined) setShowHero(ds.showHero);
+                if (ds.showSummary !== undefined) setShowSummary(ds.showSummary);
+                if (ds.hiddenWidgets) setHiddenWidgets(new Set(ds.hiddenWidgets));
+                if (ds.customColor) setCustomColor(ds.customColor);
+                if (ds.applyCustomColor !== undefined) setApplyCustomColor(ds.applyCustomColor);
+            } else {
+                // Fallback to localStorage if no DB settings exist
+                try {
+                    const saved = localStorage.getItem(`catalyst-style-${dashboardId}`);
+                    if (saved) {
+                        const ds = JSON.parse(saved);
+                        if (ds.font) setFont(ds.font);
+                        if (ds.spacing) setSpacing(ds.spacing);
+                        if (ds.cardShape) setCardShape(ds.cardShape);
+                        if (ds.showHero !== undefined) setShowHero(ds.showHero);
+                        if (ds.showSummary !== undefined) setShowSummary(ds.showSummary);
+                        if (ds.hiddenWidgets) setHiddenWidgets(new Set(ds.hiddenWidgets));
+                        if (ds.customColor) setCustomColor(ds.customColor);
+                        if (ds.applyCustomColor !== undefined) setApplyCustomColor(ds.applyCustomColor);
+                    }
+                } catch (e) {
+                    console.error("Failed to load local styles", e);
+                }
+            }
+        }
+    }, [dashboard, dashboardId]);
+
+    // Auto-save choices to localStorage for instant local feedback
+    useEffect(() => {
+        try {
+            localStorage.setItem(`catalyst-style-${dashboardId}`, JSON.stringify({
+                font,
+                spacing,
+                cardShape,
+                showHero,
+                showSummary,
+                hiddenWidgets: Array.from(hiddenWidgets),
+                customColor,
+                applyCustomColor
+            }));
+        } catch (e) {
+            // fail silent
+        }
+    }, [font, spacing, cardShape, showHero, showSummary, hiddenWidgets, customColor, applyCustomColor, dashboardId]);
+
+    const toggleWidgetVisibility = (id) => {
+        setHiddenWidgets(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(id)) {
+                newSet.delete(id);
+            } else {
+                newSet.add(id);
+            }
+            return newSet;
+        });
+    };
+
+    const handleSaveDefaultDesign = async () => {
+        try {
+            await updateDashboard({
+                id: dashboardId,
+                designSettings: {
+                    font,
+                    spacing,
+                    cardShape,
+                    showHero,
+                    showSummary,
+                    hiddenWidgets: Array.from(hiddenWidgets),
+                    customColor,
+                    applyCustomColor
+                }
+            });
+            toast.success("Design settings successfully saved as public default!");
+        } catch (err) {
+            console.error("Failed to save design defaults", err);
+            toast.error("Failed to save design settings. Make sure you are logged in.");
+        }
+    };
 
     const handleDownloadImage = async () => {
         if (dashboardRef.current === null) return;
@@ -51,12 +238,25 @@ export default function SharedDashboard({ params }) {
             minimalist: '#fcfbf9'
         }[theme];
 
+        // Temporarily hide designer controls from the export
+        const wasDesignerOpen = showDesigner;
+        setShowDesigner(false);
+
+        // Allow state to resolve in DOM
+        await new Promise(resolve => setTimeout(resolve, 150));
+
         try {
+            // Fixed styling options to prevent auto-centering cutoffs on export
             const dataUrl = await toPng(dashboardRef.current, { 
                 cacheBust: true, 
                 backgroundColor: bgColor,
                 style: {
-                    borderRadius: '0px'
+                    borderRadius: '0px',
+                    width: '1280px', // Standard clean desktop width
+                    maxWidth: '1280px',
+                    margin: '0',
+                    padding: '24px',
+                    transform: 'none'
                 }
             });
             const link = document.createElement('a');
@@ -65,6 +265,11 @@ export default function SharedDashboard({ params }) {
             link.click();
         } catch (err) {
             console.error('Failed to capture dashboard', err);
+            toast.error("Failed to capture image");
+        } finally {
+            if (wasDesignerOpen) {
+                setShowDesigner(true);
+            }
         }
     };
 
@@ -96,6 +301,18 @@ export default function SharedDashboard({ params }) {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 selection:bg-emerald-500/10">
+            {/* Dynamic Font Styling Injections */}
+            <style dangerouslySetInnerHTML={{ __html: `
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Lora:ital,wght@0,400;1,400&family=Space+Grotesk:wght@400;700;900&family=Fira+Code:wght@400;700&family=Outfit:wght@400;700;900&display=swap');
+                
+                .font-option-sans { font-family: 'Inter', system-ui, sans-serif; }
+                .font-option-serif { font-family: 'Lora', Georgia, serif; }
+                .font-option-serif h1, .font-option-serif h2, .font-option-serif h3 { font-family: 'Playfair Display', Georgia, serif !important; }
+                .font-option-tech { font-family: 'Space Grotesk', sans-serif; }
+                .font-option-mono { font-family: 'Fira Code', monospace; }
+                .font-option-geometric { font-family: 'Outfit', sans-serif; }
+            ` }} />
+
             {/* Toolbar */}
             <div className="max-w-7xl mx-auto mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 border-4 border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                 <div className="flex items-center gap-4">
@@ -200,13 +417,26 @@ export default function SharedDashboard({ params }) {
                     </div>
 
                     <Button 
+                        onClick={() => setShowDesigner(!showDesigner)}
+                        variant="outline" 
+                        className={cn(
+                            "rounded-none border-2 border-black font-black uppercase tracking-widest text-[10px] h-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all mr-2",
+                            showDesigner ? "bg-black text-white" : "bg-white text-black"
+                        )}
+                    >
+                        <Sliders className="w-4 h-4 mr-2" />
+                        {showDesigner ? "Close Studio" : "Design Studio"}
+                    </Button>
+
+                    <Button 
                         onClick={handleDownloadImage}
                         variant="outline" 
-                        className="rounded-none border-2 border-black font-black uppercase tracking-widest text-[10px] h-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all"
+                        className="rounded-none border-2 border-black font-black uppercase tracking-widest text-[10px] h-10 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all mr-2"
                     >
                         <Download className="w-4 h-4 mr-2" />
-                        Export {theme.toUpperCase()} PNG
+                        Export PNG
                     </Button>
+                    
                     <Button 
                         disabled={!dashboard.isPublic}
                         onClick={() => {
@@ -227,145 +457,357 @@ export default function SharedDashboard({ params }) {
                 </div>
             </div>
 
+            {/* Design Studio Workbench */}
+            {showDesigner && (
+                <div className="max-w-7xl mx-auto mb-8 bg-white dark:bg-slate-900 border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-in slide-in-from-top duration-200">
+                    <div className="flex items-center justify-between border-b-4 border-black pb-4 mb-6">
+                        <div className="flex items-center gap-2">
+                            <Sliders className="w-6 h-6 text-black dark:text-white" />
+                            <h2 className="text-xl font-black uppercase tracking-tighter text-black dark:text-white">Design & Layout Studio</h2>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {isOwner && (
+                                <Button 
+                                    onClick={handleSaveDefaultDesign}
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white border-2 border-black font-black uppercase text-[10px] tracking-widest px-3 h-8 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all mr-2"
+                                >
+                                    Save as Default
+                                </Button>
+                            )}
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => {
+                                    setFont('sans');
+                                    setSpacing('cozy');
+                                    setCardShape('theme');
+                                    setShowHero(true);
+                                    setShowSummary(true);
+                                    setHiddenWidgets(new Set());
+                                    setCustomColor('#10b981');
+                                    setApplyCustomColor(false);
+                                    toast.success("Reset all custom styles to defaults!");
+                                }}
+                                className="text-xs font-black uppercase tracking-widest text-slate-500 hover:text-black dark:hover:text-white"
+                            >
+                                <RotateCcw className="w-3.5 h-3.5 mr-1" />
+                                Reset Studio
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        {/* Typography */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-slate-400">
+                                <Type className="w-4 h-4" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Typography</span>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                {[
+                                    { id: 'sans', name: 'Inter (Modern Sans)' },
+                                    { id: 'serif', name: 'Playfair (Elegant Serif)' },
+                                    { id: 'tech', name: 'Space Grotesk (Tech)' },
+                                    { id: 'mono', name: 'Fira Code (Data Mono)' },
+                                    { id: 'geometric', name: 'Outfit (Sleek Geometric)' }
+                                ].map(f => (
+                                    <button 
+                                        key={f.id} 
+                                        onClick={() => setFont(f.id)}
+                                        className={cn(
+                                            "w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider border-2 border-transparent transition-all flex items-center justify-between",
+                                            font === f.id 
+                                                ? "bg-black text-white dark:bg-white dark:text-black border-black" 
+                                                : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-350 hover:bg-slate-100"
+                                        )}
+                                    >
+                                        <span>{f.name}</span>
+                                        {font === f.id && <Check className="w-3.5 h-3.5" />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Grid Density */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-slate-400">
+                                <Layout className="w-4 h-4" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Grid Spacing</span>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                {[
+                                    { id: 'compact', name: 'Compact Spacing' },
+                                    { id: 'cozy', name: 'Cozy (Default)' },
+                                    { id: 'roomy', name: 'Roomy (Spacious)' }
+                                ].map(s => (
+                                    <button 
+                                        key={s.id} 
+                                        onClick={() => setSpacing(s.id)}
+                                        className={cn(
+                                            "w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider border-2 border-transparent transition-all flex items-center justify-between",
+                                            spacing === s.id 
+                                                ? "bg-black text-white dark:bg-white dark:text-black border-black" 
+                                                : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-350 hover:bg-slate-100"
+                                        )}
+                                    >
+                                        <span>{s.name}</span>
+                                        {spacing === s.id && <Check className="w-3.5 h-3.5" />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Card Border & Styles */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-slate-400">
+                                <Palette className="w-4 h-4" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Card Border Style</span>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                {[
+                                    { id: 'theme', name: 'Default Theme Card' },
+                                    { id: 'sharp', name: 'Sharp Neo-Brutalist' },
+                                    { id: 'rounded', name: 'Ultra Rounded Pill' },
+                                    { id: 'glass', name: 'Glossy Glassmorphism' }
+                                ].map(c => (
+                                    <button 
+                                        key={c.id} 
+                                        onClick={() => setCardShape(c.id)}
+                                        className={cn(
+                                            "w-full text-left px-3 py-2 text-xs font-bold uppercase tracking-wider border-2 border-transparent transition-all flex items-center justify-between",
+                                            cardShape === c.id 
+                                                ? "bg-black text-white dark:bg-white dark:text-black border-black" 
+                                                : "bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-350 hover:bg-slate-100"
+                                        )}
+                                    >
+                                        <span>{c.name}</span>
+                                        {cardShape === c.id && <Check className="w-3.5 h-3.5" />}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Custom Accent Color picker (Feature D) */}
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-2 text-slate-400">
+                                <Palette className="w-4 h-4" />
+                                <span className="text-[10px] font-black uppercase tracking-widest">Custom Accent Color</span>
+                            </div>
+                            <div className="flex flex-col gap-2 p-3 bg-slate-50 dark:bg-slate-800 border-2 border-black">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={applyCustomColor}
+                                        onChange={(e) => setApplyCustomColor(e.target.checked)}
+                                        className="w-4 h-4 rounded-md border-black accent-black cursor-pointer"
+                                    />
+                                    <span className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">Enable Custom Color</span>
+                                </label>
+                                
+                                {applyCustomColor && (
+                                    <div className="space-y-2 mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                                        <div className="flex items-center gap-2">
+                                            <input 
+                                                type="color" 
+                                                value={customColor}
+                                                onChange={(e) => setCustomColor(e.target.value)}
+                                                className="w-10 h-10 border-2 border-black cursor-pointer bg-transparent rounded-none"
+                                            />
+                                            <div className="flex-1">
+                                                <span className="text-[9px] font-black text-slate-450 uppercase block leading-none">Hex Value</span>
+                                                <input 
+                                                    type="text" 
+                                                    value={customColor}
+                                                    onChange={(e) => setCustomColor(e.target.value)}
+                                                    className="w-full bg-white dark:bg-slate-900 border-2 border-black text-xs font-black uppercase tracking-wider px-2 py-1 mt-1 text-slate-850 dark:text-white"
+                                                />
+                                            </div>
+                                        </div>
+                                        {/* Curated Palette for quick selection */}
+                                        <div className="grid grid-cols-5 gap-1.5 pt-1">
+                                            {["#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#f43f5e", "#0ea5e9", "#f97316", "#000000"].map(c => (
+                                                <button 
+                                                    key={c}
+                                                    onClick={() => setCustomColor(c)}
+                                                    className={cn(
+                                                        "w-6 h-6 border-2 border-black transition-all hover:scale-110",
+                                                        customColor === c ? "ring-2 ring-emerald-500 scale-105" : ""
+                                                    )}
+                                                    style={{ backgroundColor: c }}
+                                                    title={c}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Visibility & Hidden Restoration */}
+                        <div className="md:col-span-4 grid grid-cols-1 md:grid-cols-2 gap-4 border-t-2 border-slate-100 dark:border-slate-800 pt-4">
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-2 text-slate-400">
+                                    <Eye className="w-4 h-4" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Global Visibility</span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    <button 
+                                        onClick={() => setShowHero(!showHero)}
+                                        className={cn(
+                                            "px-3 py-1.5 text-xs font-bold uppercase tracking-wider border-2 border-transparent transition-all flex items-center gap-2",
+                                            showHero ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-350" : "bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-350"
+                                        )}
+                                    >
+                                        <span>Hero Header</span>
+                                        {showHero ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                    </button>
+                                    <button 
+                                        onClick={() => setShowSummary(!showSummary)}
+                                        className={cn(
+                                            "px-3 py-1.5 text-xs font-bold uppercase tracking-wider border-2 border-transparent transition-all flex items-center gap-2",
+                                            showSummary ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-350" : "bg-rose-50 dark:bg-rose-950 text-rose-700 dark:text-rose-350"
+                                        )}
+                                    >
+                                        <span>AI Summary</span>
+                                        {showSummary ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Restoration widget block */}
+                            {hiddenWidgets.size > 0 && (
+                                <div className="space-y-2">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">Hidden Cards Center ({hiddenWidgets.size})</span>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {Array.from(hiddenWidgets).map(wId => (
+                                            <button 
+                                                key={wId}
+                                                onClick={() => toggleWidgetVisibility(wId)}
+                                                className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[9px] font-black uppercase tracking-wider border-2 border-black flex items-center gap-1.5 transition-all"
+                                            >
+                                                <span>{wId.length > 20 ? wId.substring(0, 18) + '...' : wId}</span>
+                                                <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Dashboard Canvas */}
             <div ref={dashboardRef} className={cn(
-                "max-w-7xl mx-auto space-y-6 pb-12 transition-all duration-500",
+                "max-w-7xl mx-auto pb-12 transition-all duration-500 custom-canvas-scope",
+                SPACING_MAP[spacing].container,
+                `font-option-${font}`,
                 theme === 'midnight' ? "bg-slate-950 p-6 rounded-[2rem] border-4 border-indigo-500/20 shadow-2xl" : "",
                 theme === 'emerald' ? "bg-emerald-950 p-6 rounded-[2rem] border-4 border-emerald-500/20 shadow-2xl" : "",
                 theme === 'cyberpunk' ? "bg-[#07020d] p-6 rounded-[2rem] border-4 border-fuchsia-500/20 shadow-[0_0_50px_-10px_rgba(217,70,239,0.15)]" : "",
                 theme === 'aurora' ? "bg-slate-950 p-6 rounded-[2rem] border-4 border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]" : "",
                 theme === 'corporate' ? "bg-slate-100 p-8 rounded-none border border-slate-200/80 shadow-sm" : "",
-                theme === 'minimalist' ? "bg-[#faf8f5] p-8 rounded-[2.5rem] border border-stone-200/60 shadow-sm" : ""
+                theme === 'minimalist' ? "bg-[#faf8f5] p-8 rounded-[2.5rem] border border-stone-700 shadow-sm" : ""
             )}>
                 {/* Strategic Intel Hero */}
-                <div className={cn(
-                    "p-10 transition-all duration-500 flex flex-col gap-8",
-                    theme === 'catalyst' && "bg-black text-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(16,185,129,1)]",
-                    theme === 'executive' && "bg-white text-slate-900 border-4 border-slate-100 shadow-xl rounded-[2.5rem]",
-                    theme === 'midnight' && "bg-slate-900 text-white border-4 border-indigo-500 shadow-[0_0_50px_-12px_rgba(99,102,241,0.5)] rounded-[2.5rem]",
-                    theme === 'emerald' && "bg-emerald-900 text-emerald-50 border-4 border-emerald-500/30 shadow-[12px_12px_0px_0px_rgba(234,179,8,0.2)] rounded-[2.5rem]",
-                    theme === 'cyberpunk' && "bg-[#110924] text-white border-4 border-fuchsia-500 shadow-[0_0_40px_-5px_rgba(217,70,239,0.3)] rounded-[2.5rem]",
-                    theme === 'aurora' && "bg-white/5 text-white border border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] backdrop-blur-xl rounded-[2.5rem]",
-                    theme === 'corporate' && "bg-[#0b1329] text-white rounded-none border border-slate-800 shadow-[0_2px_8px_rgba(0,0,0,0.15)]",
-                    theme === 'minimalist' && "bg-[#1c1917] text-stone-100 rounded-[2.5rem] border border-stone-850 shadow-[0_4px_24px_rgba(28,25,23,0.1)]"
-                )}>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <div className={cn(
-                                "w-2 h-2 rounded-full animate-pulse",
-                                theme === 'executive' ? "bg-blue-600" :
-                                theme === 'emerald' ? "bg-amber-400" :
-                                theme === 'cyberpunk' ? "bg-fuchsia-500" :
-                                theme === 'aurora' ? "bg-cyan-400" :
-                                theme === 'corporate' ? "bg-sky-400" :
-                                theme === 'minimalist' ? "bg-amber-500" :
-                                "bg-emerald-500"
-                            )} />
-                            <span className={cn(
-                                "text-[10px] font-black uppercase tracking-[0.4em] italic",
-                                theme === 'executive' ? "text-blue-600" :
-                                theme === 'emerald' ? "text-amber-400" :
-                                theme === 'cyberpunk' ? "text-fuchsia-400" :
-                                theme === 'aurora' ? "text-cyan-400" :
-                                theme === 'corporate' ? "text-sky-400" :
-                                theme === 'minimalist' ? "text-amber-500" :
-                                "text-emerald-400"
-                            )}>Agentic Intel Report</span>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">
-                                {new Date(dashboard._creationTime).toLocaleDateString()}
-                            </span>
-                            <div className="h-4 w-[1px] bg-slate-800" />
-                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">
-                                Catalyst v1.2
-                            </span>
-                        </div>
-                    </div>
- 
-                    <div className="space-y-4">
-                        <h1 className={cn(
-                            "text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.85] max-w-4xl transition-all",
-                            theme === 'executive' ? "text-slate-900" :
-                            theme === 'emerald' ? "text-emerald-50" :
-                            theme === 'minimalist' ? "text-stone-100" :
-                            "text-white"
-                        )}>
-                            {dashboard.name}
-                        </h1>
-                        <p className={cn(
-                            "text-lg font-bold max-w-2xl leading-snug uppercase tracking-tight italic opacity-80",
-                            theme === 'executive' ? "text-slate-500" :
-                            theme === 'emerald' ? "text-emerald-200" :
-                            theme === 'cyberpunk' ? "text-fuchsia-200/80" :
-                            theme === 'aurora' ? "text-cyan-100/70" :
-                            theme === 'corporate' ? "text-slate-300" :
-                            theme === 'minimalist' ? "text-stone-300" :
-                            "text-slate-400"
-                        )}>
-                            Real-time data insights and visual reporting. 
-                            Powered by Catalyst AI to help you find hidden trends, spot risks, and make smarter decisions with your spreadsheets.
-                        </p>
-                    </div>
- 
-                    <div className={cn(
-                        "pt-6 border-t flex items-center justify-between",
-                        theme === 'executive' ? "border-slate-100" :
-                        theme === 'emerald' ? "border-emerald-800/40" :
-                        theme === 'aurora' ? "border-white/10" :
-                        theme === 'corporate' ? "border-slate-800" :
-                        theme === 'minimalist' ? "border-stone-800" :
-                        "border-slate-800"
-                    )}>
-                        <div className="flex items-center gap-2">
-                            <div className={cn(
-                                "w-8 h-8 rounded-lg flex items-center justify-center border",
-                                theme === 'executive' ? "bg-slate-50 border-slate-200" :
-                                theme === 'emerald' ? "bg-emerald-950/40 border-emerald-800/40" :
-                                theme === 'cyberpunk' ? "bg-[#1f0d3d] border-fuchsia-800/40" :
-                                theme === 'aurora' ? "bg-white/5 border-white/10" :
-                                theme === 'corporate' ? "bg-[#16223f] border-slate-700" :
-                                theme === 'minimalist' ? "bg-stone-900 border-stone-850" :
-                                "bg-white/5 border-white/10"
-                            )}>
-                                <Zap className={cn(
-                                    "w-4 h-4", 
-                                    theme === 'executive' ? "text-blue-600" :
-                                    theme === 'emerald' ? "text-amber-400" :
-                                    theme === 'cyberpunk' ? "text-fuchsia-400" :
-                                    theme === 'aurora' ? "text-cyan-400" :
-                                    theme === 'corporate' ? "text-sky-400" :
-                                    theme === 'minimalist' ? "text-amber-500" :
-                                    "text-emerald-400"
-                                )} />
+                {showHero && (
+                    <div 
+                        className={cn(
+                            "p-10 transition-all duration-500 flex flex-col gap-8",
+                            getHeroShapeClasses(theme, cardShape)
+                        )}
+                        style={applyCustomColor ? { borderColor: customColor } : undefined}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <div 
+                                    className="w-2 h-2 rounded-full animate-pulse transition-colors"
+                                    style={{ backgroundColor: applyCustomColor ? customColor : undefined }}
+                                />
+                                <span 
+                                    className="text-[10px] font-black uppercase tracking-[0.4em] italic transition-colors"
+                                    style={{ color: applyCustomColor ? customColor : undefined }}
+                                >
+                                    Agentic Intel Report
+                                </span>
                             </div>
-                            <span className={cn(
-                                "text-[10px] font-black uppercase tracking-widest",
-                                theme === 'executive' ? "text-slate-400" :
-                                theme === 'emerald' ? "text-emerald-400/80" :
-                                theme === 'cyberpunk' ? "text-fuchsia-400/80" :
-                                theme === 'aurora' ? "text-cyan-400/80" :
-                                theme === 'corporate' ? "text-sky-400/80" :
-                                theme === 'minimalist' ? "text-amber-500/85" :
-                                "text-white/50"
-                            )}>Catalyst AI Engine</span>
+                            <div className="flex items-center gap-4">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-350">
+                                    {new Date(dashboard._creationTime).toLocaleDateString()}
+                                </span>
+                                <div className="h-4 w-[1px] bg-slate-800/40 dark:bg-slate-800" />
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-350">
+                                    Catalyst v1.2
+                                </span>
+                            </div>
                         </div>
-                        <div className="flex gap-1">
-                            {[1, 2, 3].map(i => (
-                                <div key={i} className={cn(
-                                    "w-1.5 h-1.5 rounded-full",
-                                    theme === 'executive' ? "bg-blue-200" :
-                                    theme === 'emerald' ? "bg-amber-400/20" :
-                                    theme === 'cyberpunk' ? "bg-fuchsia-500/20" :
-                                    theme === 'aurora' ? "bg-cyan-500/20" :
-                                    theme === 'corporate' ? "bg-sky-500/25" :
-                                    theme === 'minimalist' ? "bg-amber-500/25" :
-                                    "bg-emerald-500/20"
-                                )} />
-                            ))}
+    
+                        <div className="space-y-4">
+                            <h1 className={cn(
+                                "text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.85] max-w-4xl transition-all",
+                                theme === 'executive' ? "text-slate-900" :
+                                theme === 'emerald' ? "text-emerald-50" :
+                                theme === 'minimalist' ? "text-stone-100" :
+                                "text-white"
+                            )}>
+                                {dashboard.name}
+                            </h1>
+                            <p className={cn(
+                                "text-lg font-bold max-w-2xl leading-snug uppercase tracking-tight italic transition-all",
+                                theme === 'executive' ? "text-slate-600 font-medium" :
+                                theme === 'emerald' ? "text-emerald-100 font-semibold" :
+                                theme === 'cyberpunk' ? "text-fuchsia-100" :
+                                theme === 'aurora' ? "text-cyan-100 font-medium" :
+                                theme === 'corporate' ? "text-slate-100" :
+                                theme === 'minimalist' ? "text-stone-200" :
+                                "text-slate-200 font-medium"
+                            )}>
+                                Real-time data insights and visual reporting. 
+                                Powered by Catalyst AI to help you find hidden trends, spot risks, and make smarter decisions with your spreadsheets.
+                            </p>
+                        </div>
+    
+                        <div className={cn(
+                            "pt-6 border-t flex items-center justify-between",
+                            theme === 'executive' ? "border-slate-100" :
+                            theme === 'emerald' ? "border-emerald-800/40" :
+                            theme === 'aurora' ? "border-white/10" :
+                            theme === 'corporate' ? "border-slate-800" :
+                            theme === 'minimalist' ? "border-stone-800" :
+                            "border-slate-800"
+                        )}>
+                            <div className="flex items-center gap-2">
+                                <div className={cn(
+                                    "w-8 h-8 rounded-lg flex items-center justify-center border",
+                                    theme === 'executive' ? "bg-slate-50 border-slate-200" :
+                                    theme === 'emerald' ? "bg-emerald-950/40 border-emerald-800/40" :
+                                    theme === 'cyberpunk' ? "bg-[#1f0d3d] border-fuchsia-800/40" :
+                                    theme === 'aurora' ? "bg-white/5 border-white/10" :
+                                    theme === 'corporate' ? "bg-[#16223f] border-slate-700" :
+                                    theme === 'minimalist' ? "bg-stone-900 border-stone-700" :
+                                    "bg-white/5 border-white/10"
+                                )}>
+                                    <Zap className="w-4 h-4 transition-colors" style={{ color: applyCustomColor ? customColor : undefined }} />
+                                </div>
+                                <span 
+                                    className="text-[10px] font-black uppercase tracking-widest transition-colors"
+                                    style={{ color: applyCustomColor ? customColor : undefined }}
+                                >
+                                    Catalyst AI Engine
+                                </span>
+                            </div>
+                            <div className="flex gap-1">
+                                {[1, 2, 3].map(i => (
+                                    <div 
+                                        key={i} 
+                                        className="w-1.5 h-1.5 rounded-full transition-colors"
+                                        style={{ backgroundColor: applyCustomColor ? customColor : undefined, opacity: 0.35 * i }}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 {/* Dynamic KPI & Chart Rows */}
                 {(() => {
@@ -385,13 +827,17 @@ export default function SharedDashboard({ params }) {
                             {/* KPI Metrics Row */}
                             {kpiWidgets.length > 0 && (
                                 <div className={cn(
-                                    "grid gap-6 w-full transition-all duration-500",
+                                    "grid w-full transition-all duration-500",
+                                    SPACING_MAP[spacing].grid,
                                     kpiWidgets.length === 1 && "grid-cols-1",
                                     kpiWidgets.length === 2 && "grid-cols-1 md:grid-cols-2",
                                     kpiWidgets.length === 3 && "grid-cols-1 md:grid-cols-3 lg:grid-cols-3",
                                     kpiWidgets.length >= 4 && "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
                                 )}>
                                     {kpiWidgets.map((widget, i) => {
+                                        const widgetId = widget.title || `kpi-${i}`;
+                                        if (hiddenWidgets.has(widgetId)) return null;
+
                                         const rawVal = widget.value || widget.chartConfig?.value || widget.notes || (widget.chartConfig?.data && widget.chartConfig.data[0] && (widget.chartConfig.data[0].value || widget.chartConfig.data[0][widget.chartConfig.yAxis])) || "";
                                         const valStr = String(rawVal).trim();
                                         const titleLower = (widget.title || "").toLowerCase();
@@ -453,23 +899,28 @@ export default function SharedDashboard({ params }) {
                                             ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/30" 
                                             : widget.trendType === 'negative' 
                                                 ? "text-rose-600 bg-rose-50 dark:bg-rose-950/30 dark:text-rose-400 border border-rose-200 dark:border-rose-900/30" 
-                                                : "text-slate-600 bg-slate-50 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-750";
+                                                : "text-slate-600 bg-slate-50 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700";
 
                                         return (
                                             <div 
                                                 key={`kpi-${i}`} 
                                                 className={cn(
-                                                    "p-6 flex flex-col transition-all duration-500",
-                                                    theme === 'catalyst' && "bg-white dark:bg-slate-900 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]",
-                                                    theme === 'executive' && "bg-white border-2 border-slate-100 shadow-lg rounded-[2rem]",
-                                                    theme === 'midnight' && "bg-slate-900 border-2 border-indigo-500/30 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.35)] rounded-[2rem]",
-                                                    theme === 'emerald' && "bg-[#06281e] border-2 border-emerald-500/30 shadow-[4px_4px_0px_0px_rgba(234,179,8,0.15)] rounded-[2rem]",
-                                                    theme === 'cyberpunk' && "bg-[#110924] border-2 border-fuchsia-500/40 shadow-[0_0_20px_-5px_rgba(217,70,239,0.25)] rounded-[2rem]",
-                                                    theme === 'aurora' && "bg-white/5 border border-white/10 shadow-xl backdrop-blur-xl rounded-[2rem]",
-                                                    theme === 'corporate' && "bg-white border border-slate-200 rounded-none shadow-[2px_2px_4px_rgba(0,0,0,0.02)]",
-                                                    theme === 'minimalist' && "bg-white border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(120,110,90,0.06)] rounded-[2rem]"
+                                                    "p-6 flex flex-col transition-all duration-500 relative group",
+                                                    getCardShapeClasses(theme, cardShape)
                                                 )}
+                                                style={applyCustomColor && cardShape === 'sharp' ? { borderColor: customColor } : undefined}
                                             >
+                                                {/* Hide Widget Overlay (Visible in Customizer Mode) */}
+                                                {showDesigner && (
+                                                    <button 
+                                                        onClick={() => toggleWidgetVisibility(widgetId)}
+                                                        className="absolute top-3 right-3 z-20 bg-rose-600 hover:bg-rose-700 text-white border-2 border-black px-2 py-1 text-[8px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all flex items-center gap-1"
+                                                    >
+                                                        <EyeOff className="w-3 h-3" />
+                                                        Hide
+                                                    </button>
+                                                )}
+
                                                 <div className="flex items-center justify-between mb-6">
                                                     <div className="flex items-center gap-3">
                                                         <div className={cn(
@@ -482,31 +933,43 @@ export default function SharedDashboard({ params }) {
                                                             theme === 'corporate' ? "bg-slate-50 border-slate-200 rounded-none text-sky-600" :
                                                             theme === 'minimalist' ? "bg-amber-50 border-stone-200 rounded-xl text-amber-700" :
                                                             "bg-indigo-500/10 border-indigo-500/50 rounded-lg text-indigo-400"
-                                                        )}>
+                                                        )}
+                                                        style={applyCustomColor ? { color: customColor, borderColor: customColor } : undefined}
+                                                        >
                                                             <TrendingUp className="w-4 h-4" />
                                                         </div>
                                                         <h3 className={cn(
                                                             "text-sm font-black uppercase tracking-tight transition-colors",
                                                             theme === 'midnight' || theme === 'emerald' || theme === 'cyberpunk' || theme === 'aurora' ? "text-white" :
                                                             theme === 'corporate' ? "text-slate-700 font-bold" :
-                                                            theme === 'minimalist' ? "text-stone-800 font-extrabold" :
+                                                            theme === 'minimalist' ? "text-stone-850 font-extrabold" :
                                                             "text-slate-900 dark:text-white"
                                                         )}>{widget.title}</h3>
                                                     </div>
                                                 </div>
                                                 
-                                                <div className="flex-1 flex flex-col justify-between py-2 relative pl-4 border-l-4 transition-all duration-500" style={{ borderLeftColor: theme === 'minimalist' ? (isCurrency ? '#d97706' : isPercentage ? '#b45309' : '#78716c') : (isCurrency ? '#10b981' : isPercentage ? '#f59e0b' : '#3b82f6') }}>
+                                                <div 
+                                                    className="flex-1 flex flex-col justify-between py-2 relative pl-4 border-l-4 transition-all duration-500" 
+                                                    style={{ 
+                                                        borderLeftColor: applyCustomColor 
+                                                            ? customColor 
+                                                            : (theme === 'minimalist' ? (isCurrency ? '#d97706' : isPercentage ? '#b45309' : '#78716c') : (isCurrency ? '#10b981' : isPercentage ? '#f59e0b' : '#3b82f6')) 
+                                                    }}
+                                                >
                                                     <div className="flex items-center justify-between mb-4">
-                                                        <span className={cn(
-                                                            "text-[8px] font-black uppercase tracking-widest",
-                                                            theme === 'midnight' ? "text-indigo-400/80" :
-                                                            theme === 'emerald' ? "text-emerald-400/80" :
-                                                            theme === 'cyberpunk' ? "text-fuchsia-400/80" :
-                                                            theme === 'aurora' ? "text-cyan-400/80" :
-                                                            theme === 'corporate' ? "text-sky-600 font-bold" :
-                                                            theme === 'minimalist' ? "text-amber-750 font-extrabold" :
-                                                            "text-slate-400"
-                                                        )}>
+                                                        <span 
+                                                            className={cn(
+                                                                "text-[8px] font-black uppercase tracking-widest",
+                                                                theme === 'midnight' ? "text-indigo-450" :
+                                                                theme === 'emerald' ? "text-emerald-450" :
+                                                                theme === 'cyberpunk' ? "text-fuchsia-450" :
+                                                                theme === 'aurora' ? "text-cyan-450" :
+                                                                theme === 'corporate' ? "text-sky-600 font-bold" :
+                                                                theme === 'minimalist' ? "text-amber-700 font-extrabold" :
+                                                                "text-slate-450"
+                                                            )}
+                                                            style={applyCustomColor ? { color: customColor } : undefined}
+                                                        >
                                                             {metricLabel}
                                                         </span>
                                                         {widget.trend && (
@@ -519,7 +982,7 @@ export default function SharedDashboard({ params }) {
                                                         )}
                                                     </div>
  
-                                                    {/* Giant Bold Value Accent (Dynamic Scale & Overflow-Proof) */}
+                                                    {/* Giant Bold Value Accent */}
                                                     <div className="my-2 overflow-hidden pr-2">
                                                         <span className={cn(
                                                             "font-black tracking-tight uppercase block leading-none transition-all duration-500 truncate",
@@ -540,7 +1003,7 @@ export default function SharedDashboard({ params }) {
                                                         <span className={cn(
                                                             "text-[9px] font-black uppercase tracking-[0.2em] block transition-colors",
                                                             theme === 'midnight' || theme === 'emerald' || theme === 'cyberpunk' || theme === 'aurora' ? "text-slate-400" :
-                                                            theme === 'corporate' ? "text-slate-450 text-[8px]" :
+                                                            theme === 'corporate' ? "text-slate-400 text-[8px]" :
                                                             theme === 'minimalist' ? "text-stone-500 font-semibold" :
                                                             "text-slate-500 dark:text-slate-400"
                                                         )}>
@@ -554,10 +1017,16 @@ export default function SharedDashboard({ params }) {
                                 </div>
                             )}
 
-                            {/* Main Charts & Visualizations Row (Flexbox Auto-Stretch) */}
+                            {/* Main Charts & Visualizations Row */}
                             {otherWidgets.length > 0 && (
-                                <div className="flex flex-wrap gap-6 w-full transition-all duration-500">
+                                <div className={cn(
+                                    "flex flex-wrap w-full transition-all duration-500",
+                                    SPACING_MAP[spacing].grid
+                                )}>
                                     {otherWidgets.map((widget, i) => {
+                                        const widgetId = widget.title || `other-${i}`;
+                                        if (hiddenWidgets.has(widgetId)) return null;
+
                                         const size = widget.size || 'small';
                                         
                                         // Dynamic Flexbox sizing: Auto-stretches to fill empty row space!
@@ -571,18 +1040,23 @@ export default function SharedDashboard({ params }) {
                                             <div 
                                                 key={`other-${i}`} 
                                                 className={cn(
-                                                    "p-6 flex flex-col transition-all duration-500",
+                                                    "p-6 flex flex-col transition-all duration-500 relative group",
                                                     flexClass,
-                                                    theme === 'catalyst' && "bg-white dark:bg-slate-900 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]",
-                                                    theme === 'executive' && "bg-white border-2 border-slate-100 shadow-lg rounded-[2rem]",
-                                                    theme === 'midnight' && "bg-slate-900 border-2 border-indigo-500/30 shadow-[0_4px_20px_-5px_rgba(0,0,0,0.35)] rounded-[2rem]",
-                                                    theme === 'emerald' && "bg-[#06281e] border-2 border-emerald-500/30 shadow-[4px_4px_0px_0px_rgba(234,179,8,0.15)] rounded-[2rem]",
-                                                    theme === 'cyberpunk' && "bg-[#110924] border-2 border-fuchsia-500/40 shadow-[0_0_20px_-5px_rgba(217,70,239,0.25)] rounded-[2rem]",
-                                                    theme === 'aurora' && "bg-white/5 border border-white/10 shadow-xl backdrop-blur-xl rounded-[2rem]",
-                                                    theme === 'corporate' && "bg-white border border-slate-200 rounded-none shadow-[2px_2px_4px_rgba(0,0,0,0.02)]",
-                                                    theme === 'minimalist' && "bg-white border border-stone-200/80 shadow-[0_4px_20px_-4px_rgba(120,110,90,0.06)] rounded-[2rem]"
+                                                    getCardShapeClasses(theme, cardShape)
                                                 )}
+                                                style={applyCustomColor && cardShape === 'sharp' ? { borderColor: customColor } : undefined}
                                             >
+                                                {/* Hide Widget Overlay (Visible in Customizer Mode) */}
+                                                {showDesigner && (
+                                                    <button 
+                                                        onClick={() => toggleWidgetVisibility(widgetId)}
+                                                        className="absolute top-3 right-3 z-20 bg-rose-600 hover:bg-rose-700 text-white border-2 border-black px-2 py-1 text-[8px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all flex items-center gap-1"
+                                                    >
+                                                        <EyeOff className="w-3 h-3" />
+                                                        Hide
+                                                    </button>
+                                                )}
+
                                                 <div className="flex items-center justify-between mb-6">
                                                     <div className="flex items-center gap-3">
                                                         <div className={cn(
@@ -595,7 +1069,9 @@ export default function SharedDashboard({ params }) {
                                                             theme === 'corporate' ? "bg-slate-50 border-slate-200 rounded-none text-sky-600" :
                                                             theme === 'minimalist' ? "bg-stone-50 border-stone-200 rounded-xl text-stone-600" :
                                                             "bg-indigo-500/10 border-indigo-500/50 rounded-lg text-indigo-400"
-                                                        )}>
+                                                        )}
+                                                        style={applyCustomColor ? { color: customColor, borderColor: customColor } : undefined}
+                                                        >
                                                             {widget.type === 'chart' ? (
                                                                 <BarChart3 className="w-4 h-4" />
                                                             ) : (
@@ -606,17 +1082,21 @@ export default function SharedDashboard({ params }) {
                                                             "text-sm font-black uppercase tracking-tight transition-colors",
                                                             theme === 'midnight' || theme === 'emerald' || theme === 'cyberpunk' || theme === 'aurora' ? "text-white" :
                                                             theme === 'corporate' ? "text-slate-700 font-bold" :
-                                                            theme === 'minimalist' ? "text-stone-800 font-extrabold" :
+                                                            theme === 'minimalist' ? "text-stone-850 font-extrabold" :
                                                             "text-slate-900 dark:text-white"
                                                         )}>{widget.title}</h3>
                                                     </div>
                                                 </div>
                                                 
                                                 {widget.type === 'chart' && widget.chartConfig && Array.isArray(widget.chartConfig.data) && widget.chartConfig.data.length > 0 ? (
-                                                    <ChartRenderer config={widget.chartConfig} theme={theme} />
+                                                    <ChartRenderer 
+                                                        config={widget.chartConfig} 
+                                                        theme={theme} 
+                                                        customColor={applyCustomColor ? customColor : null}
+                                                    />
                                                 ) : (
                                                     <div className="prose prose-sm dark:prose-invert max-w-none">
-                                                        <p className="text-slate-600 dark:text-slate-400 font-medium leading-relaxed italic">{widget.notes}</p>
+                                                        <p className="text-slate-650 dark:text-slate-400 font-medium leading-relaxed italic">{widget.notes}</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -628,18 +1108,13 @@ export default function SharedDashboard({ params }) {
                     );
                 })()}
 
-                {dashboard.config.find(w => w.type === 'summary') && (
+                {showSummary && dashboard.config.find(w => w.type === 'summary') && (
                     <div className={cn(
                         "p-8 transition-all duration-500",
-                        theme === 'catalyst' && "bg-black text-white border-4 border-black shadow-[12px_12px_0px_0px_rgba(16,185,129,1)]",
-                        theme === 'executive' && "bg-white text-slate-900 border-4 border-slate-100 shadow-xl rounded-[2.5rem]",
-                        theme === 'midnight' && "bg-indigo-900 text-white border-4 border-indigo-500 shadow-2xl rounded-[2.5rem]",
-                        theme === 'emerald' && "bg-emerald-900 text-emerald-50 border-4 border-emerald-500/30 shadow-[12px_12px_0px_0px_rgba(234,179,8,0.2)] rounded-[2.5rem]",
-                        theme === 'cyberpunk' && "bg-[#110924] text-white border-4 border-fuchsia-500 shadow-[0_0_40px_-5px_rgba(217,70,239,0.3)] rounded-[2.5rem]",
-                        theme === 'aurora' && "bg-white/5 text-white border border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] backdrop-blur-xl rounded-[2.5rem]",
-                        theme === 'corporate' && "bg-[#0b1329] text-white rounded-none border border-slate-800 shadow-[0_2px_8px_rgba(0,0,0,0.15)]",
-                        theme === 'minimalist' && "bg-[#1c1917] text-stone-100 rounded-[2.5rem] border border-stone-850 shadow-[0_4px_24px_rgba(28,25,23,0.1)]"
-                    )}>
+                        getHeroShapeClasses(theme, cardShape)
+                    )}
+                    style={applyCustomColor ? { borderColor: customColor } : undefined}
+                    >
                         <div className="flex items-center gap-2 mb-4">
                             <div className={cn(
                                 "w-2 h-2 rounded-full animate-pulse",
@@ -650,7 +1125,9 @@ export default function SharedDashboard({ params }) {
                                 theme === 'corporate' ? "bg-sky-400" :
                                 theme === 'minimalist' ? "bg-amber-500" :
                                 "bg-emerald-500"
-                            )} />
+                            )} 
+                            style={{ backgroundColor: applyCustomColor ? customColor : undefined }}
+                            />
                             <h4 className={cn(
                                 "text-[10px] font-black uppercase tracking-[0.4em]",
                                 theme === 'executive' ? "text-slate-400" :
@@ -660,7 +1137,9 @@ export default function SharedDashboard({ params }) {
                                 theme === 'corporate' ? "text-sky-400" :
                                 theme === 'minimalist' ? "text-amber-500" :
                                 "text-emerald-400"
-                            )}>Catalyst AI Intelligence Summary</h4>
+                            )}
+                            style={applyCustomColor ? { color: customColor } : undefined}
+                            >Catalyst AI Intelligence Summary</h4>
                         </div>
                         <p className={cn(
                             "text-lg font-bold leading-relaxed uppercase tracking-tight w-full max-w-none italic break-words whitespace-pre-wrap",
@@ -668,8 +1147,8 @@ export default function SharedDashboard({ params }) {
                             theme === 'emerald' ? "text-emerald-100" :
                             theme === 'cyberpunk' ? "text-fuchsia-100" :
                             theme === 'aurora' ? "text-cyan-100/90" :
-                            theme === 'corporate' ? "text-slate-300" :
-                            theme === 'minimalist' ? "text-stone-300" :
+                            theme === 'corporate' ? "text-slate-200" :
+                            theme === 'minimalist' ? "text-stone-200" :
                             "text-white"
                         )}>
                             {dashboard.config.find(w => w.type === 'summary').notes}
