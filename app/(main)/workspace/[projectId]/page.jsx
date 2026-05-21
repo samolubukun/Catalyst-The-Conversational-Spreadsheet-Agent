@@ -53,10 +53,11 @@ export default function Workspace({ params }) {
     const workbook = useQuery(api.workbooks.getById, { id: workbookId });
     const files = useQuery(api.files.getByWorkbook, { workbookId });
     const updateSheetData = useMutation(api.sheets.updateData);
-    const sheets = useQuery(api.sheets.getByWorkbook, { workbookId });
-    const activeSheet = useMemo(
-        () => sheets?.find(s => s._id === activeSheetId) || sheets?.[0],
-        [sheets, activeSheetId]
+    const sheets = useQuery(api.sheets.getByWorkbookMetadata, { workbookId });
+    const resolvedActiveSheetId = activeSheetId || sheets?.[0]?._id;
+    const activeSheet = useQuery(
+        api.sheets.getById,
+        resolvedActiveSheetId ? { id: resolvedActiveSheetId } : "skip"
     );
     const removeSheet = useMutation(api.sheets.remove);
     const removeFile = useMutation(api.files.remove);
@@ -64,7 +65,7 @@ export default function Workspace({ params }) {
     const dashboards = useQuery(api.dashboards.getByWorkbook, { workbookId }) || [];
     const updateDashboard = useMutation(api.dashboards.update);
 
-    const versions = useQuery(api.versions.listBySheet, activeSheetId ? { sheetId: activeSheetId } : "skip");
+    const versions = useQuery(api.versions.listBySheetMetadata, activeSheetId ? { sheetId: activeSheetId } : "skip");
     const undo = useMutation(api.sheets.undo);
     const redo = useMutation(api.sheets.redo);
 
