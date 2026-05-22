@@ -1,6 +1,6 @@
 <div align="center">
   <img src="public/logo-dark.png" width="200" alt="Catalyst Logo" />
-  <h1>Catalyst — The Conversational Data Agent</h1>
+  <h1>Catalyst — The Conversational Spreadsheet Agent</h1>
   
   <p align="center">
     <img src="https://img.shields.io/badge/Next.js-15-000000?style=for-the-badge&logo=next.js&logoColor=white&labelColor=0F172A" alt="Next.js" />
