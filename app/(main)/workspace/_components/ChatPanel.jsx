@@ -137,16 +137,14 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
     };
 
     const handleCreateSheet = async (code, name) => {
-        if (!activeSheet) {
-            toast.error("Please upload or select a sheet first.");
-            return;
-        }
-
         const loadingToast = toast.loading("Generating sheet...");
         try {
             const fullSheets = await convex.query(api.sheets.getByWorkbook, { workbookId });
+            
+            // If activeSheet is not present, pass an empty array to data
+            const activeData = activeSheet?.data || [];
             const transformFn = new Function("data", "allSheets", code);
-            const newData = transformFn(activeSheet.data || [], fullSheets || []);
+            const newData = transformFn(activeData, fullSheets || []);
             
             if (!Array.isArray(newData)) throw new Error("Generated code must return an array of row objects");
 
@@ -160,10 +158,10 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
                 .replace(/`([^`\\]|\\.)*`/g, "``"); // template literals
             const usesActiveData = /\bdata\b/.test(codeCleaned);
 
-            let targetFileId = activeSheet.fileId;
+            let targetFileId = activeSheet?.fileId;
             
-            if (!usesActiveData) {
-                // Standalone AI Generated Data
+            if (!usesActiveData || !targetFileId) {
+                // Standalone AI Generated Data or no active sheet exists
                 const cleanName = name || "AI Generated Data";
                 targetFileId = await createFile({
                     workbookId,
@@ -181,7 +179,7 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
                 order: nextOrder,
             });
 
-            if (!usesActiveData) {
+            if (!usesActiveData || !activeSheet) {
                 await updateFileStatus({
                     id: targetFileId,
                     status: "ready",
@@ -710,7 +708,7 @@ function CreateSheetBlock({ code, name, activeSheet, onCreateSheet }) {
 
             <Button 
                 onClick={handleCreate}
-                disabled={isCreated || !activeSheet}
+                disabled={isCreated}
                 className={cn(
                     "font-black uppercase tracking-widest text-[10px] h-10 rounded-xl w-full border-2 border-black transition-all mt-1",
                     isCreated 
