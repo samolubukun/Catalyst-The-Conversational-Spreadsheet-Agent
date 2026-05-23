@@ -130,6 +130,7 @@ export default function LandingPage() {
     const handleGetStarted = () => router.push('/dashboard');
 
     const [activeMockTab, setActiveMockTab] = useState('sales');
+    const [mobileTabMockup, setMobileTabMockup] = useState('sheet');
     const [hasCreatedSummary, setHasCreatedSummary] = useState(true);
     const [isGeneratingSheet, setIsGeneratingSheet] = useState(false);
 
@@ -487,148 +488,110 @@ export default function LandingPage() {
                         </div>
 
                         {/* Simulator Sandbox */}
-                        <div className="overflow-x-auto -mx-2 px-2">
-                        <div className="min-w-[340px] border-4 md:border-8 border-black bg-white rounded-none shadow-[12px_12px_0px_0px_rgba(16,185,129,1)] md:shadow-[20px_20px_0px_0px_rgba(16,185,129,1)] text-slate-900 overflow-hidden">
-                            {/* Browser App Header Bar (Matching design exactly) */}
-                            <div className="bg-white border-b-4 border-black px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
-                                <div className="flex items-center gap-2 self-start sm:self-center">
-                                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                        <span className="text-white font-black text-lg">C</span>
-                                    </div>
-                                    <span className="text-lg font-black tracking-widest text-slate-900 uppercase">CATALYST</span>
-                                </div>
-
-                                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
-                                    <div className="bg-slate-50 border-2 border-black text-[10px] text-slate-700 font-black px-3.5 py-1.5 rounded-xl uppercase tracking-wider flex items-center gap-1.5">
-                                        <span>Catalyst Workspace</span>
-                                        <ChevronDown className="w-3 h-3 text-slate-500" />
-                                    </div>
-                                    <button className="bg-emerald-50 border-2 border-emerald-400 text-emerald-700 px-4 py-1.5 font-bold rounded-xl text-xs flex items-center gap-1 hover:bg-emerald-100 transition-colors">
-                                        <Plus className="w-3.5 h-3.5" />
-                                        New
+                        <div className="-mx-2 px-2">
+                        <div className="w-full border-4 md:border-8 border-black bg-white rounded-none shadow-[12px_12px_0px_0px_rgba(16,185,129,1)] md:shadow-[20px_20px_0px_0px_rgba(16,185,129,1)] text-slate-900 overflow-hidden">
+                            {/* Top Toolbar */}
+                            <header className="h-14 border-b border-slate-200 flex items-center justify-between px-2 md:px-4 bg-white z-10 shrink-0">
+                                <div className="flex items-center gap-1 md:gap-4 min-w-0">
+                                    <button className="h-8 w-8 rounded-lg shrink-0 hover:bg-slate-100 flex items-center justify-center p-0 border-none bg-transparent text-slate-900">
+                                        <ChevronLeft className="w-5 h-5" />
                                     </button>
-                                    <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-3.5 py-1 font-black rounded-full text-[10px] uppercase flex items-center gap-1.5">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                        21 Credits
-                                    </div>
-                                    {/* User Avatar */}
-                                    <div className="w-8 h-8 rounded-full bg-slate-900 border-2 border-black flex items-center justify-center text-white text-[10px] font-black overflow-hidden shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                        USR
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Sub-toolbar (Project Header) */}
-                            <div className="bg-white border-b-4 border-black px-6 py-3 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                                <div className="flex flex-wrap items-center gap-3">
-                                    <button className="w-6 h-6 border-2 border-black rounded-lg bg-white flex items-center justify-center hover:bg-slate-100 transition-colors shrink-0">
-                                        <ChevronLeft className="w-3.5 h-3.5 text-black" />
-                                    </button>
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-sm font-black uppercase tracking-tight text-slate-900">Catalyst Workspace</span>
-                                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-emerald-100 border border-emerald-500 rounded-none shrink-0">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                                                <span className="text-[8px] font-black uppercase tracking-widest text-emerald-700">Live Sync</span>
+                                    <div className="flex flex-col min-w-0">
+                                        <div className="flex items-center gap-1 md:gap-2">
+                                            <h1 className="text-xs md:text-sm font-black text-slate-900 leading-tight break-words whitespace-normal max-w-[90px] xs:max-w-[120px] sm:max-w-none">Catalyst Workspace</h1>
+                                            <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 bg-emerald-50 rounded-md border border-emerald-100 shrink-0">
+                                                <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                                                <span className="text-[8px] font-black uppercase tracking-widest text-emerald-600">Live Sync</span>
                                             </div>
+                                            <button className="h-8 w-8 md:h-6 md:w-auto md:px-2 rounded-lg text-slate-500 flex items-center justify-center gap-1 hover:bg-slate-100 transition-all bg-transparent md:bg-slate-50 shrink-0 border-0 md:border md:border-slate-300">
+                                                <Settings2 className="w-4 h-4 md:w-3.5 md:h-3.5 text-slate-700" />
+                                                <span className="hidden md:inline text-[9px] font-black uppercase tracking-widest text-slate-700">Sources</span>
+                                            </button>
                                         </div>
-                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">3 files unified in workspace</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">
+                                            3 Files Unified in Workspace
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-1 md:gap-2 shrink-0">
+                                    <div className="flex items-center bg-slate-100 p-0.5 md:p-1 rounded-xl gap-0.5 md:gap-1 shrink-0">
+                                        <button className="rounded-lg font-bold text-xs h-8 w-8 md:w-auto md:px-2.5 p-0 md:p-auto hover:bg-white flex items-center justify-center text-slate-400 opacity-50 cursor-not-allowed">
+                                            <Undo2 className="w-4 h-4 md:mr-1.5" />
+                                            <span className="hidden md:inline">Undo</span>
+                                        </button>
+                                        <button className="rounded-lg font-bold text-xs h-8 w-8 md:w-auto md:px-2.5 p-0 md:p-auto hover:bg-white flex items-center justify-center text-slate-400 opacity-50 cursor-not-allowed">
+                                            <Redo2 className="w-4 h-4 md:mr-1.5" />
+                                            <span className="hidden md:inline">Redo</span>
+                                        </button>
+
+                                        <div className="relative">
+                                            <button className="rounded-lg font-bold text-xs h-8 w-8 md:w-auto md:px-3 p-0 md:p-auto hover:bg-white flex items-center justify-center transition-all">
+                                                <Download className="w-4 h-4 md:mr-1.5" />
+                                                <span className="hidden md:inline">Export</span>
+                                                <ChevronDown className="w-3.5 h-3.5 ml-1 opacity-60 hidden md:inline" />
+                                            </button>
+                                        </div>
                                     </div>
                                     
-                                    <button className="h-7 px-2.5 text-[9px] font-black uppercase tracking-wider bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all flex items-center gap-1.5 shrink-0">
-                                        <Database className="w-3 h-3 text-emerald-600" />
-                                        Sources
+                                    <button className="bg-black text-white hover:bg-slate-800 rounded-lg md:rounded-xl font-bold text-xs h-8 w-auto px-2 border border-black md:border-2 md:shadow-[3px_3px_0px_0px_rgba(16,185,129,1)] shadow-[2px_2px_0px_0px_rgba(16,185,129,1)] shrink-0 flex items-center justify-center gap-1">
+                                        <BarChart3 className="w-4 h-4 text-emerald-400 shrink-0" />
+                                        <span className="hidden md:inline">Reports</span> <span className="text-[10px] bg-emerald-500 text-white rounded-full px-1.5 py-0.5 font-black leading-none">2</span>
                                     </button>
                                 </div>
-
-                                <div className="flex flex-wrap items-center gap-2 self-end lg:self-center">
-                                    <div className="h-8 bg-slate-100 border-2 border-black px-1.5 flex items-center gap-1">
-                                        <button 
-                                            onClick={() => {
-                                                if (activeMockTab !== 'sales') {
-                                                    setActiveMockTab('sales');
-                                                }
-                                            }}
-                                            disabled={activeMockTab === 'sales'}
-                                            className="h-5 px-1.5 text-[8px] font-black uppercase tracking-widest bg-white border border-black hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
-                                        >
-                                            <Undo2 className="w-3 h-3" />
-                                            Undo
-                                        </button>
-                                        <button 
-                                            onClick={() => {
-                                                if (activeMockTab === 'sales') {
-                                                    setActiveMockTab('cohort');
-                                                }
-                                            }}
-                                            disabled={activeMockTab !== 'sales'}
-                                            className="h-5 px-1.5 text-[8px] font-black uppercase tracking-widest bg-white border border-black hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
-                                        >
-                                            <Redo2 className="w-3 h-3" />
-                                            Redo
-                                        </button>
-                                    </div>
-
-                                    <button className="h-8 px-3 text-[9px] font-black uppercase bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all flex items-center gap-1">
-                                        <Download className="w-3.5 h-3.5" />
-                                        Export
-                                        <ChevronDown className="w-3 h-3 opacity-60" />
-                                    </button>
-
-                                    <button className="h-8 px-4 rounded-xl text-[9px] font-black uppercase bg-black text-white shadow-[4px_4px_0px_0px_rgba(16,185,129,1)] hover:shadow-none transition-all flex items-center gap-1">
-                                        <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
-                                        Reports (2)
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Workbook Tabs Bar */}
-                            <div className="bg-slate-50 border-b-4 border-black px-4 py-2 flex items-center gap-3 overflow-x-auto no-scrollbar shadow-inner select-none">
-                                {/* Tab 1: SALES_DATA */}
-                                <button 
-                                    onClick={() => setActiveMockTab('sales')}
-                                    className={`px-4 py-1.5 flex flex-col items-start transition-all border-2 shrink-0 ${activeMockTab === 'sales' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:text-emerald-500'}`}
-                                >
-                                    <span className="text-[10px] font-black uppercase tracking-wider">SALES_DATA</span>
-                                    <span className="text-[7px] opacity-75 font-semibold">sales_data.csv</span>
-                                </button>
-
-                                {/* Tab 2: CUSTOMER COHORT ANALYSIS */}
-                                <button 
-                                    onClick={() => setActiveMockTab('cohort')}
-                                    className={`px-4 py-1.5 flex flex-col items-start transition-all border-2 shrink-0 ${activeMockTab === 'cohort' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:text-emerald-500'}`}
-                                >
-                                    <span className="text-[10px] font-black uppercase tracking-wider">CUSTOMER COHORT ANALYSIS</span>
-                                    <span className="text-[7px] opacity-75 font-semibold">sales_data.csv</span>
-                                </button>
-
-                                {/* Tab 3: ARXIV: LATENT REASONERS */}
-                                <button 
-                                    onClick={() => setActiveMockTab('arxiv')}
-                                    className={`px-4 py-1.5 flex flex-col items-start transition-all border-2 shrink-0 ${activeMockTab === 'arxiv' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:text-emerald-500'}`}
-                                >
-                                    <span className="text-[10px] font-black uppercase tracking-wider">ARXIV: LATENT REASONERS</span>
-                                    <span className="text-[7px] opacity-75 font-semibold">arxiv: latent r...</span>
-                                </button>
-
-                                {/* Tab 4: MARKET LEADERS: QUANTUM */}
-                                <button 
-                                    onClick={() => setActiveMockTab('quantum')}
-                                    className={`px-4 py-1.5 flex flex-col items-start transition-all border-2 shrink-0 ${activeMockTab === 'quantum' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:text-emerald-500'}`}
-                                >
-                                    <span className="text-[10px] font-black uppercase tracking-wider">MARKET LEADERS: QUANTUM</span>
-                                    <span className="text-[7px] opacity-75 font-semibold">market leader...</span>
-                                </button>
-
-                                <button className="p-1 rounded-full border border-slate-300 bg-white hover:bg-slate-100 text-slate-500 shrink-0">
-                                    <Plus className="w-3.5 h-3.5" />
-                                </button>
-                            </div>
+                            </header>
 
                             {/* Main Content Pane Split */}
-                            <div className="flex flex-col lg:flex-row min-h-[500px]">
+                            <div className="flex flex-col lg:flex-row flex-1 min-h-[500px]">
                                 {/* Left: Spreadsheet Grid View */}
-                                <div className="flex-1 flex flex-col bg-slate-50 border-b-4 lg:border-b-0 lg:border-r-4 border-black min-w-0">
+                                <div className={`flex-1 flex-col bg-slate-50 border-r border-slate-200 min-w-0 ${mobileTabMockup === 'sheet' ? 'flex' : 'hidden lg:flex'}`}>
+                                    
+                                    {/* Sheet Tabs */}
+                                    <div className="h-12 border-b border-slate-200 flex items-center px-4 bg-white gap-2 overflow-x-auto no-scrollbar shadow-inner shrink-0">
+                                        {/* Tab 1 */}
+                                        <div className={`px-4 h-9 flex items-center text-[10px] font-black uppercase tracking-[0.1em] transition-all rounded-xl border-2 shrink-0 cursor-pointer select-none ${activeMockTab === 'sales' ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20" : "bg-slate-50 text-slate-400 border-slate-100 hover:border-emerald-200 hover:text-emerald-500"}`} onClick={() => setActiveMockTab('sales')}>
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                                    SALES_DATA
+                                                </div>
+                                                <span className={`text-[7px] font-bold truncate max-w-[80px] ${activeMockTab === 'sales' ? "text-emerald-200" : "text-slate-400"}`}>sales_data.csv</span>
+                                            </div>
+                                        </div>
+                                        {/* Tab 2 */}
+                                        <div className={`px-4 h-9 flex items-center text-[10px] font-black uppercase tracking-[0.1em] transition-all rounded-xl border-2 shrink-0 cursor-pointer select-none ${activeMockTab === 'cohort' ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20" : "bg-slate-50 text-slate-400 border-slate-100 hover:border-emerald-200 hover:text-emerald-500"}`} onClick={() => setActiveMockTab('cohort')}>
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                                    CUSTOMER COHORT ANALYSIS
+                                                </div>
+                                                <span className={`text-[7px] font-bold truncate max-w-[80px] ${activeMockTab === 'cohort' ? "text-emerald-200" : "text-slate-400"}`}>sales_data.csv</span>
+                                            </div>
+                                        </div>
+                                        {/* Tab 3 */}
+                                        <div className={`px-4 h-9 flex items-center text-[10px] font-black uppercase tracking-[0.1em] transition-all rounded-xl border-2 shrink-0 cursor-pointer select-none ${activeMockTab === 'arxiv' ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20" : "bg-slate-50 text-slate-400 border-slate-100 hover:border-emerald-200 hover:text-emerald-500"}`} onClick={() => setActiveMockTab('arxiv')}>
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                                    ARXIV: LATENT REASONERS
+                                                </div>
+                                                <span className={`text-[7px] font-bold truncate max-w-[80px] ${activeMockTab === 'arxiv' ? "text-emerald-200" : "text-slate-400"}`}>arxiv: latent reasoners...</span>
+                                            </div>
+                                        </div>
+                                        {/* Tab 4 */}
+                                        <div className={`px-4 h-9 flex items-center text-[10px] font-black uppercase tracking-[0.1em] transition-all rounded-xl border-2 shrink-0 cursor-pointer select-none ${activeMockTab === 'quantum' ? "bg-emerald-600 text-white border-emerald-600 shadow-lg shadow-emerald-500/20" : "bg-slate-50 text-slate-400 border-slate-100 hover:border-emerald-200 hover:text-emerald-500"}`} onClick={() => setActiveMockTab('quantum')}>
+                                            <div className="flex flex-col items-start">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                                    MARKET LEADERS: QUANTUM
+                                                </div>
+                                                <span className={`text-[7px] font-bold truncate max-w-[80px] ${activeMockTab === 'quantum' ? "text-emerald-200" : "text-slate-400"}`}>market leaders quan...</span>
+                                            </div>
+                                        </div>
+                                        <button className="w-8 h-8 rounded-xl shrink-0 opacity-50 hover:opacity-100 hover:bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                            <Plus className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                     {/* Data Table */}
                                     <div className="flex-1 p-4 relative overflow-x-auto min-w-0">
                                         <AnimatePresence mode="wait">
@@ -638,7 +601,7 @@ export default function LandingPage() {
                                                     initial={{ opacity: 0, y: 5 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     exit={{ opacity: 0, y: -5 }}
-                                                    className="w-full border border-slate-200 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[11px]"
+                                                    className="inline-block min-w-full bg-white text-[11px]"
                                                 >
                                                     <table className="w-full border-collapse">
                                                         <thead>
@@ -673,16 +636,16 @@ export default function LandingPage() {
                                                     initial={{ opacity: 0, y: 5 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     exit={{ opacity: 0, y: -5 }}
-                                                    className="w-full border border-slate-200 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[11px]"
+                                                    className="inline-block min-w-full bg-white text-[11px]"
                                                 >
                                                     <table className="w-full border-collapse">
                                                         <thead>
                                                             <tr className="bg-slate-50 border-b border-slate-200 font-bold tracking-wider text-left text-slate-700">
-                                                                <th className="p-3 border-r border-slate-200">Cohort ID</th>
-                                                                <th className="p-3 border-r border-slate-200">Cohort Size</th>
-                                                                <th className="p-3 border-r border-slate-200">Active Retention</th>
-                                                                <th className="p-3 border-r border-slate-200">Target LTV</th>
-                                                                <th className="p-3">Cohort Health</th>
+                                                                <th className="p-3 border-r border-slate-200 w-1/5">Cohort ID</th>
+                                                                <th className="p-3 border-r border-slate-200 w-1/5">Cohort Size</th>
+                                                                <th className="p-3 border-r border-slate-200 w-1/5">Active Retention</th>
+                                                                <th className="p-3 border-r border-slate-200 w-1/5">Target LTV</th>
+                                                                <th className="p-3 w-1/5">Cohort Health</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -690,7 +653,7 @@ export default function LandingPage() {
                                                                 <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                                                                     <td className="p-3 border-r border-slate-100 text-slate-900 font-black">{row.cohort}</td>
                                                                     <td className="p-3 border-r border-slate-100 text-slate-600">{row.size} users</td>
-                                                                    <td className="p-3 border-r-100 text-slate-900 font-bold">{row.retention}</td>
+                                                                    <td className="p-3 border-r border-slate-100 text-slate-900 font-bold">{row.retention}</td>
                                                                     <td className="p-3 border-r border-slate-100 text-slate-800 font-semibold">{row.ltv}</td>
                                                                     <td className="p-3 text-slate-900">{row.health}</td>
                                                                 </tr>
@@ -706,7 +669,7 @@ export default function LandingPage() {
                                                     initial={{ opacity: 0, y: 5 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     exit={{ opacity: 0, y: -5 }}
-                                                    className="w-full border border-slate-200 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[11px]"
+                                                    className="inline-block min-w-full bg-white text-[11px]"
                                                 >
                                                     <table className="w-full border-collapse">
                                                         <thead>
@@ -737,7 +700,7 @@ export default function LandingPage() {
                                                     initial={{ opacity: 0, y: 5 }}
                                                     animate={{ opacity: 1, y: 0 }}
                                                     exit={{ opacity: 0, y: -5 }}
-                                                    className="w-full border border-slate-200 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[11px]"
+                                                    className="inline-block min-w-full bg-white text-[11px]"
                                                 >
                                                     <table className="w-full border-collapse">
                                                         <thead>
@@ -786,16 +749,22 @@ export default function LandingPage() {
                                 </div>
 
                                 {/* Right: Active AI Pilot Chat Panel */}
-                                <div className="w-full lg:w-[380px] bg-white text-slate-900 flex flex-col border-t-4 lg:border-t-0 lg:border-l-4 border-black shrink-0 relative">
+                                <div className={`w-full lg:w-[380px] bg-white text-slate-900 flex-col border-l border-slate-200 shrink-0 relative ${mobileTabMockup === 'chat' ? 'flex' : 'hidden lg:flex'}`}>
                                     {/* Chat Panel Header (Matching exactly) */}
-                                    <div className="bg-white border-b-2 border-slate-200 px-4 py-4 flex items-center gap-2 shrink-0 select-none">
-                                        <div className="w-7 h-7 bg-emerald-950 border border-emerald-500 rounded-full flex items-center justify-center">
-                                            <Bot className="w-4 h-4 text-emerald-400" />
+                                    <div className="bg-white border-b border-slate-200 px-4 py-4 flex items-center justify-between shrink-0 select-none">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-7 h-7 bg-emerald-950 border border-emerald-500 rounded-full flex items-center justify-center">
+                                                <Bot className="w-4 h-4 text-emerald-400" />
+                                            </div>
+                                            <div>
+                                                <span className="text-[11px] font-black uppercase tracking-wider text-slate-900 block leading-none">Catalyst AI</span>
+                                                <span className="text-[8px] font-black uppercase tracking-widest text-emerald-600 block mt-1">● READY</span>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <span className="text-[11px] font-black uppercase tracking-wider text-slate-900 block leading-none">Catalyst AI</span>
-                                            <span className="text-[8px] font-black uppercase tracking-widest text-emerald-600 block mt-1">● ANALYTICS READY</span>
-                                        </div>
+                                        
+                                        <button className="md:hidden text-slate-400 hover:text-slate-600">
+                                            <X className="w-5 h-5" />
+                                        </button>
                                     </div>
 
                                     {/* Chat Feed */}
@@ -871,6 +840,34 @@ export default function LandingPage() {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+
+                            {/* Mobile Tab switcher (Sticky bottom navigation bar) */}
+                            <div className="lg:hidden h-16 border-t border-slate-200 bg-white flex items-center justify-around px-4 shrink-0">
+                                <button
+                                    onClick={() => setMobileTabMockup('sheet')}
+                                    className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 rounded-xl transition-all ${
+                                        mobileTabMockup === 'sheet'
+                                            ? "text-emerald-600 font-black"
+                                            : "text-slate-400 font-bold"
+                                    }`}
+                                >
+                                    <Table className="w-5 h-5" />
+                                    <span className="text-[9px] uppercase tracking-wider">Sheet Grid</span>
+                                </button>
+                                
+                                <button
+                                    onClick={() => setMobileTabMockup('chat')}
+                                    className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 rounded-xl transition-all relative ${
+                                        mobileTabMockup === 'chat'
+                                            ? "text-emerald-600 font-black"
+                                            : "text-slate-400 font-bold"
+                                    }`}
+                                >
+                                    <MessageSquare className="w-5 h-5" />
+                                    <span className="text-[9px] uppercase tracking-wider">Catalyst AI</span>
+                                    <span className="absolute top-2 right-1/3 w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                                </button>
                             </div>
                         </div>
                         </div>
