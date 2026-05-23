@@ -48,6 +48,7 @@ export default function Workspace({ params }) {
     const [sourceDeletingId, setSourceDeletingId] = useState(null);
     const [sheetDeletingId, setSheetDeletingId] = useState(null);
     const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
+    const [mobileTab, setMobileTab] = useState('sheet'); // 'sheet' | 'chat'
 
     // Convex Data
     const workbook = useQuery(api.workbooks.getById, { id: workbookId });
@@ -244,66 +245,66 @@ export default function Workspace({ params }) {
     return (
         <div className="h-full w-full bg-white dark:bg-slate-950 flex flex-col overflow-hidden">
             {/* Top Toolbar */}
-            <header className="h-14 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 bg-white dark:bg-slate-900 z-10">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => window.history.back()} className="rounded-xl">
+            <header className="h-14 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-2 md:px-4 bg-white dark:bg-slate-900 z-10">
+                <div className="flex items-center gap-1 md:gap-4 min-w-0">
+                    <Button variant="ghost" size="icon" onClick={() => window.history.back()} className="h-8 w-8 rounded-lg shrink-0 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center p-0 border-none bg-transparent text-slate-900 dark:text-white">
                         <ChevronLeft className="w-5 h-5" />
                     </Button>
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                            <h1 className="text-sm font-black text-slate-900 dark:text-white leading-tight">{workbook.name}</h1>
-                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-md border border-emerald-100 dark:border-emerald-500/20">
+                    <div className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-1 md:gap-2">
+                            <h1 className="text-xs md:text-sm font-black text-slate-900 dark:text-white leading-tight break-words whitespace-normal max-w-[90px] xs:max-w-[120px] sm:max-w-none">{workbook.name}</h1>
+                            <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 rounded-md border border-emerald-100 dark:border-emerald-500/20 shrink-0">
                                 <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                                 <span className="text-[8px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Live Sync</span>
                             </div>
                             <Button 
                                 variant="ghost" 
-                                size="sm" 
+                                size="icon" 
                                 onClick={() => setIsSourceModalOpen(true)}
-                                className="h-6 px-2 rounded-lg text-[9px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 flex items-center gap-1 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all bg-slate-50 dark:bg-slate-900"
+                                className="h-8 w-8 md:h-6 md:w-auto md:px-2 rounded-lg text-slate-500 dark:text-slate-400 flex items-center justify-center gap-1 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all bg-transparent md:bg-slate-50 dark:md:bg-slate-900 shrink-0 border-0 md:border md:border-slate-300 dark:md:border-slate-700"
                             >
-                                <Settings2 className="w-3.5 h-3.5" />
-                                Sources
+                                <Settings2 className="w-4 h-4 md:w-3.5 md:h-3.5 text-slate-700 dark:text-slate-200" />
+                                <span className="hidden md:inline text-[9px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-200">Sources</span>
                             </Button>
                         </div>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden sm:block">
                             {files?.length > 0 ? `${files.length} Files Unified in Workspace` : "No files uploaded"}
                         </p>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 md:gap-2 shrink-0">
                     {previewData && (
                         <Button 
                             variant="destructive" 
                             size="sm" 
                             onClick={() => setPreviewData(null)}
-                            className="rounded-xl font-bold text-xs h-9"
+                            className="rounded-xl font-bold text-xs h-9 animate-pulse"
                         >
                             Cancel Preview
                         </Button>
                     )}
 
-                    <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl gap-1">
+                    <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 md:p-1 rounded-xl gap-0.5 md:gap-1 shrink-0">
                         <Button 
                             variant="ghost" 
                             size="sm" 
                             disabled={isUndoDisabled}
                             onClick={handleUndo}
-                            className="rounded-lg font-bold text-xs h-8 px-2.5 hover:bg-white dark:hover:bg-slate-700"
+                            className="rounded-lg font-bold text-xs h-8 w-8 md:w-auto md:px-2.5 p-0 md:p-auto hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center"
                         >
-                            <Undo2 className="w-4 h-4 mr-1.5" />
-                            Undo
+                            <Undo2 className="w-4 h-4 md:mr-1.5" />
+                            <span className="hidden md:inline">Undo</span>
                         </Button>
                         <Button 
                             variant="ghost" 
                             size="sm" 
                             disabled={isRedoDisabled}
                             onClick={handleRedo}
-                            className="rounded-lg font-bold text-xs h-8 px-2.5 hover:bg-white dark:hover:bg-slate-700"
+                            className="rounded-lg font-bold text-xs h-8 w-8 md:w-auto md:px-2.5 p-0 md:p-auto hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center"
                         >
-                            <Redo2 className="w-4 h-4 mr-1.5" />
-                            Redo
+                            <Redo2 className="w-4 h-4 md:mr-1.5" />
+                            <span className="hidden md:inline">Redo</span>
                         </Button>
 
                         <div className="relative">
@@ -312,13 +313,13 @@ export default function Workspace({ params }) {
                                 size="sm" 
                                 onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
                                 className={cn(
-                                    "rounded-lg font-bold text-xs h-8 px-3 hover:bg-white dark:hover:bg-slate-700 transition-all",
+                                    "rounded-lg font-bold text-xs h-8 w-8 md:w-auto md:px-3 p-0 md:p-auto hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-all",
                                     isExportDropdownOpen && "bg-white dark:bg-slate-700 shadow-sm"
                                 )}
                             >
-                                <Download className="w-4 h-4 mr-1.5" />
-                                Export
-                                <ChevronDown className="w-3.5 h-3.5 ml-1 opacity-60" />
+                                <Download className="w-4 h-4 md:mr-1.5" />
+                                <span className="hidden md:inline">Export</span>
+                                <ChevronDown className="w-3.5 h-3.5 ml-1 opacity-60 hidden md:inline" />
                             </Button>
 
                             {isExportDropdownOpen && (
@@ -368,17 +369,20 @@ export default function Workspace({ params }) {
                     
                     <Button 
                         onClick={() => setIsReportModalOpen(true)}
-                        className="bg-black text-white hover:bg-slate-800 rounded-xl font-bold text-xs h-9 px-4 border-2 border-black shadow-[3px_3px_0px_0px_rgba(16,185,129,1)]"
+                        className="bg-black text-white hover:bg-slate-800 rounded-lg md:rounded-xl font-bold text-xs h-8 w-auto px-2 border border-black md:border-2 md:shadow-[3px_3px_0px_0px_rgba(16,185,129,1)] shadow-[2px_2px_0px_0px_rgba(16,185,129,1)] shrink-0 flex items-center justify-center gap-1"
                     >
-                        <BarChart3 className="w-4 h-4 mr-2" />
-                        Reports {dashboards.length > 0 && `(${dashboards.length})`}
+                        <BarChart3 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span className="hidden md:inline">Reports</span> {dashboards.length > 0 && <span className="text-[10px] bg-emerald-500 text-white rounded-full px-1.5 py-0.5 font-black leading-none">{dashboards.length}</span>}
                     </Button>
                 </div>
             </header>
 
-            <div className="flex-1 flex overflow-hidden">
+             <div className="flex-1 flex overflow-hidden">
                 {/* Main Content Area */}
-                <main className="flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 relative">
+                <main className={cn(
+                    "flex-1 flex flex-col min-w-0 bg-slate-50 dark:bg-slate-950 relative",
+                    mobileTab === 'sheet' ? "flex" : "hidden md:flex"
+                )}>
                     {files?.length > 0 ? (
                         <>
                             {/* Sheet Tabs */}
@@ -474,9 +478,9 @@ export default function Workspace({ params }) {
                             </div>
 
                             {/* Grid Viewer */}
-                            <div className="flex-1 overflow-hidden p-4">
+                            <div className="flex-1 overflow-hidden p-2 md:p-4">
                                 <div className={cn(
-                                    "w-full h-full rounded-2xl border overflow-hidden shadow-2xl bg-white transition-all",
+                                    "w-full h-full rounded-xl md:rounded-2xl border overflow-hidden shadow-2xl bg-white transition-all",
                                     previewData ? "border-amber-400 ring-4 ring-amber-400/20" : "border-slate-200 dark:border-slate-800"
                                 )}>
                                     <SpreadsheetViewer 
@@ -487,8 +491,8 @@ export default function Workspace({ params }) {
                                     />
                                 </div>
                                 {previewData && (
-                                    <div className="absolute top-20 right-8 z-10 animate-in fade-in slide-in-from-top-4 flex flex-col gap-2">
-                                        <div className="bg-amber-400 text-black px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg flex items-center gap-2">
+                                    <div className="absolute top-16 md:top-20 left-4 right-4 md:left-auto md:right-8 z-10 animate-in fade-in slide-in-from-top-4 flex flex-col gap-2">
+                                        <div className="bg-amber-400 text-black px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg flex items-center justify-center gap-2">
                                             <Zap className="w-4 h-4 fill-black" />
                                             Previewing AI Changes
                                         </div>
@@ -528,7 +532,9 @@ export default function Workspace({ params }) {
                 {/* Right Chat Panel */}
                 <aside className={cn(
                     "transition-all duration-300 flex flex-col shrink-0",
-                    isChatOpen ? "w-[480px]" : "w-0 overflow-hidden"
+                    "md:flex",
+                    isChatOpen ? "md:w-[480px]" : "md:w-0 md:overflow-hidden",
+                    mobileTab === 'chat' ? "w-full flex" : "hidden"
                 )}>
                     <ChatPanel 
                         workbookId={workbookId} 
@@ -541,11 +547,46 @@ export default function Workspace({ params }) {
                 </aside>
             </div>
 
+            {/* Mobile Tab switcher (Sticky bottom navigation bar) */}
+            <div className="md:hidden h-16 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex items-center justify-around z-20 px-4 shrink-0">
+                <button
+                    onClick={() => setMobileTab('sheet')}
+                    className={cn(
+                        "flex flex-col items-center justify-center gap-1 flex-1 py-2 rounded-xl transition-all",
+                        mobileTab === 'sheet'
+                            ? "text-emerald-600 dark:text-emerald-400 font-black"
+                            : "text-slate-400 dark:text-slate-500 font-bold"
+                    )}
+                >
+                    <Table className="w-5 h-5" />
+                    <span className="text-[9px] uppercase tracking-wider">Sheet Grid</span>
+                </button>
+                
+                <button
+                    onClick={() => {
+                        setMobileTab('chat');
+                        setIsChatOpen(true);
+                    }}
+                    className={cn(
+                        "flex flex-col items-center justify-center gap-1 flex-1 py-2 rounded-xl transition-all relative",
+                        mobileTab === 'chat'
+                            ? "text-emerald-600 dark:text-emerald-400 font-black"
+                            : "text-slate-400 dark:text-slate-500 font-bold"
+                    )}
+                >
+                    <MessageSquare className="w-5 h-5" />
+                    <span className="text-[9px] uppercase tracking-wider">Catalyst AI</span>
+                    {previewData && (
+                        <span className="absolute top-2 right-1/3 w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                    )}
+                </button>
+            </div>
+
             {/* Float Chat Toggle */}
             {!isChatOpen && (
                 <button 
                     onClick={() => setIsChatOpen(true)}
-                    className="absolute right-6 bottom-6 w-14 h-14 bg-emerald-600 rounded-2xl shadow-2xl shadow-emerald-600/40 flex items-center justify-center hover:scale-110 transition-all z-20 group"
+                    className="absolute right-6 bottom-6 w-14 h-14 bg-emerald-600 rounded-2xl shadow-2xl shadow-emerald-600/40 flex items-center justify-center hover:scale-110 transition-all z-20 group hidden md:flex"
                 >
                     <MessageSquare className="w-6 h-6 text-white group-hover:rotate-12 transition-transform" />
                 </button>
@@ -558,11 +599,11 @@ export default function Workspace({ params }) {
             />
 
             <Dialog open={isUploaderModalOpen} onOpenChange={setIsUploaderModalOpen}>
-                <DialogContent className="sm:max-w-[600px] rounded-[3rem] p-0 border-none bg-transparent shadow-none overflow-hidden">
-                    <div className="bg-white dark:bg-slate-950 p-8 rounded-[3rem] border-4 border-emerald-500/20 shadow-2xl">
-                        <DialogHeader className="mb-6">
-                            <DialogTitle className="text-2xl font-black text-slate-900 dark:text-white">Add Data to Workbook</DialogTitle>
-                            <DialogDescription className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <DialogContent className="w-[95%] max-w-[600px] mx-auto rounded-3xl md:rounded-[3rem] p-0 border-none bg-transparent shadow-none overflow-hidden">
+                    <div className="bg-white dark:bg-slate-950 p-5 md:p-8 rounded-3xl md:rounded-[3rem] border-2 md:border-4 border-emerald-500/20 shadow-2xl">
+                        <DialogHeader className="mb-4 md:mb-6">
+                            <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 dark:text-white">Add Data to Workbook</DialogTitle>
+                            <DialogDescription className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                 Upload more CSV, Excel, or JSON files to this project.
                             </DialogDescription>
                         </DialogHeader>
@@ -579,16 +620,16 @@ export default function Workspace({ params }) {
             </Dialog>
 
             <Dialog open={isSourceModalOpen} onOpenChange={setIsSourceModalOpen}>
-                <DialogContent className="sm:max-w-[600px] rounded-[3rem] p-0 border-none bg-transparent shadow-none overflow-hidden">
-                    <div className="bg-white dark:bg-slate-950 p-8 rounded-[3rem] border-4 border-emerald-500/20 shadow-2xl">
-                        <DialogHeader className="mb-6">
-                            <DialogTitle className="text-2xl font-black text-slate-900 dark:text-white">Manage Data Sources</DialogTitle>
-                            <DialogDescription className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                <DialogContent className="w-[95%] max-w-[600px] mx-auto rounded-3xl md:rounded-[3rem] p-0 border-none bg-transparent shadow-none overflow-hidden">
+                    <div className="bg-white dark:bg-slate-950 p-5 md:p-8 rounded-3xl md:rounded-[3rem] border-2 md:border-4 border-emerald-500/20 shadow-2xl">
+                        <DialogHeader className="mb-4 md:mb-6">
+                            <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 dark:text-white">Manage Data Sources</DialogTitle>
+                            <DialogDescription className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                 Review or remove uploaded files and their associated sheets.
                             </DialogDescription>
                         </DialogHeader>
                         
-                        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        <div className="space-y-4 max-h-[300px] md:max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                             {files?.map(file => {
                                 const cleanType = (file.type || '').toLowerCase();
                                 const isExcel = cleanType === 'xlsx' || cleanType === 'xls';
@@ -596,7 +637,7 @@ export default function Workspace({ params }) {
                                 
                                 // Dynamic Color mappings
                                 const borderClass = isExcel ? "border-emerald-500" : isJson ? "border-amber-500" : "border-blue-500";
-                                const shadowClass = isExcel ? "shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]" : isJson ? "shadow-[4px_4px_0px_0px_rgba(245,158,11,1)]" : "shadow-[4px_4px_0px_0px_rgba(59,130,246,1)]";
+                                const shadowClass = isExcel ? "shadow-[2px_2px_0px_0px_rgba(16,185,129,1)] md:shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]" : isJson ? "shadow-[2px_2px_0px_0px_rgba(245,158,11,1)] md:shadow-[4px_4px_0px_0px_rgba(245,158,11,1)]" : "shadow-[2px_2px_0px_0px_rgba(59,130,246,1)] md:shadow-[4px_4px_0px_0px_rgba(59,130,246,1)]";
                                 const textClass = isExcel ? "text-emerald-500" : isJson ? "text-amber-500" : "text-blue-500";
                                 const badgeClass = isExcel 
                                     ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" 
@@ -606,66 +647,66 @@ export default function Workspace({ params }) {
 
                                 return (
                                     <div key={file._id} className="relative group overflow-hidden">
-                                        <div className="p-6 border-4 border-black bg-slate-50 dark:bg-slate-900 flex items-center justify-between transition-all hover:bg-white dark:hover:bg-slate-800 group-hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-                                            <div className="flex items-center gap-4">
-                                                <div className={cn("w-12 h-12 bg-black flex items-center justify-center border-2 transition-all", borderClass, shadowClass)}>
+                                        <div className="p-4 md:p-6 border-2 md:border-4 border-black bg-slate-50 dark:bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:bg-white dark:hover:bg-slate-800 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] sm:hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                                            <div className="flex items-center gap-3 md:gap-4 min-w-0">
+                                                <div className={cn("w-10 h-10 md:w-12 md:h-12 bg-black flex items-center justify-center border-2 transition-all shrink-0", borderClass, shadowClass)}>
                                                     {isExcel ? (
-                                                        <FileSpreadsheet className={cn("w-6 h-6", textClass)} />
+                                                        <FileSpreadsheet className={cn("w-5 h-5 md:w-6 md:h-6", textClass)} />
                                                     ) : isJson ? (
-                                                        <FileJson className={cn("w-6 h-6", textClass)} />
+                                                        <FileJson className={cn("w-5 h-5 md:w-6 md:h-6", textClass)} />
                                                     ) : (
-                                                        <FileBox className={cn("w-6 h-6", textClass)} />
+                                                        <FileBox className={cn("w-5 h-5 md:w-6 md:h-6", textClass)} />
                                                     )}
                                                 </div>
-                                                <div>
-                                                    <h4 className="font-black text-black dark:text-white uppercase tracking-tighter truncate max-w-[200px]">{file.name}</h4>
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                                                        <span className={cn("px-1.5 py-0.5 rounded border text-[8px] font-black tracking-wide", badgeClass)}>
+                                                <div className="min-w-0">
+                                                    <h4 className="font-black text-xs md:text-sm text-black dark:text-white uppercase tracking-tighter truncate max-w-[120px] sm:max-w-[200px] leading-tight">{file.name}</h4>
+                                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-1.5 leading-none">
+                                                        <span className={cn("px-1.5 py-0.5 rounded border text-[8px] font-black tracking-wide leading-none", badgeClass)}>
                                                             {file.type}
                                                         </span>
                                                         • {sheets?.filter(s => s.fileId === file._id).length} Sheets
                                                     </p>
                                                 </div>
                                             </div>
-                                        <Button 
-                                            variant="outline" 
-                                            size="sm" 
-                                            onClick={() => setSourceDeletingId(file._id)}
-                                            className="rounded-xl border-2 border-black bg-red-600 text-white hover:bg-red-700 hover:border-black transition-all font-black uppercase tracking-widest text-[10px] h-9 px-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5 mr-2" />
-                                            Delete Source
-                                        </Button>
-                                    </div>
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                onClick={() => setSourceDeletingId(file._id)}
+                                                className="rounded-xl border-2 border-black bg-red-600 text-white hover:bg-red-700 hover:border-black transition-all font-black uppercase tracking-widest text-[9px] h-9 px-4 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-full sm:w-auto text-center justify-center shrink-0"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5 mr-2" />
+                                                Delete Source
+                                            </Button>
+                                        </div>
 
-                                    {/* Inline Source Delete Confirm */}
-                                    {sourceDeletingId === file._id && (
-                                        <div className="absolute inset-0 bg-red-600 z-20 flex items-center justify-center gap-6 animate-in slide-in-from-right duration-200">
-                                            <div className="text-center">
-                                                <p className="text-xs font-black text-white uppercase tracking-[0.2em] mb-3">Delete entire source permanently?</p>
-                                                <div className="flex justify-center gap-4">
-                                                    <Button 
-                                                        onClick={() => {
-                                                            removeFile({ id: file._id });
-                                                            setSourceDeletingId(null);
-                                                            toast.success("Source removed from workspace");
-                                                        }} 
-                                                        className="bg-white text-red-600 hover:bg-slate-100 font-black uppercase tracking-widest text-[10px] h-9 px-8 rounded-xl"
-                                                    >
-                                                        Yes, Delete
-                                                    </Button>
-                                                    <Button 
-                                                        onClick={() => setSourceDeletingId(null)} 
-                                                        variant="ghost" 
-                                                        className="text-white hover:bg-white/10 font-black uppercase tracking-widest text-[10px] h-9 px-8 rounded-xl"
-                                                    >
-                                                        Cancel
-                                                    </Button>
+                                        {/* Inline Source Delete Confirm */}
+                                        {sourceDeletingId === file._id && (
+                                            <div className="absolute inset-0 bg-red-600 z-20 flex items-center justify-center gap-4 md:gap-6 animate-in slide-in-from-right duration-200 p-4 text-center">
+                                                <div>
+                                                    <p className="text-[10px] md:text-xs font-black text-white uppercase tracking-[0.2em] mb-2 leading-tight">Delete entire source permanently?</p>
+                                                    <div className="flex justify-center gap-3">
+                                                        <Button 
+                                                            onClick={() => {
+                                                                removeFile({ id: file._id });
+                                                                setSourceDeletingId(null);
+                                                                toast.success("Source removed from workspace");
+                                                            }} 
+                                                            className="bg-white text-red-600 hover:bg-slate-100 font-black uppercase tracking-widest text-[9px] h-8 px-4 rounded-xl leading-none"
+                                                        >
+                                                            Yes, Delete
+                                                        </Button>
+                                                        <Button 
+                                                            onClick={() => setSourceDeletingId(null)} 
+                                                            variant="ghost" 
+                                                            className="text-white hover:bg-white/10 font-black uppercase tracking-widest text-[9px] h-8 px-4 rounded-xl leading-none"
+                                                        >
+                                                            Cancel
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
+                                        )}
+                                    </div>
                                 );
                             })}
                             {files?.length === 0 && (
@@ -673,13 +714,13 @@ export default function Workspace({ params }) {
                             )}
                         </div>
                         
-                        <div className="mt-8 pt-8 border-t-2 border-slate-100 flex justify-center">
+                        <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t-2 border-slate-100 flex justify-center">
                             <Button 
                                 onClick={() => {
                                     setIsSourceModalOpen(false);
                                     setIsUploaderModalOpen(true);
                                 }}
-                                className="bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl px-8 h-12 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                className="bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl px-6 md:px-8 h-10 md:h-12 border-2 md:border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                             >
                                 <Plus className="mr-2 w-4 h-4" /> Add New Source
                             </Button>
