@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from '@/components/ui/button';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import {
     Sparkles,
     Zap,
@@ -25,10 +26,23 @@ import {
     Globe,
     Users,
     MessageSquare,
-    TrendingUp
+    TrendingUp,
+    Undo2,
+    Redo2,
+    ChevronLeft,
+    ChevronDown,
+    Trash2,
+    Settings2,
+    FileSpreadsheet,
+    FileJson,
+    FileBox,
+    Plus,
+    Play,
+    X
 } from 'lucide-react';
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Cell } from 'recharts';
 
 const BackgroundElements = () => {
     // Elegant background logos of various sizes and positions
@@ -114,6 +128,86 @@ export default function LandingPage() {
     const router = useRouter();
     
     const handleGetStarted = () => router.push('/dashboard');
+
+    const [activeMockTab, setActiveMockTab] = useState('sales');
+    const [hasCreatedSummary, setHasCreatedSummary] = useState(true);
+    const [isGeneratingSheet, setIsGeneratingSheet] = useState(false);
+
+    const rechartsData = [
+        { name: 'Medium', revenue: 580000 },
+        { name: 'Large', revenue: 1220000 },
+        { name: 'Small', revenue: 160000 }
+    ];
+
+    const formatYAxis = (tickItem) => {
+        if (tickItem >= 1000000) {
+            return `${(tickItem / 1000000).toFixed(1)}M`;
+        }
+        if (tickItem >= 1000) {
+            return `${(tickItem / 1000).toFixed(0)}K`;
+        }
+        return tickItem;
+    };
+
+    const mockSalesData = [
+        { address: "1024 Grand Ave", status: "Approved", city: "Los Angeles", first: "James", last: "Carter", country: "United States" },
+        { address: "420 Kingsway Rd", status: "Pending", city: "London", first: "Sarah", last: "Jenkins", country: "United Kingdom" },
+        { address: "12 Rue de Rivoli", status: "Approved", city: "Paris", first: "Pierre", last: "Dubois", country: "France" },
+        { address: "88 Queen Street", status: "Approved", city: "Melbourne", first: "Chloe", last: "Smith", country: "Australia" },
+        { address: "55 Chiba Blvd", status: "Pending", city: "Chiba", first: "Kenji", last: "Tanaka", country: "Japan" },
+        { address: "Akergatan 24", status: "Reviewed", city: "Boras", first: "Maria", last: "Larsson", country: "Sweden" },
+        { address: "786 Bay Street", status: "Approved", city: "Toronto", first: "David", last: "Miller", country: "Canada" },
+        { address: "99 Kurfürstendamm", status: "Approved", city: "Berlin", first: "Lukas", last: "Schneider", country: "Germany" },
+        { address: "14 Orchard Road", status: "Pending", city: "Singapore", first: "Mei", last: "Wong", country: "Singapore" },
+        { address: "35 Piazza Duomo", status: "Approved", city: "Milan", first: "Giovanni", last: "Rossi", country: "Italy" },
+        { address: "205 Avenida Paulista", status: "Approved", city: "Sao Paulo", first: "Camila", last: "Silva", country: "Brazil" },
+        { address: "12 Cape Road", status: "Pending", city: "Cape Town", first: "John", last: "Ndlovu", country: "South Africa" }
+    ];
+
+    const mockCohortData = [
+        { cohort: "Q1 Cohort", size: "1,250", retention: "78.4%", ltv: "$142.50", health: "Excellent" },
+        { cohort: "Q2 Cohort", size: "1,980", retention: "81.2%", ltv: "$158.00", health: "Strong" },
+        { cohort: "Q3 Cohort", size: "2,400", retention: "68.9%", ltv: "$112.20", health: "Fair" },
+        { cohort: "Q4 Cohort", size: "3,100", retention: "84.5%", ltv: "$172.90", health: "Outstanding" },
+        { cohort: "Q1 Cohort (Prev)", size: "980", retention: "72.1%", ltv: "$130.40", health: "Strong" },
+        { cohort: "Q2 Cohort (Prev)", size: "1,150", retention: "74.8%", ltv: "$135.00", health: "Strong" },
+        { cohort: "Q3 Cohort (Prev)", size: "1,420", retention: "65.2%", ltv: "$105.10", health: "Fair" },
+        { cohort: "Q4 Cohort (Prev)", size: "1,850", retention: "79.0%", ltv: "$150.20", health: "Excellent" },
+        { cohort: "Enterprise Cohort", size: "450", retention: "92.4%", ltv: "$840.00", health: "Exceptional" },
+        { cohort: "SME Cohort", size: "2,100", retention: "70.5%", ltv: "$120.00", health: "Fair" },
+        { cohort: "Self-Serve Cohort", size: "5,800", retention: "55.0%", ltv: "$45.00", health: "At Risk" },
+        { cohort: "Partner Cohort", size: "150", retention: "88.0%", ltv: "$1,250.00", health: "Outstanding" }
+    ];
+
+    const mockArxivData = [
+        { title: "Equilibrium Reasoners: Learning Attractors Enables Scalable Reasoning", authors: "Google DeepMind team", category: "cs.AI (Artificial Intelligence)", summary: "Discovers that training language models to seek stable latent attractors scales reasoning capacity without massive overhead." },
+        { title: "Solve the Loop: Attractor Models for Language and Reasoning", authors: "Stanford AI Lab", category: "cs.LG (Machine Learning)", summary: "Introduces recurring attractor loops in transformer blocks to solve complex multi-step reasoning pathways." },
+        { title: "Latent Attractor Alignment in Multi-Agent Systems", authors: "MIT CSAIL", category: "cs.MA (Multi-Agent Systems)", summary: "Aligns latent spaces between distinct agent nodes to allow continuous joint optimization in decentralized tasks." },
+        { title: "Foundations of Large Agentic Systems: Communication Protocols", authors: "Berkeley AI Research", category: "cs.MA (Multi-Agent Systems)", summary: "Defines asynchronous consensus constraints for heterogeneous LLM-based agent systems." },
+        { title: "Attractor Alignment via Reinforcement Learning", authors: "OpenAI Safety Team", category: "cs.AI (Artificial Intelligence)", summary: "Uses direct preference optimization to lock reasoning chains onto human-aligned stable attractors." },
+        { title: "Dynamic Depth Reasoning in Large Language Models", authors: "UW Madison", category: "cs.CL (Computation and Language)", summary: "Allows adaptive compute allocation per token using dynamical systems framework." },
+        { title: "Scaling Laws for Search-Based LLM Inference", authors: "Meta GenAI Research", category: "cs.LG (Machine Learning)", summary: "Establishes scaling frontiers for test-time compute allocation." },
+        { title: "Continuous-Time Latent Dynamics in Transformers", authors: "Harvard SEAS", category: "cs.NE (Neural and Evolutionary)", summary: "Formulates self-attention layers as discretized ordinary differential equations." },
+        { title: "Agentic Tools for Relational Spreadsheet Inferences", authors: "Catalyst Research", category: "cs.DB (Databases)", summary: "Applies agentic recursive planning to complex multi-sheet lookup and joins." },
+        { title: "Robustness of Latent Attractors in Out-of-Distribution Tasks", authors: "Oxford Robotics", category: "cs.RO (Robotics)", summary: "Tests attractor-based neural reasoning against noisy feedback loops." },
+        { title: "Interactive Visual Analytics for Agentic Computations", authors: "Georgia Tech", category: "cs.HC (Human-Computer)", summary: "Evaluates conversational sheet interfaces for direct execution representation." },
+        { title: "Recursive Search over Tabular Graphs", authors: "Carnegie Mellon", category: "cs.IR (Information Retrieval)", summary: "Uses graph neural networks to optimize spreadsheet lookup indices." }
+    ];
+
+    const mockQuantumData = [
+        { company: "IBM Quantum", headquarters: "Armonk, NY", product: "IBM Quantum System Two (Heron)", summary: "Dominates superconducting architectures with the highest cloud-accessible qubit density." },
+        { company: "Microsoft", headquarters: "Redmond, WA", product: "Azure Quantum (Topological)", summary: "Pioneering topological qubits that are immune to noise, enabling super-stable operations." },
+        { company: "Google Quantum AI", headquarters: "Santa Barbara, CA", product: "Sycamore Processor (Superconducting)", summary: "Achieved quantum supremacy and leading error-correction scaling frameworks." },
+        { company: "Quantinuum", headquarters: "Broomfield, CO", product: "H-Series Trapped-Ion Processor", summary: "Leads trapped-ion architectures with record-breaking quantum volumes." },
+        { company: "IonQ", headquarters: "College Park, MD", product: "IonQ Forte (Trapped-Ion)", summary: "Provides commercial trapped-ion computing access via major cloud service brokers." },
+        { company: "Rigetti Computing", headquarters: "Berkeley, CA", product: "Ankaa-Series QPU", summary: "Focuses on hybrid classical-quantum cloud architectures and low-latency scaling." },
+        { company: "PsiQuantum", headquarters: "Palo Alto, CA", product: "Photonic Quantum Computer", summary: "Building utility-scale silicon photonic quantum computers with built-in error correction." },
+        { company: "Xanadu", headquarters: "Toronto, Canada", product: "Borealis (Photonic)", summary: "Pioneered cloud-accessible photonic quantum processors and creator of PennyLane framework." },
+        { company: "D-Wave Systems", headquarters: "Burnaby, Canada", product: "Advantage2 (Quantum Annealer)", summary: "Specializes in quantum annealing processors tailored for heavy optimization tasks." },
+        { company: "Atom Computing", headquarters: "Berkeley, CA", product: "Neutral-Atom Processor", summary: "First to demonstrate holding over 1,000 qubits in neutral-atom arrays." },
+        { company: "QuEra Computing", headquarters: "Boston, MA", product: "Aquila (Neutral-Atom)", summary: "Focuses on analog Hamiltonian simulation and reconfigurable arrays." },
+        { company: "IQM Quantum Computers", headquarters: "Espoo, Finland", product: "IQM Spark (Superconducting)", summary: "Europe's leading developer of superconducting hardware for research and industry." }
+    ];
 
     const features = [
         { 
@@ -361,6 +455,419 @@ export default function LandingPage() {
                                             <div className="w-1/2 h-2 bg-emerald-500" />
                                         </div>
                                         <p className="font-black text-black uppercase tracking-widest text-xs">Processing Workbook...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* High-Fidelity Mockup Section */}
+                <section className="py-24 md:py-40 px-6 bg-slate-900 border-b-8 border-black text-white relative overflow-hidden">
+                    {/* Background glow effects to make it feel vibrant and premium */}
+                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] -mr-48 -mt-48 pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-teal-500/5 rounded-full blur-[150px] -ml-48 -mb-48 pointer-events-none" />
+
+                    <div className="max-w-7xl mx-auto relative z-10">
+                        {/* Section Header */}
+                        <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between mb-20 gap-8">
+                            <div className="max-w-2xl space-y-6">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 border-2 border-emerald-500 bg-emerald-950 text-emerald-400 text-xs font-black uppercase tracking-widest">
+                                    <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                                    <span>02 / A Glimpse of Your Workspace</span>
+                                </div>
+                                <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9]">
+                                    The <br />
+                                    <span className="text-emerald-500 italic underline decoration-white">Workspace Preview.</span>
+                                </h2>
+                            </div>
+                            <p className="text-slate-400 font-bold max-w-sm uppercase text-[10px] leading-relaxed tracking-wider">
+                                A pixel-perfect, interactive preview of the actual Catalyst workbook workspace. Explore real sheets, relational tables, and the AI analytics pilot.
+                            </p>
+                        </div>
+
+                        {/* Simulator Sandbox */}
+                        <div className="border-4 md:border-8 border-black bg-white rounded-none shadow-[20px_20px_0px_0px_rgba(16,185,129,1)] text-slate-900 overflow-hidden">
+                            {/* Browser App Header Bar (Matching design exactly) */}
+                            <div className="bg-white border-b-4 border-black px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
+                                <div className="flex items-center gap-2 self-start sm:self-center">
+                                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                        <span className="text-white font-black text-lg">C</span>
+                                    </div>
+                                    <span className="text-lg font-black tracking-widest text-slate-900 uppercase">CATALYST</span>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
+                                    <div className="bg-slate-50 border-2 border-black text-[10px] text-slate-700 font-black px-3.5 py-1.5 rounded-xl uppercase tracking-wider flex items-center gap-1.5">
+                                        <span>Catalyst Workspace</span>
+                                        <ChevronDown className="w-3 h-3 text-slate-500" />
+                                    </div>
+                                    <button className="bg-emerald-50 border-2 border-emerald-400 text-emerald-700 px-4 py-1.5 font-bold rounded-xl text-xs flex items-center gap-1 hover:bg-emerald-100 transition-colors">
+                                        <Plus className="w-3.5 h-3.5" />
+                                        New
+                                    </button>
+                                    <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-3.5 py-1 font-black rounded-full text-[10px] uppercase flex items-center gap-1.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                        21 Credits
+                                    </div>
+                                    {/* User Avatar */}
+                                    <div className="w-8 h-8 rounded-full bg-slate-900 border-2 border-black flex items-center justify-center text-white text-[10px] font-black overflow-hidden shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                                        USR
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Sub-toolbar (Project Header) */}
+                            <div className="bg-white border-b-4 border-black px-6 py-3 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <button className="w-6 h-6 border-2 border-black rounded-lg bg-white flex items-center justify-center hover:bg-slate-100 transition-colors shrink-0">
+                                        <ChevronLeft className="w-3.5 h-3.5 text-black" />
+                                    </button>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-black uppercase tracking-tight text-slate-900">Catalyst Workspace</span>
+                                            <div className="flex items-center gap-1 px-1.5 py-0.5 bg-emerald-100 border border-emerald-500 rounded-none shrink-0">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                                                <span className="text-[8px] font-black uppercase tracking-widest text-emerald-700">Live Sync</span>
+                                            </div>
+                                        </div>
+                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">3 files unified in workspace</p>
+                                    </div>
+                                    
+                                    <button className="h-7 px-2.5 text-[9px] font-black uppercase tracking-wider bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all flex items-center gap-1.5 shrink-0">
+                                        <Database className="w-3 h-3 text-emerald-600" />
+                                        Sources
+                                    </button>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-2 self-end lg:self-center">
+                                    <div className="h-8 bg-slate-100 border-2 border-black px-1.5 flex items-center gap-1">
+                                        <button 
+                                            onClick={() => {
+                                                if (activeMockTab !== 'sales') {
+                                                    setActiveMockTab('sales');
+                                                }
+                                            }}
+                                            disabled={activeMockTab === 'sales'}
+                                            className="h-5 px-1.5 text-[8px] font-black uppercase tracking-widest bg-white border border-black hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+                                        >
+                                            <Undo2 className="w-3 h-3" />
+                                            Undo
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                if (activeMockTab === 'sales') {
+                                                    setActiveMockTab('cohort');
+                                                }
+                                            }}
+                                            disabled={activeMockTab !== 'sales'}
+                                            className="h-5 px-1.5 text-[8px] font-black uppercase tracking-widest bg-white border border-black hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+                                        >
+                                            <Redo2 className="w-3 h-3" />
+                                            Redo
+                                        </button>
+                                    </div>
+
+                                    <button className="h-8 px-3 text-[9px] font-black uppercase bg-white border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all flex items-center gap-1">
+                                        <Download className="w-3.5 h-3.5" />
+                                        Export
+                                        <ChevronDown className="w-3 h-3 opacity-60" />
+                                    </button>
+
+                                    <button className="h-8 px-4 rounded-xl text-[9px] font-black uppercase bg-black text-white shadow-[4px_4px_0px_0px_rgba(16,185,129,1)] hover:shadow-none transition-all flex items-center gap-1">
+                                        <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
+                                        Reports (2)
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Workbook Tabs Bar */}
+                            <div className="bg-slate-50 border-b-4 border-black px-4 py-2 flex items-center gap-3 overflow-x-auto no-scrollbar shadow-inner select-none">
+                                {/* Tab 1: SALES_DATA */}
+                                <button 
+                                    onClick={() => setActiveMockTab('sales')}
+                                    className={`px-4 py-1.5 flex flex-col items-start transition-all border-2 shrink-0 ${activeMockTab === 'sales' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:text-emerald-500'}`}
+                                >
+                                    <span className="text-[10px] font-black uppercase tracking-wider">SALES_DATA</span>
+                                    <span className="text-[7px] opacity-75 font-semibold">sales_data.csv</span>
+                                </button>
+
+                                {/* Tab 2: CUSTOMER COHORT ANALYSIS */}
+                                <button 
+                                    onClick={() => setActiveMockTab('cohort')}
+                                    className={`px-4 py-1.5 flex flex-col items-start transition-all border-2 shrink-0 ${activeMockTab === 'cohort' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:text-emerald-500'}`}
+                                >
+                                    <span className="text-[10px] font-black uppercase tracking-wider">CUSTOMER COHORT ANALYSIS</span>
+                                    <span className="text-[7px] opacity-75 font-semibold">sales_data.csv</span>
+                                </button>
+
+                                {/* Tab 3: ARXIV: LATENT REASONERS */}
+                                <button 
+                                    onClick={() => setActiveMockTab('arxiv')}
+                                    className={`px-4 py-1.5 flex flex-col items-start transition-all border-2 shrink-0 ${activeMockTab === 'arxiv' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:text-emerald-500'}`}
+                                >
+                                    <span className="text-[10px] font-black uppercase tracking-wider">ARXIV: LATENT REASONERS</span>
+                                    <span className="text-[7px] opacity-75 font-semibold">arxiv: latent r...</span>
+                                </button>
+
+                                {/* Tab 4: MARKET LEADERS: QUANTUM */}
+                                <button 
+                                    onClick={() => setActiveMockTab('quantum')}
+                                    className={`px-4 py-1.5 flex flex-col items-start transition-all border-2 shrink-0 ${activeMockTab === 'quantum' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:text-emerald-500'}`}
+                                >
+                                    <span className="text-[10px] font-black uppercase tracking-wider">MARKET LEADERS: QUANTUM</span>
+                                    <span className="text-[7px] opacity-75 font-semibold">market leader...</span>
+                                </button>
+
+                                <button className="p-1 rounded-full border border-slate-300 bg-white hover:bg-slate-100 text-slate-500 shrink-0">
+                                    <Plus className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
+
+                            {/* Main Content Pane Split */}
+                            <div className="flex flex-col lg:flex-row min-h-[500px]">
+                                {/* Left: Spreadsheet Grid View */}
+                                <div className="flex-1 flex flex-col bg-slate-50 border-b-4 lg:border-b-0 lg:border-r-4 border-black min-w-0">
+                                    {/* Data Table */}
+                                    <div className="flex-1 p-4 relative overflow-x-auto min-w-0">
+                                        <AnimatePresence mode="wait">
+                                            {activeMockTab === 'sales' && (
+                                                <motion.div 
+                                                    key="sales-table"
+                                                    initial={{ opacity: 0, y: 5 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -5 }}
+                                                    className="w-full border border-slate-200 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[11px]"
+                                                >
+                                                    <table className="w-full border-collapse">
+                                                        <thead>
+                                                            <tr className="bg-slate-50 border-b border-slate-200 font-bold tracking-wider text-left text-slate-700 select-none">
+                                                                <th className="p-3 border-r border-slate-200 w-1/6">ADDRESSLINE1 ≡</th>
+                                                                <th className="p-3 border-r border-slate-200 w-1/6">AUDITSTATUS ≡</th>
+                                                                <th className="p-3 border-r border-slate-200 w-1/6">CITY ≡</th>
+                                                                <th className="p-3 border-r border-slate-200 w-1/6">CONTACTFIRST... ≡</th>
+                                                                <th className="p-3 border-r border-slate-200 w-1/6">CONTACTLAST... ≡</th>
+                                                                <th className="p-3 w-1/6">COUNTRY ≡</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {mockSalesData.map((row, idx) => (
+                                                                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                                                    <td className="p-3 border-r border-slate-100 text-slate-900 font-medium">{row.address}</td>
+                                                                    <td className="p-3 border-r border-slate-100 text-slate-700 font-semibold">{row.status}</td>
+                                                                    <td className="p-3 border-r border-slate-100 text-slate-900">{row.city}</td>
+                                                                    <td className="p-3 border-r border-slate-100 text-slate-600">{row.first}</td>
+                                                                    <td className="p-3 border-r border-slate-100 text-slate-600">{row.last}</td>
+                                                                    <td className="p-3 text-slate-900">{row.country}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </motion.div>
+                                            )}
+
+                                            {activeMockTab === 'cohort' && (
+                                                <motion.div 
+                                                    key="cohort-table"
+                                                    initial={{ opacity: 0, y: 5 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -5 }}
+                                                    className="w-full border border-slate-200 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[11px]"
+                                                >
+                                                    <table className="w-full border-collapse">
+                                                        <thead>
+                                                            <tr className="bg-slate-50 border-b border-slate-200 font-bold tracking-wider text-left text-slate-700">
+                                                                <th className="p-3 border-r border-slate-200">Cohort ID</th>
+                                                                <th className="p-3 border-r border-slate-200">Cohort Size</th>
+                                                                <th className="p-3 border-r border-slate-200">Active Retention</th>
+                                                                <th className="p-3 border-r border-slate-200">Target LTV</th>
+                                                                <th className="p-3">Cohort Health</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {mockCohortData.map((row, idx) => (
+                                                                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                                                    <td className="p-3 border-r border-slate-100 text-slate-900 font-black">{row.cohort}</td>
+                                                                    <td className="p-3 border-r border-slate-100 text-slate-600">{row.size} users</td>
+                                                                    <td className="p-3 border-r-100 text-slate-900 font-bold">{row.retention}</td>
+                                                                    <td className="p-3 border-r border-slate-100 text-slate-800 font-semibold">{row.ltv}</td>
+                                                                    <td className="p-3 text-slate-900">{row.health}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </motion.div>
+                                            )}
+
+                                            {activeMockTab === 'arxiv' && (
+                                                <motion.div 
+                                                    key="arxiv-table"
+                                                    initial={{ opacity: 0, y: 5 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -5 }}
+                                                    className="w-full border border-slate-200 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[11px]"
+                                                >
+                                                    <table className="w-full border-collapse">
+                                                        <thead>
+                                                            <tr className="bg-slate-50 border-b border-slate-200 font-bold tracking-wider text-left text-slate-700">
+                                                                <th className="p-3 border-r border-slate-200 w-2/5">Title</th>
+                                                                <th className="p-3 border-r border-slate-200 w-1/5">Authors</th>
+                                                                <th className="p-3 border-r border-slate-200 w-1/5">Category</th>
+                                                                <th className="p-3">Catalyst Summary</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {mockArxivData.map((row, idx) => (
+                                                                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                                                    <td className="p-3 border-r border-slate-100 font-bold text-slate-900">{row.title}</td>
+                                                                    <td className="p-3 border-r border-slate-100 text-slate-500 font-semibold">{row.authors}</td>
+                                                                    <td className="p-3 border-r border-slate-100 font-semibold text-slate-700 uppercase tracking-tight">{row.category}</td>
+                                                                    <td className="p-3 text-slate-600 leading-snug">{row.summary}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </motion.div>
+                                            )}
+
+                                            {activeMockTab === 'quantum' && (
+                                                <motion.div 
+                                                    key="quantum-table"
+                                                    initial={{ opacity: 0, y: 5 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    exit={{ opacity: 0, y: -5 }}
+                                                    className="w-full border border-slate-200 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-[11px]"
+                                                >
+                                                    <table className="w-full border-collapse">
+                                                        <thead>
+                                                            <tr className="bg-slate-50 border-b border-slate-200 font-bold tracking-wider text-left text-slate-700">
+                                                                <th className="p-3 border-r-2 border-slate-200 w-1/4">Company</th>
+                                                                <th className="p-3 border-r-2 border-slate-200 w-1/4">Headquarters</th>
+                                                                <th className="p-3 border-r-2 border-slate-200 w-1/4">Core Architecture</th>
+                                                                <th className="p-3 w-1/4">Catalyst Summary</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {mockQuantumData.map((row, idx) => (
+                                                                <tr key={idx} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                                                    <td className="p-3 border-r-2 border-slate-100 font-bold text-slate-900">{row.company}</td>
+                                                                    <td className="p-3 border-r-2 border-slate-100 text-slate-500 font-semibold">{row.headquarters}</td>
+                                                                    <td className="p-3 border-r-2 border-slate-100 font-semibold text-slate-800 uppercase tracking-tight">{row.product}</td>
+                                                                    <td className="p-3 text-slate-600 leading-snug">{row.summary}</td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+
+                                    {/* Grid Footer Bar (Matching screenshot exactly) */}
+                                    <div className="bg-white border-t-2 border-slate-200 px-4 py-2.5 flex flex-col sm:flex-row items-center justify-between text-[11px] font-black text-slate-600 select-none gap-4">
+                                        <div className="flex flex-wrap items-center gap-6 self-end sm:self-center justify-end w-full">
+                                            <div className="flex items-center gap-2">
+                                                <span>Page Size:</span>
+                                                <div className="bg-slate-50 border border-slate-200 px-2 py-0.5 rounded text-[10px] font-bold">50 ▼</div>
+                                            </div>
+                                            
+                                            <span>1 to 50 of 1,000</span>
+
+                                            <div className="flex items-center gap-3">
+                                                <span className="cursor-pointer hover:text-black">|&lt;</span>
+                                                <span className="cursor-pointer hover:text-black">&lt;</span>
+                                                <span>Page 1 of 20</span>
+                                                <span className="cursor-pointer hover:text-black">&gt;</span>
+                                                <span className="cursor-pointer hover:text-black">&gt;|</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right: Active AI Pilot Chat Panel */}
+                                <div className="w-full lg:w-[380px] bg-white text-slate-900 flex flex-col border-t-4 lg:border-t-0 lg:border-l-4 border-black shrink-0 relative">
+                                    {/* Chat Panel Header (Matching exactly) */}
+                                    <div className="bg-white border-b-2 border-slate-200 px-4 py-4 flex items-center gap-2 shrink-0 select-none">
+                                        <div className="w-7 h-7 bg-emerald-950 border border-emerald-500 rounded-full flex items-center justify-center">
+                                            <Bot className="w-4 h-4 text-emerald-400" />
+                                        </div>
+                                        <div>
+                                            <span className="text-[11px] font-black uppercase tracking-wider text-slate-900 block leading-none">Catalyst AI</span>
+                                            <span className="text-[8px] font-black uppercase tracking-widest text-emerald-600 block mt-1">● ANALYTICS READY</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Chat Feed */}
+                                    <div className="flex-1 overflow-y-auto p-4 space-y-4 max-h-[450px]">
+                                        <div className="space-y-4">
+                                            {/* Green bubble matching exact text */}
+                                            <div className="bg-emerald-600 border border-emerald-500 rounded-2xl text-white p-4 font-semibold text-xs leading-relaxed shadow-lg">
+                                                the Medium category. We are seeing a healthy balance of deal sizes, but there is clear potential to upsell current 'Medium' customers into 'Large' status to maximize our quarterly throughput.
+                                            </div>
+
+                                            {/* Vertical Bar Chart visualization using real Recharts */}
+                                            <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-inner space-y-4">
+                                                <div className="flex justify-between items-center border-b border-slate-100 pb-2 select-none">
+                                                    <span className="text-[9px] font-black uppercase tracking-wider text-slate-800">Q4 Revenue Distribution</span>
+                                                    <span className="text-[8px] font-bold text-slate-400">YTD Aggregate</span>
+                                                </div>
+                                                
+                                                <div className="h-44 w-full relative">
+                                                    <ResponsiveContainer width="100%" height="100%">
+                                                        <BarChart
+                                                            data={rechartsData}
+                                                            margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
+                                                        >
+                                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                                            <XAxis 
+                                                                dataKey="name" 
+                                                                axisLine={false} 
+                                                                tickLine={false} 
+                                                                tick={{ fill: '#94a3b8', fontSize: 7, fontWeight: 'bold' }} 
+                                                            />
+                                                            <YAxis 
+                                                                axisLine={false} 
+                                                                tickLine={false} 
+                                                                domain={[0, 1400000]}
+                                                                ticks={[350000, 700000, 1100000, 1400000]}
+                                                                tickFormatter={formatYAxis}
+                                                                tick={{ fill: '#94a3b8', fontSize: 7, fontWeight: 'bold' }} 
+                                                            />
+                                                            <Bar 
+                                                                dataKey="revenue" 
+                                                                fill="#10b981" 
+                                                                radius={[6, 6, 0, 0]}
+                                                                barSize={24}
+                                                            >
+                                                                {rechartsData.map((entry, index) => (
+                                                                    <Cell key={`cell-${index}`} fill="#10b981" className="hover:opacity-90 transition-opacity cursor-pointer" />
+                                                                ))}
+                                                            </Bar>
+                                                        </BarChart>
+                                                    </ResponsiveContainer>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Chat Input Bar area */}
+                                    <div className="p-4 bg-white border-t border-slate-200 flex flex-col gap-2 shrink-0">
+                                        <div className="relative flex items-center">
+                                            <input 
+                                                type="text" 
+                                                disabled 
+                                                placeholder="Ask Catalyst to clean, analyze or visualize..." 
+                                                className="w-full bg-slate-50 border-2 border-slate-200 rounded-full pl-4 pr-12 py-2.5 text-xs text-slate-600 placeholder-slate-400 focus:outline-none font-bold uppercase select-none"
+                                            />
+                                            <button className="absolute right-1 w-9 h-9 bg-emerald-400 hover:bg-emerald-500 text-white rounded-full flex items-center justify-center border-2 border-black shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] cursor-pointer">
+                                                <Play className="w-3.5 h-3.5 text-black fill-black" />
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="flex items-center justify-between text-[8px] font-bold text-slate-400 mt-1 select-none">
+                                            <span>Catalyst executes code in a secure sandbox. All changes can be previewed.</span>
+                                            <span className="text-emerald-600 font-black">21 Credits Left</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
