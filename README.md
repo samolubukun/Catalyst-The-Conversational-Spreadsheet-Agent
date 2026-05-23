@@ -84,6 +84,8 @@ graph TD
 -   **Smart Data Transformations**: Clean, format, and filter massive datasets by simply describing what you want to achieve.
 -   **Interactive AG Grid Integration**: View your data in a premium, enterprise-grade grid with real-time sync via Convex.
 -   **Automated Dashboards**: Generate "Blueprint Dashboards" instantly. The AI proposes layouts and charts which are then rendered live against your data.
+-   **Report Design Studio**: Fully customize shared blueprint dashboards with professional themes (e.g. Midnight Blue, Corporate, Minimalist), advanced typography, card borders, and responsive mobile-first layouts.
+-   **Credit-Based Billing**: Built-in AI usage tracking with automatic provisioning (50 initial credits) and real-time ledger accounting.
 -   **Universal Versioning**: Track every change and transformation. Preview AI-proposed edits in Amber Mode before applying them.
 -   **Academic Research Tracker**: Track and monitor scholarly publications directly inside your workspace via live arXiv integration, gathering complete abstracts, author details, direct PDF links, and custom AI-synthesized executive briefs.
 
