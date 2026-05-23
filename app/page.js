@@ -487,7 +487,8 @@ export default function LandingPage() {
                         </div>
 
                         {/* Simulator Sandbox */}
-                        <div className="border-4 md:border-8 border-black bg-white rounded-none shadow-[20px_20px_0px_0px_rgba(16,185,129,1)] text-slate-900 overflow-hidden">
+                        <div className="overflow-x-auto -mx-2 px-2">
+                        <div className="min-w-[340px] border-4 md:border-8 border-black bg-white rounded-none shadow-[12px_12px_0px_0px_rgba(16,185,129,1)] md:shadow-[20px_20px_0px_0px_rgba(16,185,129,1)] text-slate-900 overflow-hidden">
                             {/* Browser App Header Bar (Matching design exactly) */}
                             <div className="bg-white border-b-4 border-black px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 select-none">
                                 <div className="flex items-center gap-2 self-start sm:self-center">
@@ -872,6 +873,7 @@ export default function LandingPage() {
                                 </div>
                             </div>
                         </div>
+                        </div>
                     </div>
                 </section>
 
@@ -879,16 +881,16 @@ export default function LandingPage() {
                 <section className="py-24 md:py-40 px-6 bg-slate-50 border-b-8 border-black">
                     <div className="max-w-7xl mx-auto">
                         <div className="flex flex-col md:flex-row items-baseline gap-4 mb-16 border-b-4 border-black pb-8">
-                            <h2 className="text-4xl md:text-6xl font-black text-black uppercase tracking-tighter">The Catalyst <span className="text-emerald-600 italic">Infrastructure.</span></h2>
+                            <h2 className="text-3xl md:text-6xl font-black text-black uppercase tracking-tighter">The Catalyst <span className="text-emerald-600 italic">Infrastructure.</span></h2>
                             <p className="text-xs font-black uppercase tracking-widest text-slate-400">03 / Core Features</p>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
                             {features.map((f, i) => (
-                                <div key={i} className="p-10 border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all group">
-                                    <div className="w-16 h-16 border-4 border-black bg-emerald-400 flex items-center justify-center mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                                        <f.icon className="w-8 h-8 text-black" />
+                                <div key={i} className="p-6 md:p-10 border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 transition-all group">
+                                    <div className="w-14 h-14 md:w-16 md:h-16 border-4 border-black bg-emerald-400 flex items-center justify-center mb-6 md:mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                                        <f.icon className="w-7 h-7 md:w-8 md:h-8 text-black" />
                                     </div>
-                                    <h3 className="text-2xl font-black mb-4 text-slate-900 uppercase tracking-tighter">{f.title}</h3>
+                                    <h3 className="text-xl md:text-2xl font-black mb-4 text-slate-900 uppercase tracking-tighter">{f.title}</h3>
                                     <p className="text-slate-700 font-bold leading-relaxed text-sm">{f.desc}</p>
                                 </div>
                             ))}
@@ -921,7 +923,7 @@ export default function LandingPage() {
                                             <div className="w-20 h-20 bg-black flex items-center justify-center border-4 border-emerald-500 shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]">
                                                 <protocol.icon className="w-10 h-10 text-emerald-500" />
                                             </div>
-                                            <h4 className="text-4xl font-black text-black uppercase tracking-tighter leading-tight">{protocol.title}</h4>
+                                            <h4 className="text-2xl md:text-4xl font-black text-black uppercase tracking-tighter leading-tight">{protocol.title}</h4>
                                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 border-2 border-emerald-600 text-emerald-700 text-[10px] font-black uppercase tracking-widest">
                                                 <Zap className="w-3 h-3" />
                                                 {protocol.mechanic}
@@ -981,18 +983,18 @@ export default function LandingPage() {
                 </section>
 
                 {/* Final CTA */}
-                <section className="py-20 md:py-40 px-6 bg-white border-t-8 border-black">
+                <section className="py-20 md:py-40 px-4 sm:px-6 bg-white border-t-8 border-black">
                     <div className="max-w-5xl mx-auto">
-                        <div className="bg-black p-12 md:p-24 text-center border-8 border-black shadow-[20px_20px_0px_0px_rgba(16,185,129,1)]">
-                            <h2 className="text-4xl md:text-7xl font-black text-white mb-8 uppercase tracking-tighter leading-[0.9]">
+                        <div className="bg-black p-8 sm:p-12 md:p-24 text-center border-8 border-black shadow-[12px_12px_0px_0px_rgba(16,185,129,1)] md:shadow-[20px_20px_0px_0px_rgba(16,185,129,1)]">
+                            <h2 className="text-3xl sm:text-5xl md:text-7xl font-black text-white mb-6 md:mb-8 uppercase tracking-tighter leading-[0.9]">
                                 Ready to <span className="text-emerald-500 italic">Catalyze</span> your data?
                             </h2>
-                            <p className="text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto mb-12 font-bold uppercase tracking-tight leading-tight">
+                            <p className="text-base sm:text-xl md:text-2xl text-slate-400 max-w-2xl mx-auto mb-8 md:mb-12 font-bold uppercase tracking-tight leading-tight">
                                 Join hundreds of analysts who have swapped formulas for natural language.
                             </p>
                             <Button
                                 onClick={handleGetStarted}
-                                className="w-full sm:w-auto px-16 py-8 text-2xl rounded-none bg-emerald-600 text-white border-4 border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] hover:shadow-none transition-all font-black uppercase tracking-widest h-auto"
+                                className="w-full sm:w-auto px-8 sm:px-16 py-5 sm:py-8 text-lg sm:text-2xl rounded-none bg-emerald-600 text-white border-4 border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] hover:shadow-none transition-all font-black uppercase tracking-widest h-auto"
                             >
                                 Start Analysis
                             </Button>
