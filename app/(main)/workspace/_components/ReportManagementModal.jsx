@@ -55,26 +55,26 @@ export default function ReportManagementModal({ isOpen, onClose, workbookId }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] border-4 border-black shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 md:p-4">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl md:rounded-[2.5rem] border-2 md:border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] md:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 max-h-[90vh]">
                 {/* Header */}
-                <div className="p-6 border-b-4 border-black flex items-center justify-between bg-emerald-50 dark:bg-emerald-950/30">
+                <div className="p-4 md:p-6 border-b-2 md:border-b-4 border-black flex items-center justify-between bg-emerald-50 dark:bg-emerald-950/30 shrink-0">
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-black flex items-center justify-center rounded-2xl shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]">
-                            <BarChart3 className="w-6 h-6 text-emerald-500" />
+                        <div className="w-10 h-10 md:w-12 md:h-12 bg-black flex items-center justify-center rounded-xl md:rounded-2xl shadow-[2px_2px_0px_0px_rgba(16,185,129,1)] md:shadow-[4px_4px_0px_0px_rgba(16,185,129,1)] shrink-0">
+                            <BarChart3 className="w-5 h-5 md:w-6 md:h-6 text-emerald-500" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Report Intelligence</h2>
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Manage your shared insights</p>
+                            <h2 className="text-base md:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Report Intelligence</h2>
+                            <p className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Manage your shared insights</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-black/5 rounded-xl transition-all">
-                        <X className="w-6 h-6 text-slate-400" />
+                        <X className="w-5 h-5 md:w-6 md:h-6 text-slate-400" />
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="p-6 flex-1 overflow-y-auto max-h-[60vh] space-y-4 no-scrollbar">
+                <div className="p-4 md:p-6 flex-1 overflow-y-auto max-h-[60vh] space-y-4 no-scrollbar">
                     {dashboards.length === 0 ? (
                         <div className="py-12 text-center space-y-4">
                             <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full mx-auto flex items-center justify-center opacity-50">
@@ -84,42 +84,42 @@ export default function ReportManagementModal({ isOpen, onClose, workbookId }) {
                         </div>
                     ) : (
                         dashboards.map((d) => (
-                            <div key={d._id} className="group bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-5 hover:border-black dark:hover:border-emerald-500/50 transition-all">
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                    <div className="flex items-start gap-4 min-w-0 flex-1">
+                            <div key={d._id} className="group bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-200 dark:border-slate-800 rounded-2xl md:rounded-3xl p-4 md:p-5 hover:border-black dark:hover:border-emerald-500/50 transition-all">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div className="flex items-start gap-3 md:gap-4 min-w-0 flex-1">
                                         <div className={cn(
-                                            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]",
+                                            "w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
                                             d.isPublic ? "bg-emerald-500" : "bg-amber-500"
                                         )}>
-                                            {d.isPublic ? <Globe className="w-5 h-5 text-white" /> : <Lock className="w-5 h-5 text-white" />}
+                                            {d.isPublic ? <Globe className="w-4 h-4 md:w-5 md:h-5 text-white" /> : <Lock className="w-4 h-4 md:w-5 md:h-5 text-white" />}
                                         </div>
                                         <div className="min-w-0">
-                                            <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-tight whitespace-normal break-words">{d.name}</h3>
-                                            <div className="flex items-center gap-2 mt-1">
+                                            <h3 className="font-black text-xs md:text-sm text-slate-900 dark:text-white uppercase tracking-tight whitespace-normal break-words leading-tight">{d.name}</h3>
+                                            <div className="flex items-center flex-wrap gap-2 mt-1">
                                                 <span className={cn(
-                                                    "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
+                                                    "text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-full border leading-none",
                                                     d.isPublic ? "bg-emerald-50 text-emerald-600 border-emerald-200" : "bg-amber-50 text-amber-600 border-amber-200"
                                                 )}>
-                                                    {d.isPublic ? 'Public Access' : 'Private Access'}
+                                                    {d.isPublic ? 'Public' : 'Private'}
                                                 </span>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase">Created {new Date(d._creationTime).toLocaleDateString()}</span>
+                                                <span className="text-[8px] font-bold text-slate-400 uppercase leading-none">Created {new Date(d._creationTime).toLocaleDateString()}</span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-2 shrink-0">
+                                    <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
                                         <Button 
                                             variant="outline" 
                                             size="sm"
                                             onClick={() => togglePublic(d._id, d.isPublic)}
-                                            className="h-9 px-3 rounded-xl border-2 border-black font-black uppercase tracking-widest text-[9px] hover:bg-slate-100"
+                                            className="h-9 px-3 rounded-xl border-2 border-black font-black uppercase tracking-widest text-[9px] hover:bg-slate-100 flex-1 sm:flex-none"
                                         >
                                             {d.isPublic ? <Lock className="w-3.5 h-3.5 mr-2" /> : <Globe className="w-3.5 h-3.5 mr-2" />}
                                             Make {d.isPublic ? 'Private' : 'Public'}
                                         </Button>
                                         <Button 
                                             onClick={() => setDeletingId(d._id)}
-                                            className="h-9 w-9 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-red-500 hover:bg-red-600 p-0 flex items-center justify-center transition-all"
+                                            className="h-9 w-9 rounded-xl border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-red-500 hover:bg-red-600 p-0 flex items-center justify-center transition-all shrink-0"
                                         >
                                             <Trash2 className="w-4 h-4 text-white" />
                                         </Button>
@@ -127,10 +127,10 @@ export default function ReportManagementModal({ isOpen, onClose, workbookId }) {
                                 </div>
 
                                 {/* Actions & Links */}
-                                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-2">
+                                <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center gap-2">
                                     <Button 
                                         onClick={() => window.open(`/share/${d._id}`, '_blank')}
-                                        className="h-8 bg-black text-white hover:bg-slate-800 rounded-lg font-black uppercase tracking-widest text-[8px] flex-1 min-w-[120px]"
+                                        className="h-8 bg-black text-white hover:bg-slate-800 rounded-lg font-black uppercase tracking-widest text-[8px] flex-1"
                                     >
                                         <ExternalLink className="w-3 h-3 mr-2" />
                                         Open Report
@@ -138,7 +138,7 @@ export default function ReportManagementModal({ isOpen, onClose, workbookId }) {
                                     <Button 
                                         variant="outline"
                                         onClick={() => copyLink(d._id)}
-                                        className="h-8 rounded-lg border-2 border-slate-200 font-black uppercase tracking-widest text-[8px] flex-1 min-w-[120px]"
+                                        className="h-8 rounded-lg border-2 border-slate-200 font-black uppercase tracking-widest text-[8px] flex-1"
                                     >
                                         <Copy className="w-3 h-3 mr-2" />
                                         Copy Link
@@ -161,8 +161,8 @@ export default function ReportManagementModal({ isOpen, onClose, workbookId }) {
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 bg-slate-50 dark:bg-slate-900/50 border-t-4 border-black">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center leading-relaxed">
+                <div className="p-4 md:p-6 bg-slate-50 dark:bg-slate-900/50 border-t-2 md:border-t-4 border-black shrink-0">
+                    <p className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase tracking-widest text-center leading-relaxed">
                         Public reports are accessible to anyone with the link.<br/>
                         Private reports are only visible to you while logged in.
                     </p>
