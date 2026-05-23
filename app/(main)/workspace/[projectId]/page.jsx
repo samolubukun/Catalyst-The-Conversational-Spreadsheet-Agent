@@ -16,7 +16,8 @@ import {
     Settings2,
     FileBox,
     FileSpreadsheet,
-    FileJson
+    FileJson,
+    X
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import { Button } from "@/components/ui/button"
@@ -619,17 +620,27 @@ export default function Workspace({ params }) {
                 </DialogContent>
             </Dialog>
 
-            <Dialog open={isSourceModalOpen} onOpenChange={setIsSourceModalOpen}>
-                <DialogContent className="w-[95%] max-w-[600px] mx-auto rounded-3xl md:rounded-[3rem] p-0 border-none bg-transparent shadow-none overflow-hidden">
-                    <div className="bg-white dark:bg-slate-950 p-5 md:p-8 rounded-3xl md:rounded-[3rem] border-2 md:border-4 border-emerald-500/20 shadow-2xl">
-                        <DialogHeader className="mb-4 md:mb-6">
-                            <DialogTitle className="text-xl md:text-2xl font-black text-slate-900 dark:text-white">Manage Data Sources</DialogTitle>
-                            <DialogDescription className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                Review or remove uploaded files and their associated sheets.
-                            </DialogDescription>
-                        </DialogHeader>
-                        
-                        <div className="space-y-4 max-h-[300px] md:max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+            {isSourceModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 md:p-4">
+                    <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-3xl md:rounded-[2.5rem] border-2 md:border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] md:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 max-h-[90vh]">
+                        {/* Header */}
+                        <div className="p-4 md:p-6 border-b-2 md:border-b-4 border-black flex items-center justify-between bg-emerald-50 dark:bg-emerald-950/30 shrink-0">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 md:w-12 md:h-12 bg-black flex items-center justify-center rounded-xl md:rounded-2xl shadow-[2px_2px_0px_0px_rgba(16,185,129,1)] md:shadow-[4px_4px_0px_0px_rgba(16,185,129,1)] shrink-0">
+                                    <Database className="w-5 h-5 md:w-6 md:h-6 text-emerald-500" />
+                                </div>
+                                <div>
+                                    <h2 className="text-base md:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Data Sources</h2>
+                                    <p className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Manage your active workspace files</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setIsSourceModalOpen(false)} className="p-2 hover:bg-black/5 rounded-xl transition-all">
+                                <X className="w-5 h-5 md:w-6 md:h-6 text-slate-400" />
+                            </button>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-4 md:p-6 flex-1 overflow-y-auto max-h-[60vh] space-y-4 no-scrollbar">
                             {files?.map(file => {
                                 const cleanType = (file.type || '').toLowerCase();
                                 const isExcel = cleanType === 'xlsx' || cleanType === 'xls';
@@ -714,20 +725,21 @@ export default function Workspace({ params }) {
                             )}
                         </div>
                         
-                        <div className="mt-6 md:mt-8 pt-6 md:pt-8 border-t-2 border-slate-100 flex justify-center">
+                        {/* Footer */}
+                        <div className="p-4 md:p-6 bg-slate-50 dark:bg-slate-900/50 border-t-2 md:border-t-4 border-black shrink-0 flex justify-center items-center">
                             <Button 
                                 onClick={() => {
                                     setIsSourceModalOpen(false);
                                     setIsUploaderModalOpen(true);
                                 }}
-                                className="bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl px-6 md:px-8 h-10 md:h-12 border-2 md:border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                                className="bg-emerald-600 text-white font-black uppercase tracking-widest rounded-2xl px-6 md:px-8 h-10 md:h-12 border-2 md:border-4 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] md:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-emerald-700 hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all"
                             >
                                 <Plus className="mr-2 w-4 h-4" /> Add New Source
                             </Button>
                         </div>
                     </div>
-                </DialogContent>
-            </Dialog>
+                </div>
+            )}
         </div>
     )
 }
