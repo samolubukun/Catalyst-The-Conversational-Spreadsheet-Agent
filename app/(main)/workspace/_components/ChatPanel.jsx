@@ -251,8 +251,17 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
                                         ? "bg-emerald-600 text-white border-emerald-500 rounded-tr-none" 
                                         : "bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-100 dark:border-slate-700 rounded-tl-none"
                                 )}>
-                                    <div className="prose prose-sm dark:prose-invert max-w-none font-medium leading-relaxed">
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    <div className="prose prose-sm dark:prose-invert max-w-none font-medium leading-relaxed overflow-x-auto">
+                                        <ReactMarkdown 
+                                            remarkPlugins={[remarkGfm]}
+                                            components={{
+                                                table: ({node, ...props}) => (
+                                                    <div className="overflow-x-auto w-full my-4 pb-2 no-scrollbar">
+                                                        <table {...props} className="min-w-full" />
+                                                    </div>
+                                                )
+                                            }}
+                                        >
                                             {messageData.content}
                                         </ReactMarkdown>
                                     </div>
@@ -357,8 +366,8 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
                                 handleSend();
                             }
                         }}
-                        placeholder="Ask Catalyst to clean, analyze or visualize..."
-                        className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-[11px] text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-900 dark:text-white resize-none max-h-[160px] overflow-y-auto no-scrollbar"
+                        placeholder="Message Catalyst..."
+                        className="flex-1 min-h-[44px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all text-slate-900 dark:text-white resize-none max-h-[160px] overflow-y-auto no-scrollbar"
                     />
                     <Button 
                         onClick={handleSend}
@@ -529,17 +538,17 @@ function TransformBlock({ code, onPreview, onApply }) {
             )}
             */}
 
-            <div className="grid grid-cols-2 gap-2 mt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
                 <Button 
                     onClick={onPreview}
                     variant="outline"
-                    className="border-amber-400 text-amber-600 hover:bg-amber-50 font-black uppercase tracking-widest text-[9px] h-9 rounded-xl"
+                    className="border-amber-400 text-amber-600 hover:bg-amber-50 font-black uppercase tracking-widest text-[9px] h-9 rounded-xl w-full"
                 >
                     Preview Highlights
                 </Button>
                 <Button 
                     onClick={onApply}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest text-[9px] h-9 rounded-xl"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase tracking-widest text-[9px] h-9 rounded-xl w-full"
                 >
                     Apply & Save
                 </Button>
@@ -652,7 +661,7 @@ function DashboardGenerator({ code, activeSheet, onCreate, name }) {
                 onClick={handleInitialize}
                 disabled={!layout || isCreated}
                 className={cn(
-                    "font-black uppercase tracking-widest text-[10px] h-10 rounded-xl w-full border-2 border-black transition-all",
+                    "font-black uppercase tracking-widest text-[10px] h-auto min-h-[40px] py-2 px-4 rounded-xl w-full border-2 border-black transition-all whitespace-normal break-words leading-tight text-center",
                     isCreated 
                         ? "bg-emerald-50 text-emerald-600 border-emerald-200 shadow-none cursor-default" 
                         : "bg-black text-white hover:bg-slate-800 shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]"
@@ -710,7 +719,7 @@ function CreateSheetBlock({ code, name, activeSheet, onCreateSheet }) {
                 onClick={handleCreate}
                 disabled={isCreated}
                 className={cn(
-                    "font-black uppercase tracking-widest text-[10px] h-10 rounded-xl w-full border-2 border-black transition-all mt-1",
+                    "font-black uppercase tracking-widest text-[10px] h-auto min-h-[40px] py-2 px-4 rounded-xl w-full border-2 border-black transition-all mt-1 whitespace-normal break-words leading-tight text-center",
                     isCreated 
                         ? "bg-emerald-50 text-emerald-600 border-emerald-200 shadow-none cursor-default" 
                         : "bg-black text-white hover:bg-slate-800 shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]"
