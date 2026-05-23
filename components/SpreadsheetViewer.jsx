@@ -101,22 +101,24 @@ export default function SpreadsheetViewer({ sheetData, originalData, onCellChang
     }, [onCellChange, sheetData]);
 
     return (
-        <div className="ag-theme-quartz w-full h-full dark:ag-theme-quartz-dark">
-            <AgGridReact
-                theme="legacy"
-                ref={gridRef}
-                rowData={sheetData}
-                columnDefs={columnDefs}
-                defaultColDef={defaultColDef}
-                onCellValueChanged={onCellValueChanged}
-                getRowStyle={getRowStyle}
-                animateRows={false}
-                rowBuffer={20}
-                pagination={true}
-                paginationPageSize={50}
-                rowSelection="multiple"
-                suppressRowClickSelection={true}
-            />
+        <div className="w-full h-full overflow-x-auto no-scrollbar">
+            <div className="ag-theme-quartz min-w-[700px] md:min-w-0 w-full h-full dark:ag-theme-quartz-dark">
+                <AgGridReact
+                    theme="legacy"
+                    ref={gridRef}
+                    rowData={sheetData}
+                    columnDefs={columnDefs}
+                    defaultColDef={defaultColDef}
+                    onCellValueChanged={onCellValueChanged}
+                    getRowStyle={getRowStyle}
+                    animateRows={false}
+                    rowBuffer={20}
+                    pagination={true}
+                    paginationPageSize={50}
+                    rowSelection="multiple"
+                    suppressRowClickSelection={true}
+                />
+            </div>
         </div>
     );
 }
