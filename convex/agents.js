@@ -251,8 +251,13 @@ export const orchestrate = action({
                - USER SPECIFICATIONS: Pay extreme attention to the user's specific requests for chart types, layout, and exact chart count. IMPORTANT: When the user requests a specific number of charts (e.g., "6 charts under"), this count refers STRICTLY to "chart" type widgets (visualizations like bar, line, pie, horizontal-bar, area, composed, radar, scatter). The 3 or 4 top-level "metric" (KPI) cards and the "summary" widget are default standard elements and DO NOT count towards this number. You MUST generate exactly the requested number of distinct "chart" type widgets (e.g., 6 separate "chart" widgets) showing different dimensions or aggregations of the spreadsheet data, in addition to the standard KPIs! Never count metric cards as charts.
                  - CRITICAL: Avoid vague generalities. Use ACTUAL category names and EXACT numbers.
                  - CRITICAL VARIABLE NAME EXACTNESS RULE: Ensure every variable referenced in the return array of widgets is defined exactly with the same spelling earlier in your JavaScript code (e.g., do not define 'avgOrderValue' and write 'avgOrder' in a metric card). Variable spelling mismatches will cause fatal execution crashes!
-                - CRITICAL JSON ESCAPE SAFETY RULE: Inside the 'code' string, when returning the flat array of widgets, ALWAYS use single quotes (') or backticks (\`) for all keys, object properties, and strings. NEVER use double quotes (") inside the code return array. For example, write: { 'type': 'summary', 'title': 'Executive Summary', 'notes': \`Total: \${formattedTotal}\` }. This is MANDATORY to prevent JSON double-quote syntax parsing crashes!
-                - Example structure for "code":
+                 - CRITICAL JSON ESCAPE SAFETY RULE: Inside the 'code' string, when returning the flat array of widgets, ALWAYS use single quotes (') or backticks (\`) for all keys, object properties, and strings. NEVER use double quotes (") inside the code return array. For example, write: { 'type': 'summary', 'title': 'Executive Summary', 'notes': \`Total: \${formattedTotal}\` }. This is MANDATORY to prevent JSON double-quote syntax parsing crashes!
+                 - CRITICAL APOSTROPHE & STRING ESCAPE SAFETY RULE FOR ALL GENERATED CODE (Transforms & Sheet Creation):
+                    * NEVER use single quotes (') to wrap string literals that might contain apostrophes (e.g. 'Microsoft's', 'industry's').
+                    * To be 100% safe, ALWAYS wrap all text string values, summaries, and descriptions in backticks (\`) inside your JavaScript code.
+                    * If you must use single quotes, you MUST escape any apostrophes inside the string as (\\').
+                    * For example, write: { 'company': \`Microsoft's Quantum\`, 'Catalyst Summary': \`This company's technology focuses on topological qubits.\` } instead of using single quotes.
+                 - Example structure for "code":
                   const totalSales = data.reduce((acc, r) => acc + (Number(r.Sales) || 0), 0);
                   const formattedTotal = '$' + totalSales.toLocaleString();
                   return [
