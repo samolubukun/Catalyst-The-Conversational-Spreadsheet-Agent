@@ -838,15 +838,15 @@ export default function SharedDashboard({ params }) {
                 {showHero && (
                     <div 
                         className={cn(
-                            "p-10 transition-all duration-500 flex flex-col gap-8",
+                            "p-6 md:p-10 transition-all duration-500 flex flex-col gap-6 md:gap-8 overflow-hidden",
                             getHeroShapeClasses(theme, cardShape)
                         )}
                         style={applyCustomColor ? { borderColor: customColor } : undefined}
                     >
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-0">
                             <div className="flex items-center gap-2">
                                 <div 
-                                    className="w-2 h-2 rounded-full animate-pulse transition-colors"
+                                    className="w-2 h-2 rounded-full animate-pulse transition-colors shrink-0"
                                     style={{ backgroundColor: applyCustomColor ? customColor : undefined }}
                                 />
                                 <span 
@@ -856,12 +856,12 @@ export default function SharedDashboard({ params }) {
                                     Agentic Intel Report
                                 </span>
                             </div>
-                            <div className="flex items-center gap-4">
-                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-350">
+                            <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-350 shrink-0">
                                     {new Date(dashboard._creationTime).toLocaleDateString()}
                                 </span>
-                                <div className="h-4 w-[1px] bg-slate-800/40 dark:bg-slate-800" />
-                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-350">
+                                <div className="hidden md:block h-4 w-[1px] bg-slate-800/40 dark:bg-slate-800 shrink-0" />
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-350 break-words">
                                     {ownerName ? `By ${ownerName}` : (dashboardOwner ? `By ${dashboardOwner.name}` : "Catalyst v1.2")}
                                 </span>
                             </div>
@@ -869,7 +869,7 @@ export default function SharedDashboard({ params }) {
     
                         <div className="space-y-4">
                             <h1 className={cn(
-                                "text-5xl md:text-6xl font-black uppercase tracking-tighter leading-[0.85] max-w-4xl transition-all",
+                                "text-4xl md:text-6xl font-black uppercase tracking-tighter leading-[0.85] max-w-4xl transition-all break-words",
                                 theme === 'executive' ? "text-slate-900" :
                                 theme === 'emerald' ? "text-emerald-50" :
                                 theme === 'minimalist' ? "text-stone-100" :
@@ -1064,12 +1064,12 @@ export default function SharedDashboard({ params }) {
                                                             <TrendingUp className="w-4 h-4" />
                                                         </div>
                                                         <h3 className={cn(
-                                                            "text-sm font-black uppercase tracking-tight transition-colors",
+                                                            "text-sm font-black uppercase tracking-tight transition-colors truncate flex-1 min-w-0",
                                                             theme === 'midnight' || theme === 'emerald' || theme === 'cyberpunk' || theme === 'aurora' ? "text-white" :
                                                             theme === 'corporate' ? "text-slate-700 font-bold" :
                                                             theme === 'minimalist' ? "text-stone-850 font-extrabold" :
                                                             "text-slate-900 dark:text-white"
-                                                        )}>{widget.title}</h3>
+                                                        )} title={widget.title}>{widget.title}</h3>
                                                     </div>
                                                 </div>
                                                 
@@ -1156,16 +1156,16 @@ export default function SharedDashboard({ params }) {
                                         
                                         // Dynamic Flexbox sizing: Auto-stretches to fill empty row space!
                                         const flexClass = {
-                                            small: "flex-1 lg:flex-[1_1_21%] min-w-[290px]",
-                                            medium: "w-full lg:w-[48%] lg:flex-[2_2_48%] min-w-[320px]",
-                                            large: "w-full min-w-full flex-shrink-0"
-                                        }[size] || "flex-1 min-w-[290px]";
+                                            small: "w-full lg:w-auto flex-none lg:flex-1 lg:flex-[1_1_21%] min-w-0 lg:min-w-[290px]",
+                                            medium: "w-full lg:w-[48%] lg:flex-[2_2_48%] min-w-0 lg:min-w-[320px]",
+                                            large: "w-full min-w-full flex-shrink-0 min-w-0"
+                                        }[size] || "w-full lg:w-auto flex-none lg:flex-1 min-w-0 lg:min-w-[290px]";
 
                                         return (
                                             <div 
                                                 key={`other-${i}`} 
                                                 className={cn(
-                                                    "p-6 flex flex-col transition-all duration-500 relative group",
+                                                    "p-6 flex flex-col transition-all duration-500 relative group overflow-hidden",
                                                     flexClass,
                                                     getCardShapeClasses(theme, cardShape)
                                                 )}
@@ -1204,12 +1204,12 @@ export default function SharedDashboard({ params }) {
                                                             )}
                                                         </div>
                                                         <h3 className={cn(
-                                                            "text-sm font-black uppercase tracking-tight transition-colors",
+                                                            "text-sm font-black uppercase tracking-tight transition-colors truncate flex-1 min-w-0",
                                                             theme === 'midnight' || theme === 'emerald' || theme === 'cyberpunk' || theme === 'aurora' ? "text-white" :
                                                             theme === 'corporate' ? "text-slate-700 font-bold" :
                                                             theme === 'minimalist' ? "text-stone-850 font-extrabold" :
                                                             "text-slate-900 dark:text-white"
-                                                        )}>{widget.title}</h3>
+                                                        )} title={widget.title}>{widget.title}</h3>
                                                     </div>
                                                 </div>
                                                 
