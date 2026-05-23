@@ -77,3 +77,7 @@ desktop.ini
 
 # Test scripts
 test_scraper.js
+
+# Prompt Playbooks
+catalyst_prompt_playbook.md
+catalyst_prompt_playbook copy.md
