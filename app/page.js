@@ -374,10 +374,10 @@ export default function LandingPage() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.8 }}
                         >
-                            <div className="inline-flex items-center gap-2 px-4 py-2 border-4 border-black bg-emerald-400 text-black mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                                 <Database className="w-4 h-4" />
-                                 <span className="text-xs font-black uppercase tracking-[0.2em]">The AI-First Spreadsheet Engine</span>
-                            </div>
+                            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 py-1.5 sm:px-4 sm:py-2 border-4 border-black bg-emerald-400 text-black mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] max-w-full">
+                                  <Database className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                                  <span className="text-[8.5px] sm:text-xs font-black uppercase tracking-[0.02em] sm:tracking-[0.2em] whitespace-nowrap">The AI-First Spreadsheet Engine</span>
+                             </div>
 
                             <h1 className="text-5xl sm:text-7xl md:text-9xl font-black mb-8 leading-[0.9] tracking-tighter text-slate-900 uppercase">
                                 Talk to your <br />
@@ -391,7 +391,7 @@ export default function LandingPage() {
                             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center px-4">
                                 <Button
                                     onClick={handleGetStarted}
-                                    className="w-full sm:w-auto px-12 py-8 text-xl md:text-2xl rounded-none bg-emerald-600 text-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all font-black uppercase tracking-widest h-auto"
+                                    className="w-full sm:w-auto px-6 sm:px-12 py-5 sm:py-8 text-base sm:text-xl md:text-2xl rounded-none bg-emerald-600 text-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:-translate-x-1 hover:-translate-y-1 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all font-black uppercase tracking-widest h-auto"
                                 >
                                     Get Started Free
                                 </Button>
@@ -477,7 +477,7 @@ export default function LandingPage() {
                                     <Sparkles className="w-3.5 h-3.5 animate-pulse" />
                                     <span>02 / A Glimpse of Your Workspace</span>
                                 </div>
-                                <h2 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9]">
+                                <h2 className="text-3xl sm:text-5xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9]">
                                     The <br />
                                     <span className="text-emerald-500 italic underline decoration-white">Workspace Preview.</span>
                                 </h2>
@@ -902,7 +902,7 @@ export default function LandingPage() {
                         <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8">
                             <div className="max-w-2xl">
                                 <h2 className="text-sm font-black uppercase tracking-[0.4em] text-emerald-500 mb-4">The Catalyst Protocol</h2>
-                                <h3 className="text-5xl md:text-8xl font-black text-white leading-[0.9] uppercase tracking-tighter">
+                                <h3 className="text-3xl sm:text-5xl md:text-8xl font-black text-white leading-[0.9] uppercase tracking-tighter">
                                     Agent <br /><span className="text-emerald-500 italic underline decoration-white">Capabilities.</span>
                                 </h3>
                             </div>
@@ -915,12 +915,12 @@ export default function LandingPage() {
                             {agentProtocols.map((protocol, i) => (
                                 <div key={i} className="group relative">
                                     <div className="absolute inset-0 bg-emerald-500 translate-x-2 translate-y-2 group-hover:translate-x-4 group-hover:translate-y-4 transition-transform duration-300" />
-                                    <div className="relative bg-white border-4 border-black p-8 md:p-16 flex flex-col lg:flex-row gap-12 lg:items-center">
+                                    <div className="relative bg-white border-4 border-black p-5 sm:p-8 md:p-16 flex flex-col lg:flex-row gap-12 lg:items-center">
                                         <div className="lg:w-1/3 space-y-6">
                                             <div className="w-20 h-20 bg-black flex items-center justify-center border-4 border-emerald-500 shadow-[4px_4px_0px_0px_rgba(16,185,129,1)]">
                                                 <protocol.icon className="w-10 h-10 text-emerald-500" />
                                             </div>
-                                            <h4 className="text-2xl md:text-4xl font-black text-black uppercase tracking-tighter leading-tight">{protocol.title}</h4>
+                                            <h4 className="text-xl sm:text-2xl md:text-4xl font-black text-black uppercase tracking-tighter leading-tight">{protocol.title}</h4>
                                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 border-2 border-emerald-600 text-emerald-700 text-[10px] font-black uppercase tracking-widest">
                                                 <Zap className="w-3 h-3" />
                                                 {protocol.mechanic}
@@ -991,7 +991,7 @@ export default function LandingPage() {
                             </p>
                             <Button
                                 onClick={handleGetStarted}
-                                className="w-full sm:w-auto px-8 sm:px-16 py-5 sm:py-8 text-lg sm:text-2xl rounded-none bg-emerald-600 text-white border-4 border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] hover:shadow-none transition-all font-black uppercase tracking-widest h-auto"
+                                className="w-full sm:w-auto px-4 sm:px-16 py-4 sm:py-8 text-sm sm:text-2xl rounded-none bg-emerald-600 text-white border-4 border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] hover:shadow-none transition-all font-black uppercase tracking-widest h-auto"
                             >
                                 Start Analysis
                             </Button>

@@ -33,7 +33,7 @@ const Loader = () => {
                     <div className="h-1 w-12 bg-emerald-500"></div>
                 </div>
                 <div className="flex flex-col items-center">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">
+                    <p className="text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.3em] text-slate-400 animate-pulse text-center px-4 max-w-xs sm:max-w-none">
                         Initializing Agentic Conversational Spreadsheet Agent
                     </p>
                     <div className="mt-4 flex gap-1">
