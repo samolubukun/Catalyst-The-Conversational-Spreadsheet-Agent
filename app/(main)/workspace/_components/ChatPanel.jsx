@@ -79,14 +79,32 @@ export default function ChatPanel({ workbookId, activeSheetId, allSheets: allShe
         setIsTyping(true);
 
         try {
-            await orchestrate({
+            const res = await orchestrate({
                 workbookId,
                 userMessage: userMsg,
                 activeSheetId,
             });
+            
+            if (res && res.isError) {
+                if (res.errorType === "insufficient_credits") {
+                    toast.error("⚠️ Insufficient credits. Please top up to proceed.");
+                } else {
+                    toast.error(`AI Error: ${res.errorMessage || "Please read details in chat"}`);
+                }
+            }
         } catch (error) {
             console.error("Agent error:", error);
-            toast.error("Failed to get response from AI");
+            const errMsg = error?.message || String(error || "");
+            
+            if (errMsg.toLowerCase().includes("insufficient credits")) {
+                toast.error("⚠️ Insufficient credits. Please top up to proceed.");
+            } else if (errMsg.includes("429") || errMsg.includes("quota") || errMsg.includes("rate limit") || errMsg.includes("Rate limit")) {
+                toast.error("⏱️ API Rate Limit Reached. Please wait 30 seconds and try again.");
+            } else if (errMsg.includes("fetch") || errMsg.includes("Network") || errMsg.includes("network") || errMsg.includes("ENOTFOUND")) {
+                toast.error("🌐 Network Connection Error. Please verify your connection status.");
+            } else {
+                toast.error(`⚠️ AI Connection Error: ${errMsg.slice(0, 100)}`);
+            }
         } finally {
             setIsTyping(false);
         }
