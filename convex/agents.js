@@ -83,7 +83,7 @@ async function callGemini(modelName, geminiKeyOrPool, promptText) {
     }
 
     // Every key in the pool was exhausted
-    throw lastError || new Error("All Gemini API keys have exhausted their quota. Please wait for a reset or add more keys.");
+    throw lastError || new Error("API keys limit reached.");
 }
 
 export const orchestrate = action({
