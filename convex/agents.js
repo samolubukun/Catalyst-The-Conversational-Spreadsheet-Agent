@@ -292,6 +292,14 @@ export const orchestrate = action({
             chartConfig: { type: "bar"|"line"|"pie", xAxis: "columnName", yAxis: "columnName", data: <aggregatedDataArray> } (OPTIONAL)
           }
         
+                If the user wants to UNDO, REVERT, or ROLLBACK their last action/change:
+        - Set "type" to "undo".
+        - In "content", explain that you are rolling back the last action (e.g., "🔄 **Undoing Last Action**: Reverting your spreadsheet to the previous state...").
+
+        If the user wants to REDO or RE-APPLY their next undone action/change:
+        - Set "type" to "redo".
+        - In "content", explain that you are redoing the next action (e.g., "🔄 **Redoing Action**: Re-applying the next change in your history...").
+        
         If the user wants a FULL PERMANENT DASHBOARD or SHAREABLE REPORT:
          - Set "type" to "dashboard".
          - In "content", explain the dashboard plan, mentioning the layout strategy.
@@ -348,6 +356,33 @@ export const orchestrate = action({
         } catch (e) {
           console.error("FAILED TO PARSE AI RESPONSE JSON. Raw Response Text:", finalRaw);
           throw new Error("AI response was not formatted as valid JSON: " + e.message);
+        }
+
+        // Handle native Undo and Redo operations directly on the database
+        if (result.type === "undo") {
+          if (args.activeSheetId) {
+            try {
+              await ctx.runMutation(api.sheets.undo, { sheetId: args.activeSheetId });
+              result.content = "🔄 **Undo Successful**: I have successfully undone the last action for you!";
+            } catch (err) {
+              console.error("Undo mutation failed:", err);
+              result.content = `⚠️ **Undo Failed**: ${err.message || "No history available to undo."}`;
+            }
+          } else {
+            result.content = "⚠️ **Undo Failed**: You are currently not focusing on any active sheet. Please select a sheet first.";
+          }
+        } else if (result.type === "redo") {
+          if (args.activeSheetId) {
+            try {
+              await ctx.runMutation(api.sheets.redo, { sheetId: args.activeSheetId });
+              result.content = "🔄 **Redo Successful**: I have successfully redone the action for you!";
+            } catch (err) {
+              console.error("Redo mutation failed:", err);
+              result.content = `⚠️ **Redo Failed**: ${err.message || "Nothing to redo."}`;
+            }
+          } else {
+            result.content = "⚠️ **Redo Failed**: You are currently not focusing on any active sheet. Please select a sheet first.";
+          }
         }
 
         // 5. Log the AI response
