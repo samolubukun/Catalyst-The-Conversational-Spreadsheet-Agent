@@ -98,7 +98,51 @@ export const orchestrate = action({
             return errorContent;
         }
 
-        // 1. Fetch Global Workbook Context (All Sheets)
+        // 0.2 Deterministic Undo/Redo short-circuit — never trust the AI to classify these
+        // This runs BEFORE any AI call so hallucinated text responses are impossible.
+        const normalizedMsg = args.userMessage.toLowerCase().trim();
+        const isUndoIntent = /\bundo\b|\brevert\b|\brollback\b|\bgo back\b|\bundo that\b|\bundo last\b/.test(normalizedMsg);
+        const isRedoIntent = /\bredo\b|\bre-apply\b|\bredo that\b|\bredo last\b|\bbring back\b/.test(normalizedMsg);
+
+        if (isUndoIntent || isRedoIntent) {
+            let responseContent;
+            if (isUndoIntent) {
+                if (args.activeSheetId) {
+                    try {
+                        await ctx.runMutation(api.sheets.undo, { sheetId: args.activeSheetId });
+                        responseContent = "🔄 **Undo Successful!** I've rolled back your spreadsheet to the previous state. You can undo further or type **redo** to re-apply the change.";
+                    } catch (err) {
+                        responseContent = `⚠️ **Undo Failed**: ${err.message || "There is no history available to undo. This is already the earliest state."}`;
+                    }
+                } else {
+                    responseContent = "⚠️ **Undo Failed**: No active sheet is currently selected. Please click a sheet tab first.";
+                }
+            } else {
+                if (args.activeSheetId) {
+                    try {
+                        await ctx.runMutation(api.sheets.redo, { sheetId: args.activeSheetId });
+                        responseContent = "🔄 **Redo Successful!** I've re-applied the next change in your history. You can redo further or type **undo** to roll back again.";
+                    } catch (err) {
+                        responseContent = `⚠️ **Redo Failed**: ${err.message || "There is nothing to redo. You are already at the most recent state."}`;
+                    }
+                } else {
+                    responseContent = "⚠️ **Redo Failed**: No active sheet is currently selected. Please click a sheet tab first.";
+                }
+            }
+
+            // Log the result as an assistant message into the chat
+            await ctx.runMutation(api.messages.send, {
+                workbookId: args.workbookId,
+                role: "assistant",
+                content: responseContent,
+                type: "text",
+            });
+
+            // No credit deduction for undo/redo — it's a free housekeeping action
+            return { type: "text", content: responseContent };
+        }
+
+                // 1. Fetch Global Workbook Context (All Sheets)
         const allSheets = await ctx.runQuery(api.sheets.getByWorkbook, { workbookId: args.workbookId });
         const sheetsSummary = allSheets.map(s => {
             const columns = s.data.length > 0 ? Object.keys(s.data[0]) : [];
