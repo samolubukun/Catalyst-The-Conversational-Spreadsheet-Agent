@@ -5,52 +5,85 @@ import { langSearch } from "../lib/langsearch";
 import { firecrawlScrape } from "../lib/firecrawl";
 import { searchArxiv } from "../lib/arxiv";
 
-const model = process.env.GEMINI_MODEL || "gemini-2.0-flash-lite";
+const model = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
 
 /**
- * Robust helper function to execute API calls to the Google Gemini model.
- * Performs deep checks for network state, status codes, key presence, and response shape.
+ * Robust helper that calls the Gemini API with automatic key rotation.
+ * Accepts either a single key string or a comma-separated pool of keys.
+ * On a 429 / quota exhaustion error it silently rotates to the next key.
+ * Only throws after every key in the pool has been tried and failed.
  */
-async function callGemini(modelName, geminiKey, promptText) {
-    if (!geminiKey) {
+async function callGemini(modelName, geminiKeyOrPool, promptText) {
+    // Parse into a clean array of non-empty keys
+    const keys = (Array.isArray(geminiKeyOrPool)
+        ? geminiKeyOrPool
+        : String(geminiKeyOrPool || "").split(",").map(k => k.trim()).filter(Boolean)
+    );
+
+    if (keys.length === 0) {
         throw new Error("GEMINI_API_KEY is not configured in the server environment variables.");
     }
-    
-    let response;
-    try {
-        response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{ text: promptText }]
-                }]
-            })
-        });
-    } catch (netErr) {
-        throw new Error(`Network connection failed: ${netErr.message || "Failed to reach Google Gemini API endpoint"}`);
-    }
 
-    if (!response.ok) {
-        let errMsg = `HTTP ${response.status}`;
+    let lastError = null;
+
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const isLastKey = i === keys.length - 1;
+
+        let response;
         try {
-            const errBody = await response.json();
-            if (errBody?.error?.message) {
-                errMsg = errBody.error.message;
-            }
-        } catch (_) {}
-        throw new Error(`Gemini API Error [Status ${response.status}]: ${errMsg}`);
-    }
-
-    const data = await response.json();
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts || !data.candidates[0].content.parts[0]) {
-        if (data.error?.message) {
-            throw new Error(`Gemini API Error: ${data.error.message}`);
+            response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }]
+                    })
+                }
+            );
+        } catch (netErr) {
+            // Network-level failure — no point rotating keys, throw immediately
+            throw new Error(`Network connection failed: ${netErr.message || "Failed to reach Google Gemini API endpoint"}`);
         }
-        throw new Error("Invalid or empty response schema returned by Gemini AI.");
+
+        if (!response.ok) {
+            let errMsg = `HTTP ${response.status}`;
+            try {
+                const errBody = await response.json();
+                if (errBody?.error?.message) errMsg = errBody.error.message;
+            } catch (_) {}
+
+            const isQuotaError = response.status === 429
+                || errMsg.toLowerCase().includes("quota")
+                || errMsg.toLowerCase().includes("rate limit")
+                || errMsg.toLowerCase().includes("exhausted");
+
+            if (isQuotaError && !isLastKey) {
+                // Rotate silently to the next key
+                console.warn(`Key ${i + 1}/${keys.length} quota exhausted, rotating to next key...`);
+                lastError = new Error(`Gemini API Error [Status ${response.status}]: ${errMsg}`);
+                continue;
+            }
+
+            throw new Error(`Gemini API Error [Status ${response.status}]: ${errMsg}`);
+        }
+
+        const data = await response.json();
+        if (!data.candidates?.[0]?.content?.parts?.[0]) {
+            if (data.error?.message) {
+                throw new Error(`Gemini API Error: ${data.error.message}`);
+            }
+            throw new Error("Invalid or empty response schema returned by Gemini AI.");
+        }
+
+        // Success — log which key slot was used (no sensitive data)
+        if (i > 0) console.log(`Key rotation: succeeded on key ${i + 1}/${keys.length}`);
+        return data.candidates[0].content.parts[0].text;
     }
 
-    return data.candidates[0].content.parts[0].text;
+    // Every key in the pool was exhausted
+    throw lastError || new Error("All Gemini API keys have exhausted their quota. Please wait for a reset or add more keys.");
 }
 
 export const orchestrate = action({
@@ -63,7 +96,9 @@ export const orchestrate = action({
     let userId = null;
     
     try {
-        const geminiKey = process.env.GEMINI_API_KEY;
+        // Parse GEMINI_API_KEY as a comma-separated pool — supports 1 or many keys
+        const geminiKey = (process.env.GEMINI_API_KEY || "")
+            .split(",").map(k => k.trim()).filter(Boolean);
         const langSearchKey = process.env.LANGSEARCH_API_KEY;
         const firecrawlKey = process.env.FIRECRAWL_API_KEY;
 
