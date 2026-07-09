@@ -190,4 +190,4 @@ npm run dev
 ```
 
 ---
-*Built for reliable agentic data analysis.*
+*Built for conversational and reliable agentic data analysis.*
